@@ -190,8 +190,23 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 #lPitch em { left: 42.9%; width: 28.6%; } #lRoll em { left: 32.9%; width: 34.3%; }
 .lbar b { position: absolute; top: 50%; left: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5); transition: left 0.07s linear; }
 .lbar u { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 4px; background: linear-gradient(90deg, var(--sun), var(--climb)); }
-.lbar .beat { justify-self: end; width: 14px; height: 14px; border-radius: 50%; background: rgba(255, 255, 255, 0.18); }
-.lbar .beat.on { background: var(--sun); box-shadow: 0 0 12px var(--sun); }
+.lbar.run { grid-template-columns: 44px 1fr 52px; }
+/* Anlauf-Takt: der gelbe Ring schrumpft auf den weißen Kreis – dann tippen */
+#beat { position: absolute; left: 50%; top: 33%; width: 0; height: 0; pointer-events: none; }
+.bt-target, .bt-ring { position: absolute; left: -34px; top: -34px; width: 68px; height: 68px; border-radius: 50%; }
+.bt-target { border: 3px solid rgba(255, 255, 255, 0.9); box-shadow: 0 0 14px rgba(0, 0, 0, 0.35), inset 0 0 10px rgba(0, 0, 0, 0.2); }
+.bt-ring { border: 4px solid var(--sun); opacity: 0; }
+.bt-ring.go { animation: beatIn 0.5s linear forwards; }
+@keyframes beatIn { from { transform: scale(2.5); opacity: 0.15; } 80% { opacity: 1; } to { transform: scale(1); opacity: 1; } }
+.bt-lbl { position: absolute; top: 44px; left: 0; transform: translateX(-50%); font-family: var(--font-d); font-size: 17px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; color: #fff; }
+.bt-lbl.good { color: var(--climb); } .bt-lbl.ok { color: var(--sun); } .bt-lbl.bad { color: var(--sink); }
+.bt-lbl.pop { animation: lblPop 0.35s ease-out; }
+@keyframes lblPop { from { transform: translateX(-50%) scale(1.35); } to { transform: translateX(-50%) scale(1); } }
+/* Ring am Finger bei jedem Schritt: grün im Takt, gelb knapp daneben, rot daneben */
+.ripple { position: absolute; left: 0; top: 0; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; border: 3px solid #fff; opacity: 0; pointer-events: none; z-index: 12; }
+.ripple.go { animation: ripOut 0.45s ease-out forwards; }
+.ripple.good { border-color: var(--climb); } .ripple.ok { border-color: var(--sun); } .ripple.bad { border-color: var(--sink); }
+@keyframes ripOut { from { transform: scale(0.5); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
 #hudBottom { position: absolute; left: 0; right: 0; bottom: 0; height: 0; }
 .rail { position: absolute; bottom: calc(14px + var(--sb)); width: 46px; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
 #railL { left: calc(12px + var(--sl)); } #railR { right: calc(12px + var(--sr)); }
@@ -453,6 +468,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
   #launchPanel { bottom: calc(78px + var(--sb)); }
   .gthumb { top: 30%; } .gthumb .gtrack { height: 100px; } .gthumb .glbl { top: 118px; }
   .ghostc { top: 42%; } .ghostc .glbl { top: 70px; }
+  #beat { top: 36%; } .bt-target, .bt-ring { left: -28px; top: -28px; width: 56px; height: 56px; } .bt-lbl { top: 36px; }
   #hint { bottom: calc(76px + var(--sb)); }
   .screen.title { flex-direction: row; align-items: flex-end; gap: 20px; }
   .brand { align-self: flex-start; padding-top: 2vh; }
@@ -463,6 +479,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 @media (prefers-reduced-motion: reduce) {
   #warn.show, .launchBtn, .spinner { animation: none; }
   .gthumb .gknob, .ghostc .gdot { animation-duration: 3.4s !important; }
+  .ripple.go, .bt-lbl.pop { animation: none; }
   #toast.show { animation: none; opacity: 1; }
 }
 
@@ -480,7 +497,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = '27.09.2026, 17:02 · 6efa075';
+window.AUFWIND_BUILD = '27.09.2026, 17:23 · 05acfe1';
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -1059,6 +1076,21 @@ class GameAudio {
       o.connect(g); g.connect(this.master); o.start(t); o.stop(t + 0.55);
     }
   }
+  /* Laufschritt: dumpfer Tritt ins Gras; im Takt ein heller Klick dazu, beim Stolpern ein tiefer Ton */
+  step(q) {
+    if (!this.ctx || !this.enabled) return;
+    const c = this.ctx, t = c.currentTime;
+    if (!this._stepBuf) {
+      const len = Math.floor(c.sampleRate * 0.09), d = (this._stepBuf = c.createBuffer(1, len, c.sampleRate)).getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    }
+    const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+    s.buffer = this._stepBuf; s.playbackRate.value = 0.85 + Math.random() * 0.3;
+    f.type = 'lowpass'; f.frequency.value = 520; g.gain.value = 0.55;
+    s.connect(f); f.connect(g); g.connect(this.master); s.start(t);
+    if (q >= 0.75) this.tone(1250, 0.05, 'sine', 0.07);
+    else if (q < 0) this.tone(160, 0.14, 'triangle', 0.12);
+  }
   beep(hi) { this.tone(hi ? 1320 : 880, 0.09, 'square', 0.1); }
   whoosh() { this._noise(0.6, 900, 0.25, 'bandpass'); }
 }
@@ -1067,7 +1099,7 @@ class GameAudio {
    Zwei Bremsen: linke Bildschirmhälfte = linke Bremse, rechte = rechte Bremse.
    Daumen auflegen und nach unten ziehen – je weiter, desto mehr Bremse.
    Optional: Handy kippen = Gewichtsverlagerung. Tastatur für den Rechner.
-   Gesten für den Start von Hand: nach oben wischen (Schirm aufziehen), kurz tippen (Laufschritt),
+   Gesten für den Start von Hand: nach oben wischen (Schirm aufziehen), Finger aufsetzen (Laufschritt),
    schnell nach unten wischen (ins Gurtzeug setzen). Sie werden als Ereignisse abgelegt, die der
    Pilot beim Lesen zurücksetzt (swipeUp, tapN/tapIv/tapSide, flickDown). */
 'use strict';
@@ -1120,7 +1152,10 @@ class Input {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       const side = e.clientX < window.innerWidth / 2 ? 'L' : 'R';
       for (const [id, p] of this.pointers) if (p.side === side) { this.pointers.delete(id); }
-      const p = { side, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, xs: e.clientX, ys: e.clientY, ts: performance.now() };
+      const now = performance.now();
+      const p = { side, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, xs: e.clientX, ys: e.clientY, ts: now };
+      // Laufschritt zählt schon beim Aufsetzen – auch längere Tipper und zwei Daumen gleichzeitig
+      this.tapIv = (now - this._lastTap) / 1000; this._lastTap = now; this.tapN++; this.tapSide = side; this.tapX = e.clientX; this.tapY = e.clientY;
       this.pointers.set(e.pointerId, p);
       try { el.setPointerCapture(e.pointerId); } catch (_) {}
       if (this.onThumb) this.onThumb(side, p, 0);
@@ -1147,9 +1182,7 @@ class Input {
   }
   _gesture(p, x, y) {
     const now = performance.now(), dt = now - p.ts, dx = x - p.xs, dy = y - p.ys;
-    if (dt < 280 && Math.abs(dx) < 24 && Math.abs(dy) < 24) {              // Tipp = Laufschritt
-      this.tapIv = (now - this._lastTap) / 1000; this._lastTap = now; this.tapN++; this.tapSide = p.side;
-    } else if (-dy > 50 && -dy > Math.abs(dx) * 1.2 && dt < 900) {          // nach oben wischen = aufziehen
+    if (-dy > 50 && -dy > Math.abs(dx) * 1.2 && dt < 900) {          // nach oben wischen = aufziehen
       const speed = U.clamp(0.8 + (-dy / Math.max(dt, 1)) * 0.25, 0.8, 1.25);
       this.swipeUp = Math.max(this.swipeUp, (-dy / (window.innerHeight * 0.3)) * speed);
     } else if (dy > 60 && dy > Math.abs(dx) * 1.2 && dt < 450) this.flickDown = true;   // schnell nach unten = hinsetzen
@@ -2772,7 +2805,8 @@ class Pilot {
     // Sitzen und Stehen: nach dem Start von Hand muss man sich ins Gurtzeug setzen (nach unten wischen)
     this.seated = this.phase === 'fly'; this.needSit = false; this.unseatedT = 0;
     this.standB = this.seated ? 0 : 1; this.stride = 0; this.runOut = 0; this.failKind = null;
-    this.man = { t: 0, E: 0, pitch: -85, pv: 0, roll: 0, rv: 0, g: 0, ok: 0, runV: 0, dist: 0, x0: x, z0: z, tapSeen: 0, lastSide: '', lastQ: 0, fails: 0, fell: false, air: 0, vT: 7 };
+    this.man = { t: 0, E: 0, pitch: -85, pv: 0, roll: 0, rv: 0, g: 0, ok: 0, runV: 0, dist: 0, x0: x, z0: z, tapSeen: 0, lastSide: '', lastQ: 0, lastEarly: false, steps: 0, strideT: 0, fails: 0, fell: false, air: 0, vT: 7 };
+    this.airRunT = 0;
   }
   get flying() { return this.phase === 'fly'; }
   get launching() { return this.phase === 'inflate' || this.phase === 'control' || this.phase === 'run'; }
@@ -2822,7 +2856,7 @@ class Pilot {
     this.y = this.gnd(this.x, this.z); this.agl = 0; this.gs = this.v;
     if ((up >= 1 && this.v >= w.vMinSink - 1.0) || this.launchT > 7) {
       this.phase = 'fly'; this.graceT = 4.5; this.vz = 0.4; this.v = Math.max(this.v, w.vMinSink);
-      this.seated = false; this.needSit = false; this.unseatedT = 0;      // setzt sich gleich von selbst
+      this.seated = false; this.needSit = false; this.unseatedT = 0; this.airRunT = 1.0;   // setzt sich gleich von selbst
       ev.push('takeoff');
     }
   }
@@ -2871,17 +2905,25 @@ class Pilot {
       if (M.pitch < -C.back) { this._launchFail('back', ev); return; }
       if (Math.abs(M.roll) > 35) { this._launchFail('side', ev); return; }
       M.ok = (Math.abs(M.pitch) < 16 && Math.abs(M.pv) < 30 && Math.abs(M.roll) < 12) ? M.ok + dt : 0;
-      if (M.ok > 0.5) { this.phase = 'run'; M.t = 0; M.runV = 0; M.dist = 0; M.x0 = this.x; M.z0 = this.z; M.tapSeen = inp.tapN || 0; ev.push('wingUp'); }
+      if (M.ok > 0.5) { this.phase = 'run'; M.t = 0; M.runV = 0; M.dist = 0; M.steps = 0; M.x0 = this.x; M.z0 = this.z; M.tapSeen = inp.tapN || 0; M.strideT = this.stride = Math.PI / 2; ev.push('wingUp'); }
       return;
     }
-    // Laufen: jeder Tipp ist ein Schritt. Im richtigen Takt (wird mit dem Tempo schneller) bringt er am meisten.
+    // Laufen: jedes Aufsetzen eines Fingers ist ein Schritt. Im Takt (wird mit dem Tempo schneller) bringt er
+    // am meisten; wer doppelt tippt, stolpert. lastQ: Güte des Schritts (−1 Stolperer, 0…1), für Anzeige und Ton.
     if ((inp.tapN || 0) !== M.tapSeen) {
       M.tapSeen = inp.tapN;
       const I = this.stepInterval(), iv = inp.tapIv;
-      let q = iv > 1.2 ? 0.7 : Math.exp(-Math.pow((iv - I) / (0.45 * I), 2));
-      if (inp.tapSide && inp.tapSide !== M.lastSide) q = Math.min(1, q + 0.15);   // abwechselnd links, rechts
-      M.lastSide = inp.tapSide; M.lastQ = q;
-      M.runV = U.clamp(M.runV + 0.9 * q - 0.15, 0, 6.8);            // aus dem Takt: Stolperer
+      let q;
+      if (M.steps === 0 || iv > 1.4) q = 0.85;                                  // erster Schritt
+      else if (iv < 0.4 * I) q = -1;                                            // zu schnell hinterher: Stolperer
+      else q = Math.exp(-Math.pow((iv - I) / (0.6 * I), 2));
+      if (q >= 0 && inp.tapSide && inp.tapSide !== M.lastSide) q = Math.min(1, q + 0.1);   // abwechselnd links, rechts
+      // Zu früh getippt = kurze Trippelschritte: bringen weniger (Schrittlänge × Takt)
+      if (q > 0 && M.steps > 0) q *= Math.min(1, iv / I);
+      M.lastSide = inp.tapSide; M.lastQ = q; M.lastEarly = iv < I; M.steps++;
+      M.runV = U.clamp(M.runV + (q < 0 ? -0.4 : 0.7 * q - 0.05), 0, 6.8);
+      M.strideT += Math.PI;                                                     // der nächste Fuß setzt auf
+      ev.push('step');
     }
     M.runV = Math.max(0, M.runV - (0.25 + 0.12 * M.runV) * dt);
     this.v = this.gs = M.runV;
@@ -2893,7 +2935,7 @@ class Pilot {
     M.air = M.runV + Math.max(0, head); M.vT = Math.min(w.vMinSink - 1.2, 6.3 + Math.max(0, head));
     if (M.air >= M.vT) {
       this.phase = 'fly'; this.graceT = 4.5; this.vz = 0.5; this.v = Math.max(M.air, w.vMinSink - 0.3);
-      this.seated = false; this.needSit = true; this.unseatedT = 0;
+      this.seated = false; this.needSit = true; this.unseatedT = 0; this.airRunT = 1.2;   // Beine laufen noch kurz in der Luft
       ev.push('takeoff');
     } else if (M.dist > 75 || M.t > 12) this._launchFail('slow', ev);
   }
@@ -3078,14 +3120,22 @@ class Pilot {
     // Beine: am Boden, vor dem Hinsetzen und kurz vor dem Aufsetzen draußen
     const legsOut = ph !== 'fly' || !this.seated || (this.agl < 9 && this.vz < 0.8);
     this.standB += ((legsOut ? 1 : 0) - this.standB) * Math.min(1, dt * (legsOut ? 3.2 : 2.4));
-    const runV = ph === 'run' ? M.runV : (ph === 'launch' ? this.v : (ph === 'landed' ? this.runOut : 0));
-    this.stride += runV * dt * 2.3;
-    const swing = Math.sin(this.stride) * U.clamp(runV / 4.5, 0, 0.75) + (this.flying ? Math.sin(this.stride * 0.5 + performance.now() / 700) * 0.06 : 0);
+    let runV = 0, amp = 0;
+    if (ph === 'run') {                                        // die Beine folgen den Tippern: ein Tipp, ein Schritt
+      runV = M.runV; amp = U.clamp(Math.max(runV, 2.6) / 4.5, 0, 0.8);
+      this.stride += (M.strideT - this.stride) * Math.min(1, dt * 14);
+    } else {
+      runV = ph === 'launch' ? this.v : (ph === 'landed' ? this.runOut : 0);
+      if (this.airRunT > 0) { this.airRunT = Math.max(0, this.airRunT - dt); runV = Math.max(runV, 5 * this.airRunT); }
+      amp = U.clamp(runV / 4.5, 0, 0.75);
+      this.stride += runV * dt * 2.3;
+    }
+    const swing = Math.sin(this.stride) * amp + (this.flying && !this.airRunT ? Math.sin(performance.now() / 700) * 0.06 : 0);
     const lean = ph === 'inflate' ? 0.22 : -0.28 * U.clamp(runV / 5, 0, 1);
     const lying = ph === 'crashed';
     poseBody(ud, lying ? 1 : this.standB, lying ? 0 : swing, lean, this.flying ? 0.28 * this.standB : 0);
     ud.body.rotation.x += ((lying ? 1.45 : 0) - ud.body.rotation.x) * Math.min(1, dt * 4);
-    const offY = lying ? 0.5 : U.lerp(SIT_H, STAND_H, this.standB);
+    const offY = lying ? 0.5 : U.lerp(SIT_H, STAND_H, this.standB) + (ph === 'run' ? 0.06 * Math.abs(Math.cos(this.stride)) : 0);   // Laufen federt
     m.position.set(this.x, this.y + offY, this.z);
     m.rotation.y = -this.heading;
     m.rotation.z = -this.bank;
@@ -3848,7 +3898,7 @@ class Game {
     this.thermalGains = new Map(); this.doneThermals = new Set(); this.birdThermalsDone = new Set();
     this.soarTime = 0; this.altHist = []; this.histT = 0; this.track = []; this.trackT = 0;
     this.cloudT = 0; this.wave = 0; this.waveT = 0; this.frontDist = null; this.flashT = 8;
-    this.camShake = 0; this.over = false; this.paused = false; this.result = null; this.endT = 0;
+    this.camShake = 0; this.camBob = 0; this.over = false; this.paused = false; this.result = null; this.endT = 0;
     this.tpIndex = 0; this.tpCount = 0; this.startPos = { x: L.x, z: L.z }; this.navTarget = null;
     this.maneuvers = {}; this.flags = { recovered: 0, spinRecovered: 0, eagleMiss: 0, stormEscaped: false };
     this.photoFocus = null; this.tut = { step: 0, t: 0 }; this.timeScale = 1; this.bellT = 3;
@@ -3955,7 +4005,7 @@ class Game {
     this.world.update(sim, this.camera, p.x, p.y, p.z);
     if (this.minimap) this.minimap.update(sim, this);
     this._updateCamera(Math.min(sim, 0.1));
-    this.audio.update(dt, p.vz, p.v, p.flying);
+    this.audio.update(dt, p.vz, p.phase === 'run' ? p.man.air + 2 : p.v, p.flying || p.phase === 'run');   // beim Anlaufen schon Fahrtwind
     this.ui.updateHud(this);
     this.renderer.render(this.scene, this.camera);
   }
@@ -4001,6 +4051,12 @@ class Game {
       this.orbitA = (this.orbitA == null ? p.heading + Math.PI * 0.75 : this.orbitA) + dt * 0.25;
       tp.set(p.x + Math.sin(this.orbitA) * 24, p.y + 7, p.z - Math.cos(this.orbitA) * 24);
       tl.set(p.x, p.y + 2, p.z); kp = 1.5; kl = 3;
+    } else if (p.phase === 'run') {
+      // Anlauf: Kamera läuft dicht hinterher, federt bei jedem Schritt
+      const back = portrait ? 15 : 11;
+      tp.set(p.x - f.x * back + rx * 2, p.y + (portrait ? 4.2 : 3), p.z - f.z * back + rz * 2);
+      tl.set(p.x + f.x * 20, p.y + (portrait ? 1.6 : 0.6), p.z + f.z * 20);
+      kp = 3.2; kl = 5;
     } else if (p.phase === 'ready' || p.launching || (p.phase === 'launch' && p.launchT < 1.2)) {
       // Am Start: im Hochformat hinter dem Piloten über den ausgelegten Schirm ins Tal, quer von der Seite
       if (portrait) { tp.set(p.x - f.x * 21 + rx * 4, p.y + 9, p.z - f.z * 21 + rz * 4); tl.set(p.x + f.x * 22, p.y - 5, p.z + f.z * 22); }
@@ -4022,6 +4078,7 @@ class Game {
     const gh = this.world.height(this.camPos.x, this.camPos.z) + 3;
     if (this.camPos.y < gh) this.camPos.y = gh;
     cam.position.copy(this.camPos);
+    if (this.camBob > 0) { this.camBob = Math.max(0, this.camBob - dt * 6); cam.position.y -= 0.16 * Math.sin(this.camBob * Math.PI); }
     if (this.camShake > 0) {
       this.camShake = Math.max(0, this.camShake - dt * 1.5);
       const s = this.camShake * 0.7;
@@ -4031,7 +4088,7 @@ class Game {
     if (turb > 0.01 && p.flying) { cam.position.x += (Math.random() - 0.5) * turb; cam.position.y += (Math.random() - 0.5) * turb; }
     cam.lookAt(this.lookPos);
     cam.rotateZ(roll);
-    const fov = 62 + (p.flying ? U.clamp((p.v - p.wing.vTrim) * 1.1, -2, 8) : 0);
+    const fov = 62 + (p.flying ? U.clamp((p.v - p.wing.vTrim) * 1.1, -2, 8) : (p.phase === 'run' ? p.man.runV * 0.7 : 0));
     if (Math.abs(cam.fov - fov) > 0.1) { cam.fov += (fov - cam.fov) * Math.min(1, dt * 2); cam.updateProjectionMatrix(); }
   }
 }
@@ -4218,7 +4275,8 @@ const GameRules = {
     switch (e) {
       case 'takeoff': au.whoosh(); ui.toast('Abgehoben!'); break;
       case 'inflate': au.whoosh(); break;
-      case 'wingUp': au.chime(); ui.toast('Schirm steht!'); break;
+      case 'wingUp': au.chime(); ui.toast('Schirm steht!'); ui.beatStart(p.stepInterval()); break;
+      case 'step': au.step(p.man.lastQ); ui.stepFeedback(p); this.camBob = 1; break;
       case 'launchFail': au.collapse(); ui.warn(LAUNCH_FAIL[p.failKind][0], 1.6); ui.hint(LAUNCH_FAIL[p.failKind][1], 4); break;
       case 'sit': au.chime(); ui.toast('Sitzt! Guten Flug'); break;
       case 'sitAuto': ui.toast('Ins Gurtzeug gerutscht'); break;
@@ -4636,6 +4694,9 @@ class UI {
         ...[1, 2, 4, 8].map(k => el('button', { class: 'tstop' + (k === 1 ? ' on' : ''), id: 'ts' + k, 'data-k': String(k), text: k + '×', 'aria-label': 'Zeitraffer ' + k + '-fach' })),
       ]),
       el('div', { id: 'warn' }), el('div', { id: 'hint' }),
+      // Anlauf: Ring schrumpft auf den Kreis zu – dann ist der nächste Schritt fällig
+      el('div', { id: 'beat', hidden: 'hidden', 'aria-hidden': 'true' }, [el('div', { class: 'bt-target' }), el('div', { class: 'bt-ring', id: 'beatRing' }), el('div', { class: 'bt-lbl', id: 'beatLbl' })]),
+      ...[0, 1, 2, 3].map(i => el('div', { class: 'ripple', id: 'rip' + i, 'aria-hidden': 'true' })),
       el('div', { id: 'photoRing', hidden: 'hidden' }, [el('div', { class: 'prsvg', html: '<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" class="bg"/><circle cx="32" cy="32" r="27" class="fg" id="photoArc"/><rect x="20" y="24" width="24" height="17" rx="3"/><circle cx="32" cy="32.5" r="5" class="lens"/></svg>' }), el('div', { id: 'photoName', text: '' })]),
       // Start: Knopf (automatisch) oder Anzeige für den Start von Hand
       el('div', { id: 'launchPanel', hidden: 'hidden' }, [
@@ -4643,7 +4704,7 @@ class UI {
         el('div', { class: 'hpanel', id: 'lGauge' }, [
           el('ol', { class: 'lsteps' }, ['Aufziehen', 'Anbremsen', 'Laufen', 'Hinsetzen'].map((t, i) => el('li', { id: 'ls' + i, text: t }))),
           bar('lPitch', 'hinten', 'vorn'), bar('lRoll', 'links', 'rechts'),
-          el('div', { class: 'lbar run', id: 'lRun' }, [el('span', { text: 'Tempo' }), el('i', {}, [el('u', { id: 'lRunF' })]), el('span', { class: 'beat', id: 'lBeat', 'aria-hidden': 'true' })]),
+          el('div', { class: 'lbar run', id: 'lRun' }, [el('span', { text: 'Tempo' }), el('i', {}, [el('u', { id: 'lRunF' })]), el('span', { text: 'Abheben' })]),
         ]),
       ]),
       // Knöpfe: Ohren anlegen, Pause, Beschleuniger
@@ -4814,7 +4875,7 @@ class UI {
     this.renderObjectives(g);
     this.applyHudLayout();
     this.$('chips').innerHTML = ''; this._chipKey = null;
-    this._coachTxt = ''; this._coachGhost = ''; this.ghost(null);
+    this._coachTxt = ''; this._coachGhost = ''; this.ghost(null); this.$('beat').hidden = true; if (this._hd) delete this._hd.beat;
     this.minimap.draw(g);
     this.$('zoomTxt').textContent = this.minimap.zoomLabel();
     if (!(g.mission && g.mission.tutorial) && !g.pilot.manualCfg) this.hint(g.pilot.phase === 'ready' ? 'Tipp auf Starten. Kurven fliegst du mit den Daumen: links oder rechts runterziehen.' : 'Linker Daumen runter = Linkskurve, rechter = Rechtskurve, beide = bremsen.', 5);
@@ -4929,6 +4990,9 @@ class UI {
     }
     this._tog('btnEars', 'held', !!inp.ears);
     this._tog('btnBar', 'held', !!inp.bar);
+    const onGround = p.phase === 'ready' || p.launching || p.phase === 'launch';
+    this._hid('btnEars', onGround); this._hid('btnBar', onGround);
+    this._hid('beat', p.phase !== 'run' || g.over);
     // Start
     this._launchPanel(g);
     this._launchCoach(g);
@@ -4957,10 +5021,24 @@ class UI {
       this._css('lPitchM', 'left', (U.clamp((M.pitch + 60) / 105, 0, 1) * 100).toFixed(1) + '%');
       this._css('lRollM', 'left', (U.clamp((M.roll + 35) / 70, 0, 1) * 100).toFixed(1) + '%');
     }
-    if (ph === 'run') {
-      this._css('lRunF', 'width', (U.clamp(M.air / M.vT, 0, 1) * 100).toFixed(1) + '%');
-      const I = p.stepInterval(); this._tog('lBeat', 'on', (performance.now() / 1000) % I < I * 0.35);
-    }
+    if (ph === 'run') this._css('lRunF', 'width', (U.clamp(M.air / M.vT, 0, 1) * 100).toFixed(1) + '%');
+  }
+  /* Takt beim Anlauf: Ring neu starten, er trifft den Kreis nach I Sekunden (Spielzeit) */
+  beatStart(I) {
+    const b = this.$('beat'), r = this.$('beatRing');
+    b.hidden = false; r.classList.remove('go'); void r.offsetWidth;
+    r.style.animationDuration = (I / Math.max(0.2, this.game.timeScale || 1)).toFixed(3) + 's'; r.classList.add('go');
+  }
+  /* Rückmeldung zu jedem Schritt: Ring am Finger, Wort am Takt-Ring, Ring für den nächsten Schritt */
+  stepFeedback(p) {
+    const M = p.man, q = M.lastQ, inp = this.input;
+    const cls = q < 0 ? 'bad' : (M.steps === 1 ? 'good' : (q >= 0.75 ? 'good' : (q >= 0.4 ? 'ok' : 'bad')));
+    const txt = q < 0 ? 'Stolperer' : (M.steps === 1 ? 'Los!' : (q >= 0.75 ? 'Perfekt' : (q >= 0.4 ? 'Gut' : (M.lastEarly ? 'Zu früh' : 'Zu spät'))));
+    const lbl = this.$('beatLbl'); lbl.textContent = txt; lbl.className = 'bt-lbl ' + cls; void lbl.offsetWidth; lbl.classList.add('pop');
+    const rip = this.$('rip' + ((this._rip = ((this._rip || 0) + 1) % 4)));
+    rip.style.left = (inp.tapX != null ? inp.tapX : innerWidth / 2) + 'px'; rip.style.top = (inp.tapY != null ? inp.tapY : innerHeight * 0.6) + 'px';
+    rip.className = 'ripple'; void rip.offsetWidth; rip.className = 'ripple go ' + cls;
+    this.beatStart(p.stepInterval());
   }
   /* Start-Coach: sagt in jedem Schritt, was zu tun ist, und zeigt die Geste */
   _launchCoach(g) {
@@ -4975,7 +5053,7 @@ class UI {
       else if (M.roll < -7) { txt = 'Schirm hängt links – rechts bremsen'; gh = 'R'; gl = 'Rechts bremsen'; }
       else if (M.pitch < -12 && Math.min(inp.brakeL, inp.brakeR) > 0.2) txt = 'Bremsen lösen – der Schirm muss nach vorn';
       else txt = 'Ruhig halten …';
-    } else if (ph === 'run') { txt = 'Loslaufen: tippen, tippen – erst ruhig, dann immer schneller!'; gh = 'tap'; gl = 'Tippen'; }
+    } else if (ph === 'run') { txt = M.steps < 3 ? 'Loslaufen: tippen, sobald der Ring den Kreis trifft!' : 'Weiter im Takt – er wird immer schneller!'; if (M.steps === 0) { gh = 'tap'; gl = 'Tippen'; } }
     else if (p.flying && !p.seated && p.needSit) { txt = 'Nach unten wischen: ins Gurtzeug setzen'; gh = 'down'; gl = 'Nach unten wischen'; }
     if (txt !== this._coachTxt) {
       if (txt) this.hint(txt, 0, true);
