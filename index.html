@@ -101,79 +101,123 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 .thumb .knob { position: absolute; left: 0; top: -15px; width: 30px; height: 30px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 18px rgba(255, 194, 75, 0.55); }
 .thumb.deep .knob { background: var(--sink); box-shadow: 0 0 18px rgba(255, 106, 92, 0.7); }
 
-/* Geisterdaumen: zeigt im ersten Flug, wie man die Bremse zieht */
-.ghost { position: absolute; top: 44%; width: 0; height: 0; pointer-events: none; z-index: 11; opacity: 0; transition: opacity 0.4s; }
-.ghost.show { opacity: 1; }
+/* Geisterdaumen: zeigt, wie man die Bremse zieht. Eigene Klasse .gthumb – .ghost ist der durchsichtige Knopf */
+.gthumb { position: absolute; top: 44%; width: 0; height: 0; pointer-events: none; z-index: 11; opacity: 0; transition: opacity 0.4s; }
+.gthumb.show { opacity: 1; }
 #ghostL { left: 25%; } #ghostR { left: 75%; }
-.ghost .gring { position: absolute; width: 50px; height: 50px; margin: -25px 0 0 -25px; border-radius: 50%; border: 2px dashed rgba(255, 255, 255, 0.75); }
-.ghost .gtrack { position: absolute; left: -1px; top: 0; width: 2px; height: 130px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0)); }
-.ghost .gknob { position: absolute; left: -19px; top: -19px; width: 38px; height: 38px; border-radius: 50%; background: rgba(255, 255, 255, 0.85); box-shadow: 0 0 22px rgba(255, 255, 255, 0.6); animation: ghostPull 1.7s ease-in-out infinite; }
-.ghost .glbl { position: absolute; top: 150px; left: 0; transform: translateX(-50%); white-space: nowrap; font-family: var(--font-d); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8); }
+.gthumb .gring { position: absolute; width: 50px; height: 50px; margin: -25px 0 0 -25px; border-radius: 50%; border: 2px dashed rgba(255, 255, 255, 0.75); }
+.gthumb .gtrack { position: absolute; left: -1px; top: 0; width: 2px; height: 130px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0)); }
+.gthumb .gknob { position: absolute; left: -19px; top: -19px; width: 38px; height: 38px; border-radius: 50%; background: rgba(255, 255, 255, 0.85); box-shadow: 0 0 22px rgba(255, 255, 255, 0.6); animation: ghostPull 1.7s ease-in-out infinite; }
+.gthumb .glbl { position: absolute; top: 150px; left: 0; transform: translateX(-50%); white-space: nowrap; font-family: var(--font-d); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8); }
 @keyframes ghostPull { 0%, 12% { transform: translateY(0); opacity: 0.2; } 20% { opacity: 1; } 70% { transform: translateY(120px); opacity: 1; } 88%, 100% { transform: translateY(120px); opacity: 0; } }
 .rail.teach .track { box-shadow: 0 0 0 3px rgba(255, 194, 75, 0.45), 0 0 22px rgba(255, 194, 75, 0.6); }
 
-/* ---------------- Cockpit ---------------- */
-#hud { position: absolute; inset: 0; pointer-events: none; z-index: 10; padding: calc(10px + var(--st)) calc(10px + var(--sr)) calc(10px + var(--sb)) calc(10px + var(--sl)); }
-#hudTop { display: flex; gap: 8px; align-items: flex-start; }
-#mapWrap { flex: 0 0 auto; width: 132px; pointer-events: auto; }
-#minimap { display: block; width: 132px; height: 132px; border-radius: 50%; background: var(--panel-solid); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35); cursor: pointer; }
-#mapMeta { display: flex; flex-direction: column; align-items: center; width: max-content; margin: 5px auto 0; padding: 2px 9px 3px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); font-family: var(--font-d); font-size: 11px; line-height: 1.3; letter-spacing: 0.05em; color: var(--ink-2); }
-#mapMeta #windTxt { color: var(--wind); font-weight: 700; }
-#instr { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; min-width: 0; }
-.cell { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 5px 9px 6px; min-width: 0; }
-.cell .lbl { font-family: var(--font-d); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
-.cell .val { font-family: var(--font-d); font-size: 23px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.cell .sub { font-size: 11px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cell.vario { grid-column: span 2; display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: baseline; }
-.cell.vario .lbl { grid-column: span 2; }
-.cell.vario .val { font-size: 36px; }
-.cell.vario.up .val { color: var(--climb); } .cell.vario.down .val { color: var(--sink); }
-.cell.vario.strong { border-color: rgba(124, 252, 154, 0.55); box-shadow: 0 0 18px rgba(124, 252, 154, 0.18); }
-#taskBar { margin-top: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px 7px; }
+/* ---------------- Cockpit ----------------
+   Jede Anzeige ist ein eigenes Element (.hudw) und lässt sich verschieben (Optionen → Cockpit).
+   Neutral dunkel und durchsichtig, damit der Flug im Vordergrund bleibt.
+   --ha: Deckkraft der Hintergründe (0 = nur Schrift), --hs: Größe. */
+#hud { position: absolute; inset: 0; pointer-events: none; z-index: 10; --ha: 0.3; --hs: 1; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85), 0 0 10px rgba(0, 0, 0, 0.35); }
+.hudw { position: absolute; transform: scale(var(--hs)); }
+.hudw.custom { right: auto !important; bottom: auto !important; transform: scale(var(--hs)) !important; transform-origin: top left !important; }
+.hpanel { background: rgba(6, 10, 16, var(--ha)); border: 1px solid rgba(255, 255, 255, calc(var(--ha) * 0.35)); border-radius: 11px; }
+#wMap { left: calc(10px + var(--sl)); top: calc(10px + var(--st)); width: 118px; transform-origin: top left; pointer-events: auto; }
+#minimap { display: block; width: 118px; height: 118px; border-radius: 50%; background: rgba(6, 10, 16, calc(var(--ha) + 0.2)); opacity: calc(0.6 + var(--ha)); cursor: pointer; }
+#mapMeta { display: flex; justify-content: center; gap: 7px; margin-top: 3px; font-family: var(--font-d); font-size: 10.5px; line-height: 1.25; letter-spacing: 0.03em; color: var(--ink); white-space: nowrap; }
+#mapMeta #windTxt { color: #a8d8ff; font-weight: 700; }
+#wInstr { right: calc(10px + var(--sr)); top: calc(10px + var(--st)); transform-origin: top right; display: flex; padding: 5px 4px 6px; }
+.ival { display: grid; grid-template-columns: auto auto; justify-content: start; column-gap: 3px; align-items: baseline; padding: 0 8px; min-width: 66px; }
+.ival + .ival { border-left: 1px solid rgba(255, 255, 255, 0.14); }
+.ival b { font-family: var(--font-d); font-size: 21px; font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ival i { font-style: normal; font-size: 11px; color: var(--ink-2); }
+.ival small { grid-column: span 2; font-size: 10.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ival.vario.up b { color: var(--climb); } .ival.vario.down b { color: var(--sink); }
+#wTask { right: calc(10px + var(--sr)); top: calc(10px + var(--st) + 58px * var(--hs)); width: min(300px, calc(100vw - 150px - var(--sl) - var(--sr))); transform-origin: top right; }
+#taskBar { padding: 5px 9px 6px; }
 #taskBar .row1, #taskBar .row2 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-#taskBar .ttl { font-family: var(--font-d); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sun); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#taskBar .nav { font-size: 11px; color: var(--ink-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
-#taskBar .row2 { font-size: 13px; font-weight: 700; margin-top: 1px; }
-#taskBar .row2 .num { font-size: 12.5px; white-space: nowrap; color: var(--ink); }
-#taskBar .bar { height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.1); margin-top: 5px; overflow: hidden; }
+#taskBar .ttl { font-family: var(--font-d); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sun); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#taskBar .nav { font-size: 10.5px; color: var(--ink-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+#taskBar .row2 { font-size: 12.5px; font-weight: 700; line-height: 1.3; margin-top: 1px; }
+#taskBar .row2 #taskTxt { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+#taskBar .row2 .num { font-size: 12px; white-space: nowrap; color: var(--ink); }
+#taskBar .bar { height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.14); margin-top: 4px; overflow: hidden; }
 #taskBarFill { height: 100%; width: 0; background: var(--sun); border-radius: 2px; transition: width 0.3s; }
-#chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.chip { display: inline-block; font-family: var(--font-d); font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 4px 9px; border-radius: 7px; background: var(--panel); border: 1px solid var(--line); color: var(--ink); }
-.chip.sun { color: var(--sun-ink); background: var(--sun); border-color: var(--sun); }
-.chip.bad { color: #fff; background: rgba(255, 106, 92, 0.85); border-color: var(--sink); }
+#chips { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px; margin-top: 5px; }
+.chip { display: inline-block; font-family: var(--font-d); font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; padding: 3px 8px; border-radius: 7px; background: rgba(6, 10, 16, calc(var(--ha) + 0.15)); color: var(--ink); }
+.chip.sun { color: var(--sun-ink); background: var(--sun); text-shadow: none; }
+.chip.bad { color: #fff; background: rgba(255, 106, 92, 0.85); }
+#wTime { left: calc(10px + var(--sl)); top: calc(10px + var(--st) + 142px * var(--hs)); transform-origin: top left; display: flex; align-items: center; gap: 1px; padding: 3px; border-radius: 999px; pointer-events: auto; touch-action: none; }
+#wTime .ticon { display: grid; place-items: center; width: 20px; }
+#wTime .ticon svg { width: 13px; height: 13px; fill: var(--ink-2); }
+.tstop { font-family: var(--font-d); font-size: 11.5px; font-weight: 700; color: var(--ink); min-width: 25px; height: 25px; padding: 0 3px; border-radius: 999px; }
+.tstop.on { background: var(--sun); color: var(--sun-ink); text-shadow: none; }
+#wBtns { left: 50%; bottom: calc(14px + var(--sb)); transform: translateX(-50%) scale(var(--hs)); transform-origin: bottom center; display: flex; gap: 10px; align-items: center; pointer-events: auto; }
+.hbtn { width: 52px; height: 52px; border-radius: 15px; display: grid; place-items: center; background: rgba(6, 10, 16, calc(var(--ha) + 0.15)); border: 1px solid rgba(255, 255, 255, calc(var(--ha) * 0.35 + 0.1)); touch-action: none; }
+.hbtn svg { width: 30px; height: 30px; fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7)); }
+.hbtn svg .dot { fill: var(--ink); stroke: none; }
+.hbtn svg.fill { fill: var(--ink); stroke: none; }
+.hbtn.round { width: 44px; height: 44px; border-radius: 50%; }
+.hbtn.round svg { width: 22px; height: 22px; }
+.hbtn.held { background: var(--sun); border-color: var(--sun); } .hbtn.held svg { stroke: var(--sun-ink); filter: none; } .hbtn.held svg .dot { fill: var(--sun-ink); }
 #toast { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); z-index: 30; font-family: var(--font-d); font-size: 21px; font-weight: 700; color: var(--cloud); text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7); opacity: 0; text-align: center; padding: 0 20px; width: 92vw; pointer-events: none; }
 #toast.menu { width: max-content; max-width: min(90vw, 420px); font-size: 16px; padding: 12px 18px; border-radius: 14px; background: var(--panel-solid); border: 1px solid rgba(255, 194, 75, 0.45); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45); text-shadow: none; }
 #toast.show { animation: toastIn 2s ease forwards; }
 @keyframes toastIn { 0% { opacity: 0; transform: translate(-50%, -30%); } 12% { opacity: 1; transform: translate(-50%, -50%); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -60%); } }
-#warn { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-family: var(--font-d); font-size: 32px; font-weight: 700; color: var(--sink); text-shadow: 0 0 24px rgba(255, 106, 92, 0.7), 0 2px 6px rgba(0, 0, 0, 0.6); opacity: 0; letter-spacing: 0.05em; text-align: center; width: 94vw; pointer-events: none; }
+#warn { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-family: var(--font-d); font-size: 30px; font-weight: 700; color: var(--sink); text-shadow: 0 0 24px rgba(255, 106, 92, 0.7), 0 2px 6px rgba(0, 0, 0, 0.6); opacity: 0; letter-spacing: 0.05em; text-align: center; width: 94vw; pointer-events: none; }
 #warn.show { opacity: 1; animation: pulse 0.6s infinite alternate; }
 @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.07); } }
-#hint { position: absolute; left: 50%; bottom: calc(84px + var(--sb)); transform: translateX(-50%); background: rgba(255, 194, 75, 0.95); color: var(--sun-ink); font-size: 14px; line-height: 1.35; padding: 9px 14px; border-radius: 12px; width: max-content; max-width: min(calc(100vw - 136px - var(--sl) - var(--sr)), 440px); text-align: center; font-weight: 700; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+#hint { position: absolute; left: 50%; bottom: calc(80px + var(--sb)); transform: translateX(-50%); background: rgba(255, 194, 75, 0.92); color: var(--sun-ink); text-shadow: none; font-size: 14px; line-height: 1.35; padding: 8px 13px; border-radius: 12px; width: max-content; max-width: min(calc(100vw - 136px - var(--sl) - var(--sr)), 440px); text-align: center; font-weight: 700; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
 #hint.show { opacity: 1; }
 #photoRing { position: absolute; left: 50%; top: 58%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
 #photoRing svg { width: 76px; height: 76px; }
-#photoRing .bg { fill: rgba(11, 31, 58, 0.6); stroke: rgba(255, 255, 255, 0.2); stroke-width: 4; }
+#photoRing .bg { fill: rgba(6, 10, 16, 0.45); stroke: rgba(255, 255, 255, 0.2); stroke-width: 4; }
 #photoRing .fg { fill: none; stroke: var(--sun); stroke-width: 4; stroke-dasharray: 170; stroke-dashoffset: 170; transform: rotate(-90deg); transform-origin: 32px 32px; }
 #photoRing rect { fill: var(--ink); } #photoRing .lens { fill: var(--night); }
-#photoName { font-family: var(--font-d); font-weight: 700; font-size: 13px; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8); }
-#launchPanel { position: absolute; left: 50%; bottom: calc(196px + var(--sb)); transform: translateX(-50%); pointer-events: auto; }
-.launchBtn { background: var(--sun); color: var(--sun-ink); font-size: 22px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 16px 34px 14px; border-radius: 16px; box-shadow: 0 10px 34px rgba(255, 194, 75, 0.35); animation: breathe 1.8s ease-in-out infinite; }
+#photoName { font-family: var(--font-d); font-weight: 700; font-size: 13px; }
+/* Start: Knopf (automatisch) oder Anzeige für den Start von Hand */
+#launchPanel { position: absolute; left: 50%; bottom: calc(150px + var(--sb)); transform: translateX(-50%); pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.launchBtn { pointer-events: auto; background: var(--sun); color: var(--sun-ink); text-shadow: none; font-size: 22px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 16px 34px 14px; border-radius: 16px; box-shadow: 0 10px 34px rgba(255, 194, 75, 0.35); animation: breathe 1.8s ease-in-out infinite; }
 .launchBtn small { display: block; font-family: var(--font-b); font-size: 12px; letter-spacing: 0; text-transform: none; font-weight: 700; opacity: 0.75; }
 @keyframes breathe { 50% { transform: scale(1.04); } }
+#lGauge { width: min(300px, 84vw); padding: 7px 10px 8px; display: flex; flex-direction: column; gap: 5px; background: rgba(6, 10, 16, calc(var(--ha) + 0.2)); }
+.lsteps { display: flex; justify-content: space-between; gap: 4px; margin: 0; padding: 0; list-style: none; counter-reset: ls; }
+.lsteps li { counter-increment: ls; font-family: var(--font-d); font-size: 9.5px; font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
+.lsteps li::before { content: counter(ls) ' '; }
+.lsteps li.on { color: var(--sun); } .lsteps li.done { color: var(--climb); }
+.lbar { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 6px; font-size: 10px; color: var(--ink-2); }
+.lbar span:last-child { text-align: right; }
+.lbar i { position: relative; display: block; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.14); }
+.lbar em { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: rgba(124, 252, 154, 0.45); }
+#lPitch em { left: 42.9%; width: 28.6%; } #lRoll em { left: 32.9%; width: 34.3%; }
+.lbar b { position: absolute; top: 50%; left: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5); transition: left 0.07s linear; }
+.lbar u { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 4px; background: linear-gradient(90deg, var(--sun), var(--climb)); }
+.lbar .beat { justify-self: end; width: 14px; height: 14px; border-radius: 50%; background: rgba(255, 255, 255, 0.18); }
+.lbar .beat.on { background: var(--sun); box-shadow: 0 0 12px var(--sun); }
 #hudBottom { position: absolute; left: 0; right: 0; bottom: 0; height: 0; }
 .rail { position: absolute; bottom: calc(14px + var(--sb)); width: 46px; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
 #railL { left: calc(12px + var(--sl)); } #railR { right: calc(12px + var(--sr)); }
-.rail .track { position: relative; width: 10px; height: 124px; border-radius: 5px; background: rgba(11, 31, 58, 0.55); border: 1px solid var(--line); }
-.rail .fill { position: absolute; left: -1px; right: -1px; top: -1px; height: 0; border-radius: 5px; background: linear-gradient(180deg, rgba(255, 194, 75, 0.35), var(--sun)); }
-.rail .grip { position: absolute; left: 50%; top: 0; width: 28px; height: 14px; border-radius: 7px; background: var(--sun); border: 2px solid var(--night); transform: translate(-50%, -50%); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
+.rail .track { position: relative; width: 8px; height: 112px; border-radius: 4px; background: rgba(6, 10, 16, calc(var(--ha) + 0.1)); border: 1px solid rgba(255, 255, 255, 0.14); }
+.rail .fill { position: absolute; left: -1px; right: -1px; top: -1px; height: 0; border-radius: 4px; background: linear-gradient(180deg, rgba(255, 194, 75, 0.35), var(--sun)); }
+.rail .grip { position: absolute; left: 50%; top: 0; width: 24px; height: 12px; border-radius: 6px; background: var(--sun); border: 2px solid rgba(0, 0, 0, 0.55); transform: translate(-50%, -50%); }
 .rail.deep .fill { background: linear-gradient(180deg, rgba(255, 106, 92, 0.35), var(--sink)); } .rail.deep .grip { background: var(--sink); }
-.rail .rlbl { font-family: var(--font-d); font-size: 11px; font-weight: 700; color: var(--ink); text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7); font-variant-numeric: tabular-nums; }
-.centerBtns { position: absolute; left: 50%; bottom: calc(14px + var(--sb)); transform: translateX(-50%); display: flex; gap: 8px; align-items: flex-end; pointer-events: auto; }
-.hbtn { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 9px 12px; font-size: 12.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; min-width: 86px; min-height: 52px; touch-action: none; }
-.hbtn small { display: block; font-family: var(--font-b); font-weight: 400; font-size: 10px; letter-spacing: 0; text-transform: none; color: var(--ink-3); }
-.hbtn.held { background: var(--sun); color: var(--sun-ink); border-color: var(--sun); } .hbtn.held small { color: #4a3800; }
-.hbtn.round { min-width: 48px; width: 48px; height: 48px; min-height: 48px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
-.hbtn.round svg { width: 18px; height: 18px; fill: var(--ink); }
+.rail .rlbl { font-family: var(--font-d); font-size: 11px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+/* Anzeigen verschieben */
+#hud.editing .hudw { pointer-events: auto; cursor: move; touch-action: none; outline: 2px dashed rgba(255, 194, 75, 0.95); outline-offset: 4px; border-radius: 12px; }
+#hud.editing .hudw * { pointer-events: none; }
+#hud.editing .hudw.drag { outline-style: solid; }
+#hudEdit { position: absolute; left: 50%; top: 61%; transform: translate(-50%, -50%); z-index: 15; width: min(320px, 86vw); padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; text-align: center; background: rgba(11, 31, 58, 0.9); border: 1px solid rgba(255, 194, 75, 0.45); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45); }
+#hudEdit b { font-family: var(--font-d); font-size: 17px; color: var(--sun); } #hudEdit span { font-size: 13px; color: var(--ink-2); }
+/* Gesten beim Start: nach oben wischen, tippen, nach unten wischen */
+.ghostc { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; z-index: 11; opacity: 0; transition: opacity 0.4s; }
+.ghostc.show { opacity: 1; }
+.ghostc .gdot { position: absolute; left: -20px; top: -20px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.85); box-shadow: 0 0 22px rgba(255, 255, 255, 0.6); opacity: 0; }
+.ghostc .glbl { position: absolute; top: 96px; left: 0; transform: translateX(-50%); white-space: nowrap; font-family: var(--font-d); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8); }
+.ghostc.up .gdot.a { animation: ghostUp 1.6s ease-in-out infinite; }
+.ghostc.down .gdot.a { animation: ghostDown 1.4s ease-in-out infinite; }
+.ghostc.tap .gdot.a { left: -80px; animation: ghostTap 0.9s ease-out infinite; }
+.ghostc.tap .gdot.b { left: 40px; animation: ghostTap 0.9s ease-out 0.45s infinite; }
+@keyframes ghostUp { 0%, 10% { transform: translateY(90px); opacity: 0; } 25% { opacity: 1; } 75% { transform: translateY(-110px); opacity: 1; } 90%, 100% { transform: translateY(-110px); opacity: 0; } }
+@keyframes ghostDown { 0%, 10% { transform: translateY(-110px); opacity: 0; } 25% { opacity: 1; } 65% { transform: translateY(60px); opacity: 1; } 80%, 100% { transform: translateY(60px); opacity: 0; } }
+@keyframes ghostTap { 0% { transform: scale(0.6); opacity: 0.95; } 60% { transform: scale(1.25); opacity: 0.25; } 100% { transform: scale(1.3); opacity: 0; } }
 
 /* ---------------- Bildschirme ---------------- */
 #screens { position: absolute; inset: 0; z-index: 20; }
@@ -330,6 +374,12 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 .setting { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); }
 .setting .sl { font-weight: 700; }
 .setting small { display: block; color: var(--ink-3); font-size: 11.5px; line-height: 1.3; }
+.setting.col { flex-direction: column; align-items: stretch; }
+.chipset { display: flex; flex-wrap: wrap; gap: 6px; }
+.chipset button { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; padding: 7px 11px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-2); background: var(--night-2); }
+.chipset button.on { background: var(--sun); color: var(--sun-ink); border-color: var(--sun); }
+.btnpair { display: flex; gap: 6px; flex-shrink: 0; }
+.minibtn { font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 8px 10px; border-radius: 9px; background: var(--night-2); border: 1px solid var(--line); color: var(--ink); }
 .seg { display: flex; background: var(--night-2); border-radius: 9px; padding: 3px; gap: 3px; flex-shrink: 0; }
 .seg button { color: var(--ink-2); padding: 7px 11px; border-radius: 7px; font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
 .seg button.on { background: var(--sun); color: var(--sun-ink); }
@@ -391,23 +441,18 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 /* ---------------- Enge Bildschirme ---------------- */
 @media (max-width: 380px) {
-  #mapWrap, #minimap { width: 116px; } #minimap { height: 116px; }
-  .cell .val { font-size: 20px; } .cell.vario .val { font-size: 31px; }
-  .hbtn { min-width: 74px; padding: 8px 9px; font-size: 11.5px; }
+  .ival { min-width: 58px; padding: 0 6px; } .ival b { font-size: 19px; }
   .statgrid.four { grid-template-columns: repeat(2, 1fr); }
   .wx { grid-template-columns: repeat(2, 1fr); }
 }
 /* ---------------- Querformat am Handy ---------------- */
 @media (orientation: landscape) and (max-height: 540px) {
-  #mapWrap, #minimap { width: 112px; } #minimap { height: 112px; }
-  #hudTop { justify-content: space-between; }
-  #instr { flex: 0 0 290px; }
-  .cell.vario .val { font-size: 30px; } .cell .val { font-size: 19px; }
-  #taskBar { position: absolute; top: calc(10px + var(--st)); left: calc(134px + var(--sl)); right: calc(310px + var(--sr)); margin: 0; }
-  #chips { position: absolute; top: calc(78px + var(--st)); left: calc(134px + var(--sl)); right: calc(310px + var(--sr)); justify-content: flex-start; }
-  .rail .track { height: 96px; }
-  #launchPanel { bottom: calc(96px + var(--sb)); }
-  .ghost { top: 30%; } .ghost .gtrack { height: 100px; } .ghost .glbl { top: 118px; }
+  #wMap { width: 104px; } #minimap { width: 104px; height: 104px; }
+  #wTime { top: calc(8px + var(--st) + 126px * var(--hs)); }
+  .rail .track { height: 90px; }
+  #launchPanel { bottom: calc(78px + var(--sb)); }
+  .gthumb { top: 30%; } .gthumb .gtrack { height: 100px; } .gthumb .glbl { top: 118px; }
+  .ghostc { top: 42%; } .ghostc .glbl { top: 70px; }
   #hint { bottom: calc(76px + var(--sb)); }
   .screen.title { flex-direction: row; align-items: flex-end; gap: 20px; }
   .brand { align-self: flex-start; padding-top: 2vh; }
@@ -417,7 +462,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 }
 @media (prefers-reduced-motion: reduce) {
   #warn.show, .launchBtn, .spinner { animation: none; }
-  .ghost .gknob { animation-duration: 3.4s; }
+  .gthumb .gknob, .ghostc .gdot { animation-duration: 3.4s !important; }
   #toast.show { animation: none; opacity: 1; }
 }
 
@@ -435,7 +480,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = '27.09.2026, 15:32 · de982dc';
+window.AUFWIND_BUILD = '27.09.2026, 17:02 · 6efa075';
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -1021,7 +1066,10 @@ class GameAudio {
 /* AUFWIND – Eingabe
    Zwei Bremsen: linke Bildschirmhälfte = linke Bremse, rechte = rechte Bremse.
    Daumen auflegen und nach unten ziehen – je weiter, desto mehr Bremse.
-   Optional: Handy kippen = Gewichtsverlagerung. Tastatur für den Rechner. */
+   Optional: Handy kippen = Gewichtsverlagerung. Tastatur für den Rechner.
+   Gesten für den Start von Hand: nach oben wischen (Schirm aufziehen), kurz tippen (Laufschritt),
+   schnell nach unten wischen (ins Gurtzeug setzen). Sie werden als Ereignisse abgelegt, die der
+   Pilot beim Lesen zurücksetzt (swipeUp, tapN/tapIv/tapSide, flickDown). */
 'use strict';
 
 class Input {
@@ -1030,6 +1078,8 @@ class Input {
     this.ws = 0;                            // Gewichtsverlagerung -1..1
     this.bar = false; this.barV = 0;        // Beschleuniger
     this.ears = false;
+    this.swipeUp = 0; this.flickDown = false; this.tapN = 0; this.tapIv = 9; this.tapSide = ''; this._lastTap = 0;
+    this.brakeDelay = 0;                    // junge Berührungen bremsen noch nicht (Wisch nach unten ≠ Bremse)
     this.tiltWS = false; this.tiltAvailable = false;
     this.sensitivity = 1.0; this.invert = false;
     this.pointers = new Map();              // pointerId -> {side, x0, y0, x, y}
@@ -1050,6 +1100,9 @@ class Input {
       if ((e.code === 'Escape' || e.code === 'KeyP') && this.onPause) this.onPause();
       if ((e.code === 'Enter') && this.onStart) this.onStart();
       if (e.code === 'KeyE') this.ears = true;
+      if (e.code === 'KeyU') this.swipeUp = 1;                                         // Start am Rechner: U aufziehen,
+      if (e.code === 'KeyJ') { const now = performance.now(); this.tapIv = (now - this._lastTap) / 1000; this._lastTap = now; this.tapN++; this.tapSide = this.tapSide === 'L' ? 'R' : 'L'; }   // J Schritt,
+      if (e.code === 'KeyH') this.flickDown = true;                                    // H hinsetzen
       if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { this.bar = true; e.preventDefault(); }
       if (e.code.startsWith('Arrow')) e.preventDefault();
     });
@@ -1067,7 +1120,7 @@ class Input {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       const side = e.clientX < window.innerWidth / 2 ? 'L' : 'R';
       for (const [id, p] of this.pointers) if (p.side === side) { this.pointers.delete(id); }
-      const p = { side, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY };
+      const p = { side, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, xs: e.clientX, ys: e.clientY, ts: performance.now() };
       this.pointers.set(e.pointerId, p);
       try { el.setPointerCapture(e.pointerId); } catch (_) {}
       if (this.onThumb) this.onThumb(side, p, 0);
@@ -1083,11 +1136,24 @@ class Input {
       const p = this.pointers.get(e.pointerId); if (!p) return;
       this.pointers.delete(e.pointerId);
       if (this.onThumb) this.onThumb(p.side, null, 0);
+      if (e.type === 'pointerup') this._gesture(p, e.clientX, e.clientY);
     };
     el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
     el.addEventListener('contextmenu', (e) => e.preventDefault());
   }
-  _amount(p) { return U.clamp((p.y - p.y0) / this.rangeFor(p), 0, 1); }
+  _amount(p) {
+    if (this.brakeDelay && performance.now() - p.ts < this.brakeDelay * 1000) return 0;
+    return U.clamp((p.y - p.y0) / this.rangeFor(p), 0, 1);
+  }
+  _gesture(p, x, y) {
+    const now = performance.now(), dt = now - p.ts, dx = x - p.xs, dy = y - p.ys;
+    if (dt < 280 && Math.abs(dx) < 24 && Math.abs(dy) < 24) {              // Tipp = Laufschritt
+      this.tapIv = (now - this._lastTap) / 1000; this._lastTap = now; this.tapN++; this.tapSide = p.side;
+    } else if (-dy > 50 && -dy > Math.abs(dx) * 1.2 && dt < 900) {          // nach oben wischen = aufziehen
+      const speed = U.clamp(0.8 + (-dy / Math.max(dt, 1)) * 0.25, 0.8, 1.25);
+      this.swipeUp = Math.max(this.swipeUp, (-dy / (window.innerHeight * 0.3)) * speed);
+    } else if (dy > 60 && dy > Math.abs(dx) * 1.2 && dt < 450) this.flickDown = true;   // schnell nach unten = hinsetzen
+  }
 
   bindHoldButton(el, prop) {
     const on = (e) => { e.preventDefault(); e.stopPropagation(); this[prop] = true; el.classList.add('held'); };
@@ -1098,6 +1164,7 @@ class Input {
   releaseAll() {
     this.pointers.clear(); this.bar = false; this.ears = false; this.keys = {};
     this.brakeL = this.brakeR = 0; this.barV = 0;
+    this.swipeUp = 0; this.flickDown = false;
     if (this.onThumb) { this.onThumb('L', null, 0); this.onThumb('R', null, 0); }
   }
 
@@ -1835,6 +1902,27 @@ class World {
     }
     return h;
   }
+  /* Höhe der sichtbaren Geländefläche: dieselben Dreiecke wie in _buildChunk. An Kuppen und in Mulden
+     weicht sie um einige Meter von height() ab – wer am Boden steht, braucht diese Höhe. */
+  meshHeight(x, z) {
+    const S = this.segs, step = CHUNK / S;
+    const ox = Math.floor((x + CHUNK / 2) / CHUNK) * CHUNK - CHUNK / 2, oz = Math.floor((z + CHUNK / 2) / CHUNK) * CHUNK - CHUNK / 2;
+    const i = Math.min(S - 1, Math.floor((x - ox) / step)), j = Math.min(S - 1, Math.floor((z - oz) / step));
+    const x0 = ox + i * step, z0 = oz + j * step, fx = (x - x0) / step, fz = (z - z0) / step;
+    const a = this.height(x0, z0), b = this.height(x0 + step, z0), c = this.height(x0, z0 + step), d = this.height(x0 + step, z0 + step);
+    if ((i + j) & 1) return fz >= fx ? a + fz * (c - a) + fx * (d - c) : a + fx * (b - a) + fz * (d - b);
+    return fx + fz <= 1 ? a + fx * (b - a) + fz * (c - a) : d + (1 - fx) * (c - d) + (1 - fz) * (b - d);
+  }
+  /* Die Wiesen von Start- und Landeplatz liegen etwas über dem Gelände */
+  _pads(x, z, h) {
+    const L = this.landing; if (L && U.dist2(x, z, L.x, L.z) < 118) h = Math.max(h, L.h + 0.64);
+    const S = this.launch; if (S && U.dist2(x, z, S.x, S.z) < 33) h = Math.max(h, S.h + 0.37);
+    return h;
+  }
+  /* Worauf Figuren stehen und laufen: die sichtbare Fläche */
+  groundAt(x, z) { return this._pads(x, z, this.meshHeight(x, z)); }
+  /* Wogegen man im Flug stößt: die genaue Höhe (wie beim Probeflug der Startplatzwahl) plus Wiesen */
+  solidAt(x, z) { return this._pads(x, z, this.height(x, z)); }
   /* Achtung: liefert immer dasselbe Objekt zurück (keine Neuanlage pro Aufruf) */
   gradient(x, z, e = 25) {
     const g = this._g;
@@ -2227,8 +2315,8 @@ class World {
     // Landewiese und Startplatz in den Farben des Gebiets (in der Wüste Sand statt sattem Grün)
     const fieldCol = new THREE.Color(this.map.palette.grassHi).lerp(new THREE.Color(0x8fc25a), this.map.id === 'wueste' ? 0 : 0.35), padCol = new THREE.Color(this.map.palette.grass).multiplyScalar(0.95);
     P.push([new THREE.CircleGeometry(120, 28).rotateX(-Math.PI / 2).translate(L.x, L.h + 0.6, L.z), fieldCol]);
-    for (const [r0, r1] of [[26, 34], [58, 62]]) P.push([new THREE.RingGeometry(r0, r1, 36).rotateX(-Math.PI / 2).translate(L.x, L.h + 1.0, L.z), 0xffffff]);
-    P.push([box(40, 0.5, 5, L.x, L.h + 1.2, L.z), 0xff7a3d], [box(5, 0.5, 40, L.x, L.h + 1.2, L.z), 0xff7a3d]);
+    for (const [r0, r1] of [[26, 34], [58, 62]]) P.push([new THREE.RingGeometry(r0, r1, 36).rotateX(-Math.PI / 2).translate(L.x, L.h + 0.66, L.z), 0xffffff]);
+    P.push([box(40, 0.1, 5, L.x, L.h + 0.67, L.z), 0xff7a3d], [box(5, 0.1, 40, L.x, L.h + 0.68, L.z), 0xff7a3d]);
     // Landeplatz-Kiosk mit Bänken, zwei Autos und gepackten Schirmen
     const kx = L.x - 95, kz = L.z + 60, kh = H(kx, kz);
     P.push([box(8, 3.2, 6, kx, kh + 1.6, kz), 0x8a5a36], [prism(9, 7.4, 2, kx, kh + 3.2, kz), 0x7a3324], [box(3, 0.9, 1, kx + 7, kh + 0.45, kz - 4), 0x6b4a2e], [box(3, 0.9, 1, kx + 7, kh + 0.45, kz + 4), 0x6b4a2e], [cyl(1.4, 0.05, 1.6, 8, kx + 7, kh + 2.6, kz), 0xe8453c]);
@@ -2613,29 +2701,54 @@ function buildGliderModel(wing, opts) {
   deform({});
   wg.computeBoundingSphere();
 
-  // Pilot im Gurtzeug: Gurtzeug, Oberkörper, Arme, Helm – ein einziges Mesh
-  const body = new THREE.Group(), jacket = opts.color || (cells ? cells[Math.min(1, cells.length - 1)].getHex() : stripe.getHex());
-  const bodyGeo = colGeo([
-    [new THREE.BoxGeometry(0.55, 0.42, 1.5).rotateX(0.3).translate(0, -0.1, 0.1), opts.ai ? 0x333a44 : 0x1f2a44],
-    [new THREE.BoxGeometry(0.46, 0.55, 0.42).translate(0, 0.3, -0.45), jacket],
-    [new THREE.BoxGeometry(0.12, 0.5, 0.12).rotateZ(0.35).translate(-0.3, 0.55, -0.4), jacket],
-    [new THREE.BoxGeometry(0.12, 0.5, 0.12).rotateZ(-0.35).translate(0.3, 0.55, -0.4), jacket],
-    [new THREE.SphereGeometry(0.21, 8, 6).translate(0, 0.74, -0.45), opts.ai ? 0xf2f2f2 : 0xffc24b],
-    [new THREE.BoxGeometry(0.3, 0.1, 0.06).translate(0, 0.72, -0.66), 0x1a1a1a],
-  ]);
-  body.add(new THREE.Mesh(bodyGeo, new THREE.MeshLambertMaterial({ vertexColors: true })));
+  // Pilot: Gurtzeug, Oberkörper mit Armen und Helm, zwei Beine – einzeln beweglich, damit er stehen,
+  // laufen und sich nach dem Start ins Gurtzeug setzen kann. Ursprung = Aufhängung auf Hüfthöhe.
+  const body = new THREE.Group(), lam = new THREE.MeshLambertMaterial({ vertexColors: true });
+  const jacket = opts.color || (cells ? cells[Math.min(1, cells.length - 1)].getHex() : stripe.getHex());
+  const pod = new THREE.Mesh(colGeo([[new THREE.BoxGeometry(0.5, 0.34, 1.35), opts.ai ? 0x333a44 : 0x1f2a44]]), lam);
+  const upper = new THREE.Mesh(colGeo([
+    [new THREE.BoxGeometry(0.44, 0.58, 0.3).translate(0, 0.33, 0), jacket],
+    [new THREE.BoxGeometry(0.11, 0.5, 0.11).rotateZ(0.35).translate(-0.3, 0.62, 0), jacket],
+    [new THREE.BoxGeometry(0.11, 0.5, 0.11).rotateZ(-0.35).translate(0.3, 0.62, 0), jacket],
+    [new THREE.SphereGeometry(0.2, 8, 6).translate(0, 0.84, 0), opts.ai ? 0xf2f2f2 : 0xffc24b],
+    [new THREE.BoxGeometry(0.28, 0.1, 0.06).translate(0, 0.82, -0.2), 0x1a1a1a],
+  ]), lam);
+  const legGeo = colGeo([[new THREE.BoxGeometry(0.15, 0.84, 0.17).translate(0, -0.42, 0), 0x2b3140], [new THREE.BoxGeometry(0.16, 0.09, 0.28).translate(0, -0.86, -0.06), 0x161616]]);
+  const legL = new THREE.Group(), legR = new THREE.Group();
+  legL.position.set(-0.12, -0.04, 0); legR.position.set(0.12, -0.04, 0);
+  legL.add(new THREE.Mesh(legGeo, lam)); legR.add(new THREE.Mesh(legGeo, lam));
+  body.add(pod, upper, legL, legR);
   root.add(body);
 
-  root.userData = { rig, canopy, wingMesh, lines, body, deform };
+  root.userData = { rig, canopy, wingMesh, lines, body, pod, upper, legL, legR, deform };
+  poseBody(root.userData, 0, 0, 0, 0);
   return root;
 }
 
+/* Körperhaltung: s = 0 sitzt im Gurtzeug (Beine im Sitzsack), s = 1 steht (Sitzsack auf dem Rücken).
+   swing: Beinschwung beim Laufen, lean: Oberkörper nach vorn (negativ) oder hinten, base: Beine nach vorn */
+function poseBody(ud, s, swing, lean, base) {
+  ud.pod.position.set(0, U.lerp(-0.16, 0.28, s), U.lerp(-0.3, 0.3, s));
+  ud.pod.rotation.x = U.lerp(0.1, 1.5, s); ud.pod.scale.set(1, U.lerp(1, 0.7, s), U.lerp(1, 0.82, s));   // stehend flacher Rucksack
+  ud.upper.rotation.x = U.lerp(0.32, -0.08, s) + lean;
+  const legX = U.lerp(1.45, 0, s) + base;
+  ud.legL.rotation.x = legX + swing; ud.legR.rotation.x = legX - swing;
+  const vis = s > 0.15; ud.legL.visible = vis; ud.legR.visible = vis;
+}
+
+/* Füße über der Aufhängung: sitzend 0,32 m (Sitzsack), stehend 0,95 m */
+const STAND_H = 0.95, SIT_H = 0.32;
+
 class Pilot {
-  /* scene = null: nur Physik, ohne 3D-Modell (Probeflug bei der Startplatzwahl) */
+  /* scene = null: nur Physik, ohne 3D-Modell (Probeflug bei der Startplatzwahl).
+     Sichtbare Piloten stehen auf der gezeichneten Geländefläche (groundAt), Probeflüge rechnen mit height(). */
   constructor(wing, world, scene, design) {
     this.wing = wing; this.world = world; this.scene = scene;
     this.rand = Math.random;
     this._fwd = { x: 0, z: 0 };
+    this.gnd = scene ? (x, z) => world.groundAt(x, z) : (x, z) => world.height(x, z);     // stehen, laufen
+    this.solid = scene ? (x, z) => world.solidAt(x, z) : (x, z) => world.height(x, z);    // Aufprall im Flug
+    this.manualCfg = null;                      // gesetzt = Start von Hand (Aufziehen, Anbremsen, Tipp-Lauf)
     this.model = scene ? buildGliderModel(wing, { design }) : null; if (scene) scene.add(this.model);
     const w = wing, sTrim = w.vTrim / w.glide;
     this.k = (sTrim - w.sMin) / Math.pow(w.vTrim - w.vMinSink, 2);
@@ -2645,6 +2758,7 @@ class Pilot {
   reset(x, y, z, heading, phase) {
     this.x = x; this.y = y; this.z = z; this.heading = heading; this.bank = 0;
     this.phase = phase || 'fly'; this.launchT = 0; this.graceT = 0;
+    if (this.phase !== 'fly') this.y = this.gnd(x, z);
     this.v = this.phase === 'fly' ? this.wing.vTrim : 0;
     this.vz = 0; this.gs = this.v; this.lift = 0; this.turb = 0; this.thermal = null; this.ridge = 0;
     this.stall = null; this.stallT = 0; this.spin = null; this.spinT = 0;
@@ -2652,16 +2766,22 @@ class Pilot {
     this.collapse = null; this.collapseCool = 4; this.gust = 0; this.surge = 0;
     this.flareT = 0; this.pitchVis = 0; this.earsT = 0;
     this.inCloud = false; this.touchdown = null; this.crashed = null;
-    this.agl = y - this.world.height(x, z);
-    this.stats = { collapses: 0, stalls: 0, spins: 0, maxClimb: 0, maxAlt: y, dist: 0 };
+    this.agl = this.y - this.gnd(x, z);
+    this.stats = { collapses: 0, stalls: 0, spins: 0, maxClimb: 0, maxAlt: this.y, dist: 0 };
     this.brakeL = 0; this.brakeR = 0;
+    // Sitzen und Stehen: nach dem Start von Hand muss man sich ins Gurtzeug setzen (nach unten wischen)
+    this.seated = this.phase === 'fly'; this.needSit = false; this.unseatedT = 0;
+    this.standB = this.seated ? 0 : 1; this.stride = 0; this.runOut = 0; this.failKind = null;
+    this.man = { t: 0, E: 0, pitch: -85, pv: 0, roll: 0, rv: 0, g: 0, ok: 0, runV: 0, dist: 0, x0: x, z0: z, tapSeen: 0, lastSide: '', lastQ: 0, fails: 0, fell: false, air: 0, vT: 7 };
   }
   get flying() { return this.phase === 'fly'; }
+  get launching() { return this.phase === 'inflate' || this.phase === 'control' || this.phase === 'run'; }
   polarSink(v) {
     const w = this.wing; let s = w.sMin + this.k * Math.pow(v - w.vMinSink, 2);
     if (v < w.vMinSink) s += (w.vMinSink - v) * 0.9;
     return s;
   }
+  /* Automatischer Start (Knopf „Starten“, Probeflüge, Tests) */
   startLaunch() { if (this.phase === 'ready') { this.phase = 'launch'; this.launchT = 0; this.v = 0.5; } }
   /* Achtung: gemeinsames Rückgabe-Objekt */
   forward() { const f = this._fwd; f.x = Math.sin(this.heading); f.z = -Math.cos(this.heading); return f; }
@@ -2678,27 +2798,114 @@ class Pilot {
   update(dt, inp) {
     const ev = [];
     this.brakeL = inp.brakeL; this.brakeR = inp.brakeR;
-    if (this.phase === 'ready') { this._pose(dt, inp); return ev; }
-    if (this.phase === 'launch') { this._launch(dt, inp, ev); this._pose(dt, inp); return ev; }
-    if (this.phase !== 'fly') { this._pose(dt, inp); return ev; }
+    const ph = this.phase;
+    // Gesten gelten nur in ihrem Schritt: kein altes Aufziehen oder Hinsetzen aus einer Bremsbewegung
+    if (ph !== 'ready' && inp.swipeUp) inp.swipeUp = 0;
+    if (!(ph === 'fly' && !this.seated) && inp.flickDown) inp.flickDown = false;
+    if (ph === 'ready' || this.launching) { if (this.manualCfg) this._manual(dt, inp, ev); this._pose(dt, inp); return ev; }
+    if (ph === 'launch') { this._launch(dt, inp, ev); this._pose(dt, inp); return ev; }
+    if (ph === 'landed') this._runOut(dt);
+    if (ph !== 'fly') { this._pose(dt, inp); return ev; }
     this._fly(dt, inp, ev);
     this._pose(dt, inp);
     return ev;
   }
 
-  /* Aufziehen und Startlauf */
+  /* Automatischer Startlauf */
   _launch(dt, inp, ev) {
-    const W = this.world, w = this.wing;
+    const w = this.wing;
     this.launchT += dt;
     const up = U.clamp(this.launchT / 1.5, 0, 1);
     this.v = Math.min(this.v + (up < 1 ? 1.4 : 2.8) * dt, w.vTrim);
     this.heading = U.wrapAngle(this.heading + (inp.brakeR - inp.brakeL) * 0.5 * dt);
     this.x += Math.sin(this.heading) * this.v * dt; this.z += -Math.cos(this.heading) * this.v * dt;
-    this.y = W.height(this.x, this.z); this.agl = 0; this.gs = this.v;
+    this.y = this.gnd(this.x, this.z); this.agl = 0; this.gs = this.v;
     if ((up >= 1 && this.v >= w.vMinSink - 1.0) || this.launchT > 7) {
       this.phase = 'fly'; this.graceT = 4.5; this.vz = 0.4; this.v = Math.max(this.v, w.vMinSink);
+      this.seated = false; this.needSit = false; this.unseatedT = 0;      // setzt sich gleich von selbst
       ev.push('takeoff');
     }
+  }
+
+  /* Start von Hand:
+     ready   – nach oben wischen zieht den Schirm auf (kräftiger Wisch = mehr Schwung)
+     inflate – der Schirm steigt über den Kopf
+     control – er schießt vor: kurz beidseitig anbremsen. Seitenwind und Böen kippen ihn weg:
+               auf der hohen Seite bremsen (hängt er rechts, links ziehen)
+     run     – tippen = Laufschritte, erst langsam, dann immer schneller; abheben, sobald die Fahrt reicht */
+  _manual(dt, inp, ev) {
+    const M = this.man, C = this.manualCfg, W = this.world, w = this.wing;
+    const f = this.forward(), rx = Math.cos(this.heading), rz = Math.sin(this.heading);
+    const head = -(W.wind.x * f.x + W.wind.z * f.z), cross = W.wind.x * rx + W.wind.z * rz;
+    const sym = Math.min(inp.brakeL, inp.brakeR), asym = inp.brakeR - inp.brakeL;
+    M.t += dt;
+    this.agl = 0; this.vz = 0;
+    M.g = U.clamp(M.g * (1 - dt * 0.7) + (this.rand() - 0.5) * C.gust * 5 * dt, -C.gust, C.gust);
+    const side = cross * C.cross + M.g;                        // seitliche Beschleunigung in °/s²
+    if (this.phase === 'ready') {
+      this.y = this.gnd(this.x, this.z); this.v = this.gs = 0;
+      if (inp.swipeUp > 0) {
+        M.E = inp.swipeUp * (0.8 + 0.2 * U.clamp(head / 3.5, 0, 1.3)); inp.swipeUp = 0;
+        this.phase = 'inflate'; M.t = 0; M.pitch = -85; M.pv = 0; M.roll = 0; M.rv = 0; M.fell = false; this.failKind = null;
+        ev.push('inflate');
+      }
+      return;
+    }
+    if (this.phase === 'inflate') {
+      const reach = M.E >= 0.5 ? 1 : M.E / 0.5 * 0.6;
+      M.pitch = -85 + 65 * reach * U.smoothstep(0, 1, M.t / 1.2);
+      M.roll += side * 0.2 * dt;
+      if (M.t >= 1.2) {
+        if (M.E < 0.5) { this._launchFail('weak', ev); return; }
+        this.phase = 'control'; M.t = 0; M.pv = 45 + 70 * U.clamp(M.E, 0.5, 1.3); M.ok = 0;
+        M.rv = (C.kick || 0) * (cross >= 0 ? 1 : -1) * (0.6 + 0.4 * this.rand());   // bei Seitenwind kommt er schief hoch
+      }
+      return;
+    }
+    if (this.phase === 'control') {
+      // Nicken: Leinen und Wind holen den Schirm über den Kopf, Bremsen stoppen das Vorschießen
+      M.pv += (-1.4 * M.pitch - 1.1 * M.pv - sym * 240) * dt; M.pitch += M.pv * dt;
+      // Rollen: Seitenwind kippt ihn weg, die Bremse auf der hohen Seite holt ihn zurück
+      M.rv += (side + C.instab * M.roll - 2.0 * M.rv + asym * 150) * dt; M.roll += M.rv * dt;
+      if (M.pitch > C.over) { this._launchFail('over', ev); return; }
+      if (M.pitch < -C.back) { this._launchFail('back', ev); return; }
+      if (Math.abs(M.roll) > 35) { this._launchFail('side', ev); return; }
+      M.ok = (Math.abs(M.pitch) < 16 && Math.abs(M.pv) < 30 && Math.abs(M.roll) < 12) ? M.ok + dt : 0;
+      if (M.ok > 0.5) { this.phase = 'run'; M.t = 0; M.runV = 0; M.dist = 0; M.x0 = this.x; M.z0 = this.z; M.tapSeen = inp.tapN || 0; ev.push('wingUp'); }
+      return;
+    }
+    // Laufen: jeder Tipp ist ein Schritt. Im richtigen Takt (wird mit dem Tempo schneller) bringt er am meisten.
+    if ((inp.tapN || 0) !== M.tapSeen) {
+      M.tapSeen = inp.tapN;
+      const I = this.stepInterval(), iv = inp.tapIv;
+      let q = iv > 1.2 ? 0.7 : Math.exp(-Math.pow((iv - I) / (0.45 * I), 2));
+      if (inp.tapSide && inp.tapSide !== M.lastSide) q = Math.min(1, q + 0.15);   // abwechselnd links, rechts
+      M.lastSide = inp.tapSide; M.lastQ = q;
+      M.runV = U.clamp(M.runV + 0.9 * q - 0.15, 0, 6.8);            // aus dem Takt: Stolperer
+    }
+    M.runV = Math.max(0, M.runV - (0.25 + 0.12 * M.runV) * dt);
+    this.v = this.gs = M.runV;
+    this.x += f.x * M.runV * dt; this.z += f.z * M.runV * dt; M.dist += M.runV * dt;
+    this.y = this.gnd(this.x, this.z);
+    M.pv += (-3 * M.pitch - 2.5 * M.pv) * dt; M.pitch += M.pv * dt;
+    M.rv += (0.5 * side - 3 * M.roll - 2.5 * M.rv + asym * 80) * dt; M.roll += M.rv * dt;
+    if (Math.abs(M.roll) > 35) { this._launchFail('side', ev); return; }
+    M.air = M.runV + Math.max(0, head); M.vT = Math.min(w.vMinSink - 1.2, 6.3 + Math.max(0, head));
+    if (M.air >= M.vT) {
+      this.phase = 'fly'; this.graceT = 4.5; this.vz = 0.5; this.v = Math.max(M.air, w.vMinSink - 0.3);
+      this.seated = false; this.needSit = true; this.unseatedT = 0;
+      ev.push('takeoff');
+    } else if (M.dist > 75 || M.t > 12) this._launchFail('slow', ev);
+  }
+  /* Idealer Abstand zwischen zwei Schritten: langsam anlaufen, dann immer schneller */
+  stepInterval() { return U.clamp(0.55 - 0.045 * this.man.runV, 0.22, 0.55); }
+  _launchFail(kind, ev) {
+    const M = this.man;
+    this.failKind = kind; M.fails++; M.fell = true;
+    if (kind === 'slow') { this.x = M.x0; this.z = M.z0; }
+    this.phase = 'ready'; M.runV = 0; M.pitch = -85; M.pv = 0; M.roll = 0; M.rv = 0; this.v = 0;
+    this.y = this.gnd(this.x, this.z);
+    ev.push('launchFail');
   }
 
   _fly(dt, inp, ev) {
@@ -2706,12 +2913,19 @@ class Pilot {
     const bL = inp.brakeL, bR = inp.brakeR, ws = inp.ws || 0, bar = inp.barV || 0, earsW = !!inp.ears;
     const sym = Math.min(bL, bR), asym = bR - bL, maxB = Math.max(bL, bR), minB = sym;
     const vStall = this.vStall;
+    // ---- Ins Gurtzeug setzen: nach unten wischen (sonst nach 30 s von selbst)
+    if (!this.seated) {
+      this.unseatedT += dt;
+      if (inp.flickDown) { inp.flickDown = false; this.seated = true; ev.push('sit'); }
+      else if (this.unseatedT > (this.needSit ? 30 : 1.5)) { this.seated = true; if (this.needSit) ev.push('sitAuto'); }
+    } else if (inp.flickDown) inp.flickDown = false;
+    const hanging = this.needSit && !this.seated;              // Beine im Wind: mehr Widerstand
     // ---- Luftmasse
     const L = W.liftAt(this.x, this.y, this.z);
     this.lift = L.lift; this.turb = L.turb; this.thermal = L.thermal; this.ridge = L.ridge || 0;
     this.wx = L.wx || 0; this.wz = L.wz || 0;
     this.gust = U.clamp(this.gust * Math.max(0, 1 - dt * 1.4) + (this.rand() - 0.5) * dt * 3.2, -1, 1);
-    const gnd0 = W.height(this.x, this.z); this.agl = this.y - gnd0;
+    const gnd0 = this.solid(this.x, this.z); this.agl = this.y - gnd0;
 
     // ---- Strömungsabriss: beide Bremsen voll
     if (!this.stall && !this.spin) {
@@ -2746,6 +2960,7 @@ class Pilot {
     vT -= Math.abs(asym) * 0.7;
     if (bar > 0.01 && sym < 0.2) vT = U.lerp(vT, w.vMax, bar * (1 - sym / 0.2));
     if (earsW) vT *= 0.94;
+    if (hanging) vT -= 0.6;
     if (this.stall) vT = 3.5;
     if (this.spin) vT = 5;
     // Abfangen: Fahrt wird langsamer abgebaut und in Auftrieb verwandelt
@@ -2798,6 +3013,7 @@ class Pilot {
     // ---- Sinken
     let sink = this.polarSink(this.v) / Math.pow(Math.max(0.2, Math.cos(this.bank)), 1.3);
     if (earsW && !this.stall && !this.spin) sink += 2.2;
+    if (hanging) sink += 0.25;
     if (this.collapse) sink += 2.2 * this.collapse.sev;
     if (this.stall) sink = U.lerp(sink, 7.5, U.clamp(this.stall.t / 0.8, 0, 1));
     if (this.spin) sink = 6;
@@ -2820,7 +3036,7 @@ class Pilot {
     if (this.vz > this.stats.maxClimb) this.stats.maxClimb = this.vz;
     this.inCloud = !!(this.thermal && W.map.clouds && this.y > this.thermal.top + 40);
     // ---- Boden
-    const g2 = W.height(this.x, this.z);
+    const g2 = this.solid(this.x, this.z);
     this.graceT -= dt;
     if (this.y <= g2) {
       if (this.graceT > 0) { this.y = g2; this.vz = Math.max(0, this.vz); return; }   // Startlauf: noch Bodenkontakt
@@ -2841,37 +3057,57 @@ class Pilot {
     let quality = 'gut';
     if (!msg) quality = slope > 0.62 ? 'hang' : (impact < 1.0 && this.gs < 9 ? 'perfekt' : (impact < 2.2 ? 'gut' : 'hart'));
     this.touchdown = { impact, gs: this.gs, slope, quality };
+    this.y = this.gnd(this.x, this.z);                       // ab jetzt auf der sichtbaren Fläche
     if (msg) { this.phase = 'crashed'; this.crashed = msg; ev.push('crashed'); }
-    else { this.phase = 'landed'; ev.push('landed'); }
+    else { this.phase = 'landed'; this.runOut = Math.min(this.gs, 7); ev.push('landed'); }
     this.vz = 0; this.v = 0;
+  }
+  /* Nach der Landung ein paar Schritte auslaufen */
+  _runOut(dt) {
+    if (this.runOut <= 0) return;
+    const f = this.forward();
+    this.x += f.x * this.runOut * dt; this.z += f.z * this.runOut * dt;
+    this.runOut = Math.max(0, this.runOut - 3.2 * dt);
+    this.y = this.gnd(this.x, this.z);
   }
 
   /* Modell an den Flugzustand anpassen */
   _pose(dt, inp) {
     const m = this.model; if (!m) return;
-    const ud = m.userData;
-    m.position.set(this.x, this.y, this.z);
+    const ud = m.userData, ph = this.phase, M = this.man;
+    // Beine: am Boden, vor dem Hinsetzen und kurz vor dem Aufsetzen draußen
+    const legsOut = ph !== 'fly' || !this.seated || (this.agl < 9 && this.vz < 0.8);
+    this.standB += ((legsOut ? 1 : 0) - this.standB) * Math.min(1, dt * (legsOut ? 3.2 : 2.4));
+    const runV = ph === 'run' ? M.runV : (ph === 'launch' ? this.v : (ph === 'landed' ? this.runOut : 0));
+    this.stride += runV * dt * 2.3;
+    const swing = Math.sin(this.stride) * U.clamp(runV / 4.5, 0, 0.75) + (this.flying ? Math.sin(this.stride * 0.5 + performance.now() / 700) * 0.06 : 0);
+    const lean = ph === 'inflate' ? 0.22 : -0.28 * U.clamp(runV / 5, 0, 1);
+    const lying = ph === 'crashed';
+    poseBody(ud, lying ? 1 : this.standB, lying ? 0 : swing, lean, this.flying ? 0.28 * this.standB : 0);
+    ud.body.rotation.x += ((lying ? 1.45 : 0) - ud.body.rotation.x) * Math.min(1, dt * 4);
+    const offY = lying ? 0.5 : U.lerp(SIT_H, STAND_H, this.standB);
+    m.position.set(this.x, this.y + offY, this.z);
     m.rotation.y = -this.heading;
     m.rotation.z = -this.bank;
     const sym = Math.min(this.brakeL, this.brakeR);
     let pT = 0.14 * sym - 0.08 * (inp.barV || 0) - 0.4 * this.surge;
-    if (this.phase !== 'fly') pT = 0;
+    if (ph !== 'fly') pT = 0;
     this.pitchVis += (pT - this.pitchVis) * Math.min(1, dt * 4);
     m.rotation.x = this.pitchVis;
     // Kappe: am Boden ausgelegt, beim Aufziehen steigend, im Stall nach hinten gefallen
-    let rigX = 0, rate = 4;
-    if (this.phase === 'ready') { rigX = 1.42; rate = 20; }
-    else if (this.phase === 'launch') { rigX = 1.42 * (1 - U.smoothstep(0, 1.5, this.launchT)); rate = 10; }
-    else if (this.phase === 'landed' || this.phase === 'crashed') { rigX = 1.2; rate = 1.5; }
+    let rigX = 0, rigZ = 0, rate = 4;
+    if (ph === 'ready') { rigX = 1.42; rate = M.fell ? 2.5 : 20; }
+    else if (this.launching) { rigX = -U.rad(M.pitch) * 0.957; rigZ = -U.rad(M.roll); rate = 16; }
+    else if (ph === 'launch') { rigX = 1.42 * (1 - U.smoothstep(0, 1.5, this.launchT)); rate = 10; }
+    else if (ph === 'landed' || lying) { rigX = 1.2; rate = 1.5; }
     else if (this.stall) rigX = 0.6 + 0.12 * Math.sin(this.stall.t * 5);
     ud.rig.rotation.x += (rigX - ud.rig.rotation.x) * Math.min(1, dt * rate);
+    ud.rig.rotation.z += (rigZ - ud.rig.rotation.z) * Math.min(1, dt * rate);
     const sx = this.stall ? 0.72 : 1;
     ud.canopy.scale.x += (sx - ud.canopy.scale.x) * Math.min(1, dt * 5);
-    const standing = this.phase === 'ready' || this.phase === 'launch' || this.phase === 'landed';
-    ud.body.rotation.x += ((standing ? -1.25 : 0) - ud.body.rotation.x) * Math.min(1, dt * 5);
     const c = this.collapse;
     ud.deform({
-      bL: this.brakeL, bR: this.brakeR, ears: this.phase === 'fly' && inp.ears,
+      bL: this.brakeL, bR: this.brakeR, ears: ph === 'fly' && inp.ears,
       collapseSide: c ? c.side : 0, collapseAmt: c ? Math.min(1, c.sev * Math.min(1, c.t / 0.8)) : 0,
     });
   }
@@ -3029,7 +3265,7 @@ class AIPilot {
     this.y += this.vz * dt;
     const g2 = W.height(this.x, this.z);
     if (this.y < g2 + 2) {
-      if (this.mode === 'race') { this.y = g2; this.state = 'landed'; this.out = this.finishT == null; if (this.out) ev = 'out'; }
+      if (this.mode === 'race') { this.y = W.groundAt(this.x, this.z) + 0.3; this.state = 'landed'; this.out = this.finishT == null; if (this.out) ev = 'out'; }
       else this._respawn(ctx);
     }
     if (this.mode === 'free' && U.dist2(this.x, this.z, ctx.px, ctx.pz) > 6500) this._respawn(ctx);
@@ -3336,7 +3572,7 @@ class Minimap {
     ctx.clearRect(0, 0, S, S);
     ctx.save();
     ctx.translate(S / 2, S / 2);
-    ctx.beginPath(); ctx.arc(0, 0, rad, 0, Math.PI * 2); ctx.fillStyle = '#0d2238'; ctx.fill(); ctx.clip();
+    ctx.beginPath(); ctx.arc(0, 0, rad, 0, Math.PI * 2); ctx.fillStyle = '#141a22'; ctx.fill(); ctx.clip();
     // Gelände
     if (this.region) {
       const r = this.region;
@@ -3477,6 +3713,13 @@ const QUALITY = {
   high: { pr: 2.0, viewR: 5, fog: [1900, 5300], aa: true, treeR: 3, segs: 26, detail: 'high' },
 };
 
+/* Warum der Zeitraffer gerade nicht geht: [beim Einschalten, beim automatischen Ausschalten] */
+const SPEED_BLOCK = {
+  air: ['Zeitraffer erst in der Luft', 'gelandet'], school: ['In der Flugschule ohne Zeitraffer', 'Flugschule'],
+  low: ['Zeitraffer erst ab 120 m über Grund', 'Bodennähe'], wing: ['Erst den Schirm beruhigen', 'Schirm unruhig'],
+  cloud: ['Nicht in der Wolke', 'Wolke'], storm: ['Die Böenfront ist zu nah', 'Böenfront'],
+};
+
 class Game {
   constructor(canvas, audio, input, ui) {
     this.canvas = canvas; this.audio = audio; this.input = input; this.ui = ui;
@@ -3595,6 +3838,8 @@ class Game {
     this.pilot = new Pilot(wing, world, this.scene, DESIGN_BY_ID[cfg.design] || null);
     if (airAGL) this.pilot.reset(L.x, L.h + airAGL, L.z, L.heading, 'fly');
     else this.pilot.reset(L.x, L.h, L.z, L.heading, 'ready');
+    if (this.pilot.phase === 'ready' && !cfg.autoLaunch) this.pilot.manualCfg = this._launchCfg(mission);
+    this.speedup = 1;
     world.seedThermals(L.x, L.z, L.heading);
 
     // Laufzeit-Zustand
@@ -3633,10 +3878,34 @@ class Game {
     this.ui.onRunStarted(this);
     this.raf = requestAnimationFrame((ts) => this.loop(ts));
   }
-  /* Startlauf auslösen */
-  launch() {
-    if (!this.pilot || this.pilot.phase !== 'ready') return;
-    this.pilot.startLaunch(); this.audio.whoosh();
+  /* Automatischer Startlauf (Knopf „Starten“, Eingabetaste, Tests). Beim Start von Hand nur mit auto = true. */
+  launch(auto) {
+    const p = this.pilot; if (!p || p.phase !== 'ready') return;
+    if (p.manualCfg && !auto) return;
+    p.manualCfg = null; p.startLaunch(); this.audio.whoosh();
+  }
+  /* Schwierigkeit beim Start von Hand: Flugschule ohne Seitenwind, spätere Missionen böiger */
+  _launchCfg(m) {
+    if (m && m.tutorial) return { cross: 0, gust: 0, instab: 0, over: 60, back: 60, easy: true };
+    const i = m && this.mode === 'mission' ? MISSIONS.indexOf(m) : -1;
+    let d = i >= 0 ? U.clamp(i / (MISSIONS.length - 1), 0, 1) : 0.5;
+    if (this.map.id === 'dolomiten' || this.map.id === 'fjord') d = Math.min(1, d + 0.15);
+    return { cross: 3 + 5 * d, gust: 3 + 15 * d, instab: 0.3 + 0.6 * d, kick: 4 + 22 * d, over: 40, back: 45, easy: false, d };
+  }
+  /* Zeitraffer 1×, 2×, 4×, 8×: nur in der Luft, mit Abstand zum Boden und ruhigem Schirm */
+  setSpeedup(k) {
+    if (k > 1) { const why = this._speedBlock(); if (why) { this.ui.toast(SPEED_BLOCK[why][0]); k = 1; } }
+    if (k !== this.speedup) { this.speedup = k; this.audio.click(); }
+  }
+  _speedBlock() {
+    const p = this.pilot;
+    if (!p || !p.flying || this.over) return 'air';
+    if (this.mission && this.mission.tutorial) return 'school';
+    if (p.agl < 120) return 'low';
+    if (p.collapse || p.stall || p.spin) return 'wing';
+    if (p.inCloud) return 'cloud';
+    if (this.stormEta != null && this.stormEta < 45) return 'storm';
+    return null;
   }
   stop() {
     if (this.raf) cancelAnimationFrame(this.raf);
@@ -3670,6 +3939,7 @@ class Game {
       this.endT += dt;
       if (this.endT > 1.8 && !this.resultShown) { this.resultShown = true; this.ui.onRunFinished(this.result); }
       if (this.resultShown && this.frame % 3) return;
+      const ph = this.pilot.phase; if (ph === 'landed' || ph === 'crashed') this.pilot.update(dt, this.input);   // auslaufen, Schirm fällt
       this.world.update(dt, this.camera, this.pilot.x, this.pilot.y, this.pilot.z);
       this._updateCamera(dt);
       this.renderer.render(this.scene, this.camera);
@@ -3677,14 +3947,14 @@ class Game {
     }
     this._dynRes(rawDt);
     dt *= this.timeScale;
-    // Physik in Unterschritten
-    const n = dt > 0.034 ? 2 : 1;
-    for (let i = 0; i < n && !this.over; i++) this._step(dt / n);
+    // Physik in Unterschritten; im Zeitraffer entsprechend mehr Schritte pro Bild
+    const sim = dt * (this.speedup || 1), n = Math.max(dt > 0.034 ? 2 : 1, Math.ceil(sim / 0.03));
+    for (let i = 0; i < n && !this.over; i++) this._step(sim / n);
     if (this.over) return;
     const p = this.pilot;
-    this.world.update(dt, this.camera, p.x, p.y, p.z);
-    if (this.minimap) this.minimap.update(dt, this);
-    this._updateCamera(dt);
+    this.world.update(sim, this.camera, p.x, p.y, p.z);
+    if (this.minimap) this.minimap.update(sim, this);
+    this._updateCamera(Math.min(sim, 0.1));
     this.audio.update(dt, p.vz, p.v, p.flying);
     this.ui.updateHud(this);
     this.renderer.render(this.scene, this.camera);
@@ -3731,7 +4001,7 @@ class Game {
       this.orbitA = (this.orbitA == null ? p.heading + Math.PI * 0.75 : this.orbitA) + dt * 0.25;
       tp.set(p.x + Math.sin(this.orbitA) * 24, p.y + 7, p.z - Math.cos(this.orbitA) * 24);
       tl.set(p.x, p.y + 2, p.z); kp = 1.5; kl = 3;
-    } else if (p.phase === 'ready' || (p.phase === 'launch' && p.launchT < 1.2)) {
+    } else if (p.phase === 'ready' || p.launching || (p.phase === 'launch' && p.launchT < 1.2)) {
       // Am Start: im Hochformat hinter dem Piloten über den ausgelegten Schirm ins Tal, quer von der Seite
       if (portrait) { tp.set(p.x - f.x * 21 + rx * 4, p.y + 9, p.z - f.z * 21 + rz * 4); tl.set(p.x + f.x * 22, p.y - 5, p.z + f.z * 22); }
       else { tp.set(p.x - f.x * 9 + rx * 15, p.y + 6.5, p.z - f.z * 9 + rz * 15); tl.set(p.x + f.x * 12, p.y + 1.5, p.z + f.z * 12); }
@@ -3768,6 +4038,15 @@ class Game {
 
 /* AUFWIND – Spielregeln: Ziele, Rennen, Fotos, Ereignisse, Wertung */
 'use strict';
+
+/* Was beim Start von Hand schiefgehen kann: Warnung und Tipp */
+const LAUNCH_FAIL = {
+  weak: ['ZU ZAGHAFT', 'Kräftiger nach oben wischen – etwa ein Drittel des Bildschirms.'],
+  over: ['SCHIRM SCHIESST VOR', 'Wenn der Schirm über dir ist: kurz beide Bremsen antippen, dann loslassen.'],
+  back: ['ZU LANGE GEBREMST', 'Nur kurz anbremsen – wer festhält, zieht den Schirm wieder nach hinten.'],
+  side: ['SEITLICH ABGEKIPPT', 'Hängt der Schirm rechts, links bremsen – und umgekehrt.'],
+  slow: ['ZU LANGSAM', 'Tippen, tippen – erst ruhig, dann immer schneller. Der Takt zählt.'],
+};
 
 const GameRules = {
   /* ---------------- Tagesaufgabe: jeden Tag eine neue, für alle gleiche Strecke ---------------- */
@@ -3869,6 +4148,7 @@ const GameRules = {
     const p = this.pilot, W = this.world;
     this.clock += dt;
     this._advanceTime(dt);
+    this.input.brakeDelay = p.flying && !p.seated && p.needSit ? 0.18 : 0;   // Wisch nach unten soll nicht bremsen
     this.input.update(dt);
     const ev = p.update(dt, this.input);
     if (p.flying) this.t += dt;
@@ -3911,6 +4191,7 @@ const GameRules = {
     this._photos(dt);
     this._sounds(dt);
     this._trackManeuvers();
+    if (this.speedup > 1) { const why = this._speedBlock(); if (why) { this.speedup = 1; this.ui.toast('Zeitraffer aus – ' + SPEED_BLOCK[why][1]); } }
     this.chT += dt;
     if (this.chT > 1 && this.ui && this.ui.chalLive) { this.chT = 0; this.ui.chalLive(this); }
     if (this.over) return;
@@ -3936,6 +4217,11 @@ const GameRules = {
     const p = this.pilot, ui = this.ui, au = this.audio;
     switch (e) {
       case 'takeoff': au.whoosh(); ui.toast('Abgehoben!'); break;
+      case 'inflate': au.whoosh(); break;
+      case 'wingUp': au.chime(); ui.toast('Schirm steht!'); break;
+      case 'launchFail': au.collapse(); ui.warn(LAUNCH_FAIL[p.failKind][0], 1.6); ui.hint(LAUNCH_FAIL[p.failKind][1], 4); break;
+      case 'sit': au.chime(); ui.toast('Sitzt! Guten Flug'); break;
+      case 'sitAuto': ui.toast('Ins Gurtzeug gerutscht'); break;
       case 'collapse': au.collapse(); this.camShake = 1; ui.warn('KLAPPER!', 1.6);
         ui.hint((p.collapse && p.collapse.side < 0 ? 'Rechte' : 'Linke') + ' Bremse etwa halb ziehen – auf der offenen Seite gegensteuern', 3.5); break;
       case 'recovered': ui.warn('', 0); this.flags.recovered++; this.maneuvers.collapse = true; ui.toast('Schirm wieder offen'); break;
@@ -4037,7 +4323,7 @@ const GameRules = {
       let go = false;
       if (this.eagleMode === 'mission') { const c = this.landmarks.get('cross'); go = this.t > 90 || (c && U.dist2(p.x, p.z, c.x, c.z) < 1700); }
       else if (this.t > 150 && p.thermal && p.thermal.birds) go = Math.random() < dt / 40;
-      if (go) { e.appear(p); this.eagleDone = true; this.audio.screech(); this.ui.warn('STEINADLER!', 1.5); this.ui.hint('Er greift gleich an. Wenn er herabstößt: harte Kurve fliegen!', 4); }
+      if (go) { e.appear(p); this.eagleDone = true; this.speedup = 1; this.audio.screech(); this.ui.warn('STEINADLER!', 1.5); this.ui.hint('Er greift gleich an. Wenn er herabstößt: harte Kurve fliegen!', 4); }
     }
     const ev = e.update(dt, p);
     if (ev === 'dive') { this.audio.screech(); this.ui.warn('STURZFLUG – KURVE!', 1.6); }
@@ -4134,8 +4420,8 @@ const GameRules = {
     const next = (txt, sec) => { T.step++; T.hold = 0; T.stepT = 0; ui.hint(txt, sec || 0, !sec); this.audio.chime(); };
     if (T.step >= 2 && T.step <= 4 && T.stepT > 20) this.timeScale = 1;
     switch (T.step) {
-      case 0: if (p.phase === 'ready') { if (!T.shown) { T.shown = 1; ui.hint('Tipp auf Starten. Du läufst los und der Schirm steigt über dich.', 0, true); } } else { T.step = 1; ui.hint('Lauf, lauf …', 2); } break;
-      case 1: if (p.flying && this.t > 2.5 && p.agl > 12) { T.step = 2; T.stepT = 0; this.timeScale = 0.55; ui.hint('Zeitlupe! Leg den linken Daumen auf die linke Bildhälfte und zieh ihn nach unten – wie der weiße Geisterdaumen.', 0, true); ui.ghost('L', 'Linke Bremse'); } break;
+      case 0: if (p.flying) T.step = 1; break;             // den Start erklärt der Start-Coach im Cockpit
+      case 1: if (p.flying && p.seated && this.t > 2.5 && p.agl > 12) { T.step = 2; T.stepT = 0; this.timeScale = 0.55; ui.hint('Zeitlupe! Leg den linken Daumen auf die linke Bildhälfte und zieh ihn nach unten – wie der weiße Geisterdaumen.', 0, true); ui.ghost('L', 'Linke Bremse'); } break;
       case 2: T.hold = i.brakeL - i.brakeR > 0.35 ? T.hold + real : 0; if (T.hold > 1.0) { next('Linkskurve! Jetzt rechts: rechten Daumen auf die rechte Hälfte und runterziehen.'); ui.ghost('R', 'Rechte Bremse'); } break;
       case 3: T.hold = i.brakeR - i.brakeL > 0.35 ? T.hold + real : 0; if (T.hold > 1.0) { next('Rechtskurve! Jetzt beide Daumen halb runter: Der Schirm wird langsamer und sinkt weniger.'); ui.ghost('LR', 'Beide halb'); } break;
       case 4: T.hold = Math.min(i.brakeL, i.brakeR) > 0.3 ? T.hold + real : 0; if (T.hold > 1.2) { this.timeScale = 1; ui.ghost(null); next('Perfekt! Loslassen heißt volle Fahrt. Oben links ist die Karte: Das weiße X ist der Landeplatz, der blaue Keil zeigt den Wind.', 9); } break;
@@ -4233,6 +4519,9 @@ function wingSvg(w, d) {
     <circle cx="24" cy="35" r="3.4" fill="${s}"/><circle cx="24" cy="31.6" r="1.6" fill="#ffc24b"/></svg>`;
 }
 const COIN = '<i class="coin" aria-hidden="true"></i>';
+const TIME_STEPS = [1, 2, 4, 8];
+const HUD_SIZES = { s: 0.85, m: 1, l: 1.15 };
+const HUD_DEFAULT = () => ({ a: 0.3, s: 'm', show: { map: true, instr: true, vario: false, task: true, time: true, rails: true }, pos: { p: {}, l: {} } });
 function starStr(n, max = 3) { let s = ''; for (let i = 0; i < max; i++) s += i < n ? '★' : '<span class="off">★</span>'; return s; }
 
 class UI {
@@ -4249,7 +4538,7 @@ class UI {
       xp: 0, missions: {}, bestXC: {}, bestEndless: {}, flights: 0, totalKm: 0, totalClimb: 0, airtime: 0,
       wing: 'schul', map: 'voralpen', badges: {}, photos: {}, daily: { key: 0, stars: 0, best: 0 }, bestSpot: null,
       coins: 0, design: 'werk', owned: { wings: {}, maps: {}, designs: {} }, chal: { c: {}, b: {}, t: {} },
-      set: { tiltWS: false, sens: 1.0, invert: false, muted: false, vario: true, quality: 'mid', hints: true, unlockAll: false },
+      set: { tiltWS: false, sens: 1.0, invert: false, muted: false, vario: true, quality: 'mid', hints: true, unlockAll: false, launch: 'manual', hud: HUD_DEFAULT() },
     };
     let s = null;
     try { s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { s = null; }
@@ -4262,10 +4551,13 @@ class UI {
       return def;
     }
     // Ältere Stände kennen Münzen, Laden und Herausforderungen noch nicht: Felder ergänzen
-    return Object.assign(def, s, {
+    const out = Object.assign(def, s, {
       set: Object.assign(def.set, s.set || {}), daily: Object.assign(def.daily, s.daily || {}),
       owned: Object.assign(def.owned, s.owned || {}), chal: Object.assign(def.chal, s.chal || {}),
     });
+    const h0 = HUD_DEFAULT(), h = (s.set && s.set.hud) || {};
+    out.set.hud = Object.assign(h0, h, { show: Object.assign(h0.show, h.show || {}), pos: Object.assign(h0.pos, h.pos || {}) });
+    return out;
   }
   store() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(this.save)); } catch (e) { /* privat oder voll */ } }
   level() { let i = 0; for (let k = 0; k < LEVELS.length; k++) if (this.save.xp >= LEVELS[k].xp) i = k; return i; }
@@ -4291,7 +4583,17 @@ class UI {
     root.appendChild(el('div', { id: 'fx' }, [el('div', { id: 'speedFx' }), el('div', { id: 'cloudFx' }), el('div', { id: 'flashFx' }), el('div', { id: 'dangerFx' })]));
     root.appendChild(this._buildHud());
     for (const s of ['L', 'R']) root.appendChild(el('div', { class: 'thumb', id: 'thumb' + s, hidden: 'hidden' }, [el('div', { class: 'ring' }), el('div', { class: 'cord' }), el('div', { class: 'knob' })]));
-    for (const s of ['L', 'R']) root.appendChild(el('div', { class: 'ghost', id: 'ghost' + s, 'aria-hidden': 'true' }, [el('div', { class: 'gring' }), el('div', { class: 'gtrack' }), el('div', { class: 'gknob' }), el('div', { class: 'glbl', id: 'ghost' + s + 'T', text: '' })]));
+    for (const s of ['L', 'R']) root.appendChild(el('div', { class: 'gthumb', id: 'ghost' + s, 'aria-hidden': 'true' }, [el('div', { class: 'gring' }), el('div', { class: 'gtrack' }), el('div', { class: 'gknob' }), el('div', { class: 'glbl', id: 'ghost' + s + 'T', text: '' })]));
+    root.appendChild(el('div', { class: 'ghostc', id: 'ghostC', 'aria-hidden': 'true' }, [el('div', { class: 'gdot a' }), el('div', { class: 'gdot b' }), el('div', { class: 'glbl', id: 'ghostCT', text: '' })]));
+    this.editBar = el('div', { id: 'hudEdit', class: 'hpanel', hidden: 'hidden' }, [
+      el('b', { text: 'Anzeigen verschieben' }), el('span', { text: 'Mit dem Finger an ihren Platz ziehen. Hochformat und Querformat merken sich ihre Plätze getrennt.' }),
+      el('div', { class: 'row' }, [
+        el('button', { class: 'btn', onclick: () => { this.click(); const H = this.save.set.hud; H.pos = { p: {}, l: {} }; this.applyHudLayout(); this.store(); } }, [el('span', { text: 'Zurücksetzen' })]),
+        el('button', { class: 'btn primary', onclick: () => { this.click(); this.endHudEdit(); } }, [el('span', { text: 'Fertig' })]),
+      ]),
+    ]);
+    root.appendChild(this.editBar);
+    window.addEventListener('resize', () => this.applyHudLayout());
     this.scrWrap = el('div', { id: 'screens' });
     root.appendChild(this.scrWrap);
     for (const n of ['loading', 'title', 'missions', 'setup', 'wings', 'brief', 'settings', 'help', 'pause', 'result', 'stats', 'challenges', 'shop']) {
@@ -4305,46 +4607,133 @@ class UI {
     root.appendChild(el('div', { id: 'toast', role: 'status' }));   // über Cockpit und Menüs
   }
   _buildHud() {
-    const cell = (id, lbl) => el('div', { class: 'cell', id }, [el('div', { class: 'lbl', text: lbl }), el('div', { class: 'val', id: id + 'V', text: '0' }), el('div', { class: 'sub', id: id + 'S', text: '' })]);
+    const icon = (d, cls) => `<svg viewBox="0 0 32 32" aria-hidden="true"${cls ? ' class="' + cls + '"' : ''}>${d}</svg>`;
+    const bar = (id, a, b) => el('div', { class: 'lbar', id }, [el('span', { text: a }), el('i', {}, [el('em'), el('b', { id: id + 'M' })]), el('span', { text: b })]);
     const hud = el('div', { id: 'hud', hidden: 'hidden' }, [
-      el('div', { id: 'hudTop' }, [
-        el('div', { id: 'mapWrap' }, [
-          el('canvas', { id: 'minimap', 'aria-label': 'Karte, tippen zum Zoomen' }),
-          el('div', { id: 'mapMeta' }, [el('span', { id: 'windTxt', text: '' }), el('span', { id: 'zoomTxt', text: '' })]),
-        ]),
-        el('div', { id: 'instr' }, [
-          el('div', { class: 'cell vario', id: 'vario' }, [
-            el('div', { class: 'lbl', text: 'Vario' }),
-            el('div', { class: 'val', id: 'varioV', text: '0,0' }),
-            el('div', { class: 'sub', id: 'varioS', text: 'm/s' }),
-          ]),
-          cell('alt', 'Höhe'), cell('spd', 'Fahrt'),
-        ]),
+      // Karte mit Wind und Maßstab (am Rand ein Vario-Bogen)
+      el('div', { class: 'hudw', id: 'wMap', 'data-w': 'map' }, [
+        el('canvas', { id: 'minimap', 'aria-label': 'Karte, tippen zum Zoomen' }),
+        el('div', { id: 'mapMeta' }, [el('span', { id: 'windTxt', text: '' }), el('span', { id: 'zoomTxt', text: '' })]),
       ]),
-      el('div', { id: 'taskBar' }, [
-        el('div', { class: 'row1' }, [el('span', { class: 'ttl', id: 'taskTtl', text: '' }), el('span', { class: 'nav', id: 'taskNav', text: '' })]),
-        el('div', { class: 'row2' }, [el('span', { id: 'taskTxt', text: '' }), el('span', { class: 'num', id: 'taskVal', text: '' })]),
-        el('div', { class: 'bar' }, [el('div', { id: 'taskBarFill' })]),
+      // Höhe und Fahrt, auf Wunsch der Steigwert
+      el('div', { class: 'hudw hpanel', id: 'wInstr', 'data-w': 'instr' }, [
+        el('div', { class: 'ival', id: 'alt' }, [el('b', { id: 'altV', text: '0' }), el('i', { text: 'm' }), el('small', { id: 'altS', text: '' })]),
+        el('div', { class: 'ival', id: 'spd' }, [el('b', { id: 'spdV', text: '0' }), el('i', { text: 'km/h' }), el('small', { id: 'spdS', text: '' })]),
+        el('div', { class: 'ival vario', id: 'vario' }, [el('b', { id: 'varioV', text: '0,0' }), el('i', { text: 'm/s' }), el('small', { id: 'varioS', text: '' })]),
       ]),
-      el('div', { id: 'chips' }),
+      // Aufgabe, darunter Rennplatz, Gewitter, Front
+      el('div', { class: 'hudw', id: 'wTask', 'data-w': 'task' }, [
+        el('div', { class: 'hpanel', id: 'taskBar' }, [
+          el('div', { class: 'row1' }, [el('span', { class: 'ttl', id: 'taskTtl', text: '' }), el('span', { class: 'nav', id: 'taskNav', text: '' })]),
+          el('div', { class: 'row2' }, [el('span', { id: 'taskTxt', text: '' }), el('span', { class: 'num', id: 'taskVal', text: '' })]),
+          el('div', { class: 'bar' }, [el('div', { id: 'taskBarFill' })]),
+        ]),
+        el('div', { id: 'chips' }),
+      ]),
+      // Zeitraffer: antippen oder mit dem Finger darüberziehen
+      el('div', { class: 'hudw hpanel', id: 'wTime', 'data-w': 'time', role: 'group', 'aria-label': 'Zeitraffer', hidden: 'hidden' }, [
+        el('span', { class: 'ticon', html: icon('<path d="M4 8 14 16 4 24Z M15 8 25 16 15 24Z"/>', 'fill') }),
+        ...[1, 2, 4, 8].map(k => el('button', { class: 'tstop' + (k === 1 ? ' on' : ''), id: 'ts' + k, 'data-k': String(k), text: k + '×', 'aria-label': 'Zeitraffer ' + k + '-fach' })),
+      ]),
       el('div', { id: 'warn' }), el('div', { id: 'hint' }),
       el('div', { id: 'photoRing', hidden: 'hidden' }, [el('div', { class: 'prsvg', html: '<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" class="bg"/><circle cx="32" cy="32" r="27" class="fg" id="photoArc"/><rect x="20" y="24" width="24" height="17" rx="3"/><circle cx="32" cy="32.5" r="5" class="lens"/></svg>' }), el('div', { id: 'photoName', text: '' })]),
+      // Start: Knopf (automatisch) oder Anzeige für den Start von Hand
       el('div', { id: 'launchPanel', hidden: 'hidden' }, [
         el('button', { class: 'launchBtn', id: 'btnLaunch', html: 'Starten<small>Schirm aufziehen und loslaufen</small>' }),
+        el('div', { class: 'hpanel', id: 'lGauge' }, [
+          el('ol', { class: 'lsteps' }, ['Aufziehen', 'Anbremsen', 'Laufen', 'Hinsetzen'].map((t, i) => el('li', { id: 'ls' + i, text: t }))),
+          bar('lPitch', 'hinten', 'vorn'), bar('lRoll', 'links', 'rechts'),
+          el('div', { class: 'lbar run', id: 'lRun' }, [el('span', { text: 'Tempo' }), el('i', {}, [el('u', { id: 'lRunF' })]), el('span', { class: 'beat', id: 'lBeat', 'aria-hidden': 'true' })]),
+        ]),
       ]),
+      // Knöpfe: Ohren anlegen, Pause, Beschleuniger
+      el('div', { class: 'hudw', id: 'wBtns', 'data-w': 'btns' }, [
+        el('button', { class: 'hbtn', id: 'btnEars', 'aria-label': 'Ohren anlegen (halten)', title: 'Ohren anlegen',
+          html: icon('<path d="M9.5 14 Q16 7.5 22.5 14"/><path d="M9.5 14 7 20.5 M22.5 14 25 20.5"/><path d="M11 14.5 16 25 21 14.5"/><circle cx="16" cy="26" r="1.6" class="dot"/>') }),
+        el('button', { class: 'hbtn round', id: 'btnPause', 'aria-label': 'Pause', html: icon('<rect x="10" y="8" width="4.5" height="16" rx="1.2"/><rect x="17.5" y="8" width="4.5" height="16" rx="1.2"/>', 'fill') }),
+        el('button', { class: 'hbtn', id: 'btnBar', 'aria-label': 'Beschleuniger (halten)', title: 'Beschleuniger',
+          html: icon('<path d="M8.5 17.5 16 10 23.5 17.5"/><path d="M8.5 25 16 17.5 23.5 25"/>') }),
+      ]),
+      // Bremsbalken links und rechts
       el('div', { id: 'hudBottom' }, [
         el('div', { class: 'rail', id: 'railL' }, [el('div', { class: 'track' }, [el('div', { class: 'fill', id: 'railLF' }), el('div', { class: 'grip', id: 'railLG' })]), el('div', { class: 'rlbl', id: 'railLT', text: 'L' })]),
-        el('div', { class: 'centerBtns' }, [
-          el('button', { class: 'hbtn', id: 'btnEars', html: 'Ohren<small>schnell runter</small>' }),
-          el('button', { class: 'hbtn round', id: 'btnPause', 'aria-label': 'Pause', html: '<svg viewBox="0 0 20 20"><rect x="5" y="4" width="3.4" height="12" rx="1"/><rect x="11.6" y="4" width="3.4" height="12" rx="1"/></svg>' }),
-          el('button', { class: 'hbtn', id: 'btnBar', html: 'Speed<small>Beschleuniger</small>' }),
-        ]),
         el('div', { class: 'rail', id: 'railR' }, [el('div', { class: 'track' }, [el('div', { class: 'fill', id: 'railRF' }), el('div', { class: 'grip', id: 'railRG' })]), el('div', { class: 'rlbl', id: 'railRT', text: 'R' })]),
       ]),
     ]);
     this.hud = hud;
+    // Verschieben im Bearbeiten-Modus, Zeitraffer im Flug
+    for (const w of hud.querySelectorAll('.hudw')) w.addEventListener('pointerdown', (e) => this._dragStart(e, w));
+    const tw = hud.querySelector('#wTime');
+    const pick = (e) => { const b = document.elementFromPoint(e.clientX, e.clientY); const k = b && b.dataset ? +b.dataset.k : 0; if (k && this.game) this.game.setSpeedup(k); };
+    tw.addEventListener('pointerdown', (e) => { if (hud.classList.contains('editing')) return; e.stopPropagation(); tw._on = true; try { tw.setPointerCapture(e.pointerId); } catch (_) { /* egal */ } pick(e); });
+    tw.addEventListener('pointermove', (e) => { if (tw._on) pick(e); });
+    for (const t of ['pointerup', 'pointercancel']) tw.addEventListener(t, () => { tw._on = false; });
     return hud;
   }
+
+  /* ---------- Cockpit anpassen: Deckkraft, Größe, Auswahl, Position ---------- */
+  applyHudLayout() {
+    const H = this.save.set.hud, hud = this.hud; if (!hud) return;
+    hud.style.setProperty('--ha', String(H.a));
+    hud.style.setProperty('--hs', String(HUD_SIZES[H.s] || 1));
+    const P = H.pos[innerWidth > innerHeight ? 'l' : 'p'] || {};
+    for (const w of hud.querySelectorAll('.hudw')) {
+      const pos = P[w.dataset.w];
+      if (pos) {
+        w.classList.add('custom');
+        w.style.left = U.clamp(pos.x * innerWidth, 0, innerWidth - 40) + 'px'; w.style.top = U.clamp(pos.y * innerHeight, 0, innerHeight - 30) + 'px';
+      } else { w.classList.remove('custom'); w.style.left = ''; w.style.top = ''; }
+    }
+    this.$('wMap').hidden = !H.show.map; this.$('wInstr').hidden = !H.show.instr; this.$('vario').hidden = !H.show.vario;
+    this.$('taskBar').hidden = !H.show.task; this.$('railL').hidden = this.$('railR').hidden = !H.show.rails;
+  }
+  _dragStart(e, w) {
+    if (!this.hud.classList.contains('editing')) return;
+    e.preventDefault(); e.stopPropagation();
+    const r = w.getBoundingClientRect(), sx = e.clientX, sy = e.clientY;
+    w.classList.add('custom', 'drag'); w.style.left = r.left + 'px'; w.style.top = r.top + 'px';
+    try { w.setPointerCapture(e.pointerId); } catch (_) { /* egal */ }
+    const move = (ev) => {
+      w.style.left = U.clamp(r.left + ev.clientX - sx, 0, innerWidth - r.width) + 'px';
+      w.style.top = U.clamp(r.top + ev.clientY - sy, 0, innerHeight - r.height) + 'px';
+    };
+    const up = () => {
+      w.removeEventListener('pointermove', move); w.removeEventListener('pointerup', up); w.removeEventListener('pointercancel', up);
+      w.classList.remove('drag');
+      const H = this.save.set.hud, o = innerWidth > innerHeight ? 'l' : 'p';
+      (H.pos[o] || (H.pos[o] = {}))[w.dataset.w] = { x: parseFloat(w.style.left) / innerWidth, y: parseFloat(w.style.top) / innerHeight };
+      this.store();
+    };
+    w.addEventListener('pointermove', move); w.addEventListener('pointerup', up); w.addEventListener('pointercancel', up);
+  }
+  /* Anzeigen mit dem Finger verschieben – über dem laufenden (pausierten) Flug oder mit Beispielwerten */
+  editHud(back) {
+    const g = this.game;
+    this._editBack = back; this._editLive = !!(g.running && g.mode !== 'attract' && g.pilot && !g.over);
+    for (const k in this.screens) this.screens[k].hidden = true;
+    this.scrWrap.hidden = true; this.cur = 'hudedit';
+    if (!this._editLive) this._hudSample();
+    this.applyHudLayout();
+    this.$('wTime').hidden = !this.save.set.hud.show.time; this.$('launchPanel').hidden = true; this.$('photoRing').hidden = true;
+    this.hint(''); this.ghost(null);
+    this.hud.hidden = false; this.hud.classList.add('editing');
+    this.editBar.hidden = false;
+  }
+  endHudEdit() {
+    this.hud.classList.remove('editing'); this.editBar.hidden = true; this.store();
+    if (this._hd) { delete this._hd.wTime; delete this._hd.launchPanel; delete this._hd.photoRing; }
+    if (!this._editLive) this.hud.hidden = true;
+    this.cur = null;
+    (this._editBack || (() => this.toTitle()))();
+  }
+  _hudSample() {
+    const set = (id, v) => { this.$(id).textContent = v; if (this._tx) delete this._tx[id]; };
+    set('altV', '1.240'); set('altS', '320 m ü. G.'); set('spdV', '36'); set('spdS', 'GZ 8,4');
+    set('varioV', '+1,8'); set('varioS', 'Ø +1,2'); set('windTxt', '12 km/h SW'); set('zoomTxt', '2 km');
+    set('taskTtl', 'Beispiel'); set('taskNav', 'WP 2 · 3,4 km'); set('taskTxt', '3 Wendepunkte umrunden'); set('taskVal', '4:12');
+    this.$('taskBarFill').style.width = '40%'; this.$('chips').innerHTML = '<span class="chip sun">Platz 2 / 6</span>'; this._chipKey = null;
+  }
+
   $(id) { const c = this._els || (this._els = {}); const e = c[id]; if (e && e.isConnected) return e; return (c[id] = document.getElementById(id)); }
   /* DOM nur anfassen, wenn sich etwas ändert: spart Layout-Arbeit auf dem Handy */
   _txt(id, v) { const k = this._tx || (this._tx = {}); if (k[id] !== v) { k[id] = v; this.$(id).textContent = v; } }
@@ -4353,13 +4742,18 @@ class UI {
   _tog(id, c, on) { const k = this._tg || (this._tg = {}), key = id + '.' + c; if (k[key] !== on) { k[key] = on; this.$(id).classList.toggle(c, on); } }
   _hid(id, v) { const k = this._hd || (this._hd = {}); if (k[id] !== v) { k[id] = v; this.$(id).hidden = v; } }
 
-  /* Flugschule: Geisterdaumen zeigen, welche Seite gezogen werden soll ('L', 'R', 'LR' oder nichts) */
-  ghost(sides, label) {
+  /* Geisterdaumen: 'L', 'R', 'LR' (Bremse ziehen) oder 'up', 'down', 'tap' (Gesten beim Start).
+     owner merkt sich, wer ihn gesetzt hat – der Start-Coach räumt nur seine eigenen weg. */
+  ghost(sides, label, owner) {
+    const mode = sides === 'up' || sides === 'down' || sides === 'tap' ? sides : null;
     for (const s of ['L', 'R']) {
-      const on = !!sides && sides.indexOf(s) >= 0;
+      const on = !mode && !!sides && sides.indexOf(s) >= 0;
       this._tog('ghost' + s, 'show', on); this._tog('rail' + s, 'teach', on);
       if (on) this._txt('ghost' + s + 'T', label || (s === 'L' ? 'Linke Bremse' : 'Rechte Bremse'));
     }
+    this._cls('ghostC', 'ghostc' + (mode ? ' show ' + mode : ''));
+    if (mode) this._txt('ghostCT', label || '');
+    this._ghostOwner = sides ? (owner || 'tut') : null;
   }
 
   /* ---------- Bildschirme umschalten ---------- */
@@ -4373,6 +4767,7 @@ class UI {
   /* X oben rechts und Escape: dasselbe wie „Zurück“ der offenen Seite, in der Pause weiterfliegen */
   closeScreen() {
     const name = this.cur; if (!name || name === 'title' || name === 'loading') return;
+    if (name === 'hudedit') { this.click(); this.endHudEdit(); return; }
     if (name === 'pause') { this.click(); this.resume(); return; }
     const b = this.screens[name].querySelector('.btn.back');
     if (b) b.click(); else { this.click(); this.toTitle(); }
@@ -4389,12 +4784,13 @@ class UI {
     this.input.tiltWS = set.tiltWS; this.input.sensitivity = set.sens; this.input.invert = set.invert;
     this.audio.varioOn = set.vario; this.audio.setMuted(set.muted);
     document.body.classList.toggle('lowfx', set.quality === 'low');   // Unschärfe-Effekte kosten auf alten Handys viel
+    this.applyHudLayout();
   }
 
   /* ---------- Flug starten und beenden ---------- */
   startRun(cfg) {
     this.lastCfg = cfg;
-    cfg = Object.assign({}, cfg, { quality: this.save.set.quality, hints: this.save.set.hints, unlockedMaps: this.unlockedMaps(), design: this.currentDesign().id });
+    cfg = Object.assign({}, cfg, { quality: this.save.set.quality, hints: this.save.set.hints, unlockedMaps: this.unlockedMaps(), design: this.currentDesign().id, autoLaunch: this.save.set.launch === 'auto' });
     this.screens.loading.innerHTML = '';
     const mapName = cfg.mode === 'daily' ? 'Tagesaufgabe' : MAP_BY_ID[cfg.mapId].name;
     this.screens.loading.appendChild(el('div', { class: 'panel loading' }, [
@@ -4416,12 +4812,12 @@ class UI {
   onRunStarted(g) {
     this.showGame();
     this.renderObjectives(g);
-    this.$('btnEars').innerHTML = 'Ohren<small>schnell runter</small>';
-    this.$('chips').innerHTML = '';
-    this._hid('launchPanel', g.pilot.phase !== 'ready'); this.ghost(null);
+    this.applyHudLayout();
+    this.$('chips').innerHTML = ''; this._chipKey = null;
+    this._coachTxt = ''; this._coachGhost = ''; this.ghost(null);
     this.minimap.draw(g);
     this.$('zoomTxt').textContent = this.minimap.zoomLabel();
-    if (!(g.mission && g.mission.tutorial)) this.hint(g.pilot.phase === 'ready' ? 'Tipp auf Starten. Kurven fliegst du mit den Daumen: links oder rechts runterziehen.' : 'Linker Daumen runter = Linkskurve, rechter = Rechtskurve, beide = bremsen.', 5);
+    if (!(g.mission && g.mission.tutorial) && !g.pilot.manualCfg) this.hint(g.pilot.phase === 'ready' ? 'Tipp auf Starten. Kurven fliegst du mit den Daumen: links oder rechts runterziehen.' : 'Linker Daumen runter = Linkskurve, rechter = Rechtskurve, beide = bremsen.', 5);
   }
   onRunFinished(r) {
     this.hud.hidden = true;
@@ -4479,32 +4875,33 @@ class UI {
     const now = performance.now();
     if (now - this.lastHud < 66) return;
     this.lastHud = now;
-    const p = g.pilot, W = g.world, inp = this.input;
+    const p = g.pilot, W = g.world, inp = this.input, H = this.save.set.hud;
     // Instrumente
-    const vzShown = p.flying ? p.vz : 0;
-    this._txt('varioV', U.fmtSigned(vzShown));
-    this._cls('vario', 'cell vario' + (vzShown > 0.15 ? ' up' : (vzShown < -0.15 ? ' down' : '')) + (vzShown > 2 ? ' strong' : ''));
-    this._txt('varioS', 'm/s · Ø ' + U.fmtSigned(g.avgClimb || 0));
     this._txt('altV', U.fmtInt(p.y));
-    this._txt('altS', U.fmtInt(Math.max(0, p.agl)) + ' m über Grund');
+    this._txt('altS', U.fmtInt(Math.max(0, p.agl)) + ' m ü. G.');
     this._txt('spdV', U.fmtInt(p.v * 3.6));
     const gz = p.vz < -0.05 ? p.gs / -p.vz : 99;
-    this._txt('spdS', 'km/h · GZ ' + (gz > 30 ? '∞' : U.fmtDec(gz)));
-    this._txt('windTxt', 'Wind ' + Math.round(W.wind.speed * 3.6) + ' km/h ' + U.compass(W.wind.from));
+    this._txt('spdS', 'GZ ' + (gz > 30 ? '∞' : U.fmtDec(gz)));
+    if (H.show.vario) {
+      const vz = p.flying ? p.vz : 0;
+      this._txt('varioV', U.fmtSigned(vz)); this._txt('varioS', 'Ø ' + U.fmtSigned(g.avgClimb || 0));
+      this._cls('vario', 'ival vario' + (vz > 0.15 ? ' up' : (vz < -0.15 ? ' down' : '')));
+    }
+    this._txt('windTxt', Math.round(W.wind.speed * 3.6) + ' km/h ' + U.compass(W.wind.from));
     // Aufgabe
     const act = g._activeObj ? g._activeObj() : null;
     let txt = '', prog = 0, val = '';
-    if (g.mission) { txt = act ? act.def.text : 'Alle Aufgaben erledigt – jetzt landen'; prog = act ? U.clamp(act.prog, 0, 1) : 1; val = U.fmtTime(g.t); if (g.mission.timeLimit) val = U.fmtTime(Math.max(0, g.mission.timeLimit - g.t)) + ' übrig'; }
-    else if (g.mode === 'xc') { txt = 'So weit wie möglich vom Start weg · ' + U.fmtClock(g.hour) + ' Uhr'; prog = U.clamp(g.maxDist / Math.max(5000, (this.save.bestXC[g.map.id] || 5000)), 0, 1); val = U.fmtKm(g.maxDist); }
+    if (g.mission) { txt = act ? act.def.text : 'Alles erledigt – jetzt landen'; prog = act ? U.clamp(act.prog, 0, 1) : 1; val = U.fmtTime(g.t); if (g.mission.timeLimit) val = U.fmtTime(Math.max(0, g.mission.timeLimit - g.t)) + ' übrig'; }
+    else if (g.mode === 'xc') { txt = 'Weit weg vom Start · ' + U.fmtClock(g.hour) + ' Uhr'; prog = U.clamp(g.maxDist / Math.max(5000, (this.save.bestXC[g.map.id] || 5000)), 0, 1); val = U.fmtKm(g.maxDist); }
     else { txt = 'Vor der Front bleiben · Welle ' + (g.wave + 1); prog = U.clamp((g.frontDist || 0) / 3000, 0, 1); val = U.fmtInt(g.score) + ' P'; }
     this._txt('taskTxt', txt); this._txt('taskVal', val);
     this._css('taskBarFill', 'width', (prog * 100).toFixed(1) + '%');
     let nav = '';
     const tp = W.turnpoints[g.tpIndex];
-    if (tp && !tp.reached && g.mission) nav = (tp.goal ? 'Ziel' : 'Wendepunkt ' + (g.tpIndex + 1)) + ' · ' + U.fmtKm(Math.max(0, U.dist2(p.x, p.z, tp.x, tp.z) - tp.r));
+    if (tp && !tp.reached && g.mission) nav = (tp.goal ? 'Ziel' : 'WP ' + (g.tpIndex + 1)) + ' · ' + U.fmtKm(Math.max(0, U.dist2(p.x, p.z, tp.x, tp.z) - tp.r));
     else if (g.navTarget) nav = (g.navTarget === W.landing ? 'Landeplatz' : (g.navTarget.name || 'Ziel')) + ' · ' + U.fmtKm(U.dist2(p.x, p.z, g.navTarget.x, g.navTarget.z));
     this._txt('taskNav', nav);
-    // Chips: Rennplatz, Gewitter, Front
+    // Chips: Rennplatz, Gewitter, Front, Spirale
     const chips = [];
     if (g.race) {
       const prog2 = (tpI, x, z, fin) => fin != null ? 1e9 - fin : tpI * 1e6 - (W.turnpoints[tpI] ? U.dist2(x, z, W.turnpoints[tpI].x, W.turnpoints[tpI].z) : 0);
@@ -4512,14 +4909,14 @@ class UI {
       const rank = 1 + g.race.ais.filter(a => !a.out && prog2(a.tpIndex, a.x, a.z, a.finishT) > me).length;
       chips.push(['sun', 'Platz ' + (g.race.place || rank) + ' / ' + g.race.total]);
     }
-    if (g.stormEta != null) {
-      const eta = g.stormEta;
-      chips.push([eta < 60 ? 'bad' : '', eta > 0 ? 'Böenfront in ' + U.fmtTime(eta) : 'Böenfront da!']);
-    }
+    if (g.stormEta != null) chips.push([g.stormEta < 60 ? 'bad' : '', g.stormEta > 0 ? 'Böen in ' + U.fmtTime(g.stormEta) : 'Böen da!']);
     if (g.mode === 'endless' && g.frontDist != null) chips.push([g.frontDist < 800 ? 'bad' : '', 'Front ' + U.fmtKm(Math.max(0, g.frontDist))]);
     if (p.inSpiral) chips.push(['bad', 'Spirale ' + U.fmtSigned(p.vz) + ' m/s']);
     const chipKey = chips.map(c => c.join(':')).join('|');
     if (chipKey !== this._chipKey) { this._chipKey = chipKey; this.$('chips').innerHTML = chips.map(c => `<span class="chip ${c[0]}">${c[1]}</span>`).join(''); }
+    // Zeitraffer
+    this._hid('wTime', !(H.show.time && p.flying && !g.over && !(g.mission && g.mission.tutorial)));
+    for (const k of TIME_STEPS) this._tog('ts' + k, 'on', (g.speedup || 1) === k);
     // Foto
     if (g.photoFocus) { this._hid('photoRing', false); this._css('photoArc', 'strokeDashoffset', String(Math.round(170 * (1 - g.photoFocus.f)))); this._txt('photoName', g.photoFocus.lm.name); }
     else this._hid('photoRing', true);
@@ -4532,7 +4929,9 @@ class UI {
     }
     this._tog('btnEars', 'held', !!inp.ears);
     this._tog('btnBar', 'held', !!inp.bar);
-    this._hid('launchPanel', p.phase !== 'ready');
+    // Start
+    this._launchPanel(g);
+    this._launchCoach(g);
     // Effekte
     this._css('speedFx', 'opacity', (U.clamp((p.v - p.wing.vTrim) / 4, 0, 1) * 0.9).toFixed(2));
     const danger = (p.collapse || p.stall || p.spin) ? 0.8 : (p.inSpiral ? 0.45 : 0);
@@ -4540,10 +4939,62 @@ class UI {
     if (p.flying && p.agl < 45 && p.vz < -2 && U.dist2(p.x, p.z, W.landing.x, W.landing.z) > 200) this.warn('BODEN!', 0.4);
     if (p.flying && p.agl < 2.4 && p.agl > 0.3 && p.vz < -0.4 && Math.min(inp.brakeL, inp.brakeR) < 0.5 && g.t > 8) this.warn('ABFANGEN!', 0.5);
   }
+
+  /* Anzeige für den Start von Hand: Schritte, Lage des Schirms, Lauftempo mit Taktpunkt */
+  _launchPanel(g) {
+    const p = g.pilot, ph = p.phase, M = p.man, manual = !!p.manualCfg;
+    const unseated = p.flying && !p.seated && p.needSit;
+    const show = !g.over && (ph === 'ready' || p.launching || unseated);
+    this._hid('launchPanel', !show);
+    if (!show) return;
+    this._hid('btnLaunch', manual || ph !== 'ready');
+    this._hid('lGauge', !manual && !unseated);
+    const step = unseated ? 3 : (ph === 'run' ? 2 : (ph === 'control' ? 1 : 0));
+    for (let i = 0; i < 4; i++) this._cls('ls' + i, i < step ? 'done' : (i === step ? 'on' : ''));
+    const ctl = ph === 'control' || ph === 'inflate';
+    this._hid('lPitch', !ctl); this._hid('lRoll', !ctl); this._hid('lRun', ph !== 'run');
+    if (ctl) {
+      this._css('lPitchM', 'left', (U.clamp((M.pitch + 60) / 105, 0, 1) * 100).toFixed(1) + '%');
+      this._css('lRollM', 'left', (U.clamp((M.roll + 35) / 70, 0, 1) * 100).toFixed(1) + '%');
+    }
+    if (ph === 'run') {
+      this._css('lRunF', 'width', (U.clamp(M.air / M.vT, 0, 1) * 100).toFixed(1) + '%');
+      const I = p.stepInterval(); this._tog('lBeat', 'on', (performance.now() / 1000) % I < I * 0.35);
+    }
+  }
+  /* Start-Coach: sagt in jedem Schritt, was zu tun ist, und zeigt die Geste */
+  _launchCoach(g) {
+    const p = g.pilot, M = p.man, ph = p.phase, inp = this.input;
+    let txt = '', gh = null, gl = '';
+    if (g.over) txt = '';
+    else if (p.manualCfg && ph === 'ready') { txt = 'Nach oben wischen: Schirm aufziehen'; gh = 'up'; gl = 'Nach oben wischen'; }
+    else if (ph === 'inflate') txt = 'Der Schirm steigt …';
+    else if (ph === 'control') {
+      if (M.pv > 25 && M.pitch > -12) { txt = 'Er schießt vor – kurz beide Bremsen antippen!'; gh = 'LR'; gl = 'Kurz anbremsen'; }
+      else if (M.roll > 7) { txt = 'Schirm hängt rechts – links bremsen'; gh = 'L'; gl = 'Links bremsen'; }
+      else if (M.roll < -7) { txt = 'Schirm hängt links – rechts bremsen'; gh = 'R'; gl = 'Rechts bremsen'; }
+      else if (M.pitch < -12 && Math.min(inp.brakeL, inp.brakeR) > 0.2) txt = 'Bremsen lösen – der Schirm muss nach vorn';
+      else txt = 'Ruhig halten …';
+    } else if (ph === 'run') { txt = 'Loslaufen: tippen, tippen – erst ruhig, dann immer schneller!'; gh = 'tap'; gl = 'Tippen'; }
+    else if (p.flying && !p.seated && p.needSit) { txt = 'Nach unten wischen: ins Gurtzeug setzen'; gh = 'down'; gl = 'Nach unten wischen'; }
+    if (txt !== this._coachTxt) {
+      if (txt) this.hint(txt, 0, true);
+      else if (this._coachTxt && this.$('hint').textContent === this._coachTxt) this.hint('');
+      this._coachTxt = txt;
+    }
+    const gk = gh ? gh + gl : '';
+    if (gk !== this._coachGhost) {
+      this._coachGhost = gk;
+      if (gh) this.ghost(gh, gl, 'coach'); else if (this._ghostOwner === 'coach') this.ghost(null);
+    }
+  }
 }
 
 /* AUFWIND – Menüs, Briefing, Hangar, Logbuch, Ergebnis mit Barogramm und Flugspur */
 'use strict';
+
+/* Was man im Cockpit ein- und ausblenden kann */
+const HUD_PARTS = [['map', 'Karte'], ['instr', 'Höhe & Fahrt'], ['vario', 'Steigwert'], ['task', 'Aufgabe'], ['time', 'Zeitraffer'], ['rails', 'Bremsbalken']];
 
 const UIScreens = {
   _back(to, label) { return el('button', { class: 'btn ghost back', onclick: () => { this.click(); to(); } }, [el('span', { text: label || '← Zurück' })]); },
@@ -4747,6 +5198,18 @@ const UIScreens = {
         set.tiltWS = v; this.input.tiltWS = v; this.store(); this.renderSettings();
       })),
       set.tiltWS ? row('Kipprichtung', '', seg('setInv', [[false, 'Normal'], [true, 'Umgekehrt']], set.invert, (v) => { set.invert = v; this.input.invert = v; this.store(); this.renderSettings(); })) : null,
+      row('Start', 'Von Hand: nach oben wischen, kurz anbremsen, lostippen, hinsetzen. Automatisch: ein Tipp auf „Starten“.', seg('setLaunch', [['manual', 'Von Hand'], ['auto', 'Automatisch']], set.launch, (v) => { set.launch = v; this.store(); this.renderSettings(); })),
+      el('div', { class: 'eyebrow', text: 'Cockpit' }),
+      row('Deckkraft', 'Wie stark die Anzeigen den Flug abdecken. Ganz links: nur Schrift.', el('input', { type: 'range', id: 'setHa', min: '0', max: '0.8', step: '0.05', value: String(set.hud.a), 'aria-label': 'Deckkraft der Anzeigen', oninput: (e) => { set.hud.a = parseFloat(e.target.value); this.store(); this.applyHudLayout(); } })),
+      row('Größe', '', seg('setHs', [['s', 'Klein'], ['m', 'Normal'], ['l', 'Groß']], set.hud.s, (v) => { set.hud.s = v; this.store(); this.applyHudLayout(); this.renderSettings(); })),
+      el('div', { class: 'setting col' }, [
+        el('div', {}, [el('div', { class: 'sl', text: 'Anzeigen im Flug' }), el('small', { text: 'Steigen und Sinken zeigt auch der Bogen am Kartenrand.' })]),
+        el('div', { class: 'chipset', id: 'setShow' }, HUD_PARTS.map(([k, t]) => el('button', { class: set.hud.show[k] ? 'on' : '', 'aria-pressed': String(!!set.hud.show[k]), text: t, onclick: () => { this.click(); set.hud.show[k] = !set.hud.show[k]; this.store(); this.applyHudLayout(); this.renderSettings(); } }))),
+      ]),
+      row('Anordnen', 'Anzeigen mit dem Finger an ihren Platz ziehen.', el('div', { class: 'btnpair' }, [
+        el('button', { class: 'minibtn', id: 'setMove', text: 'Verschieben', onclick: () => { this.click(); const fp = this._fromPause; this.editHud(() => { this._fromPause = fp; this.renderSettings(); this.show('settings'); }); } }),
+        el('button', { class: 'minibtn', text: 'Zurücksetzen', onclick: () => { this.click(); set.hud = HUD_DEFAULT(); this.store(); this.applyHudLayout(); this.renderSettings(); this.toast('Cockpit wie am Anfang'); } }),
+      ])),
       el('div', { class: 'eyebrow', text: 'Ton und Hilfen' }),
       row('Vario-Ton', 'Piept beim Steigen, brummt bei starkem Sinken.', seg('setVario', [[true, 'An'], [false, 'Aus']], set.vario, (v) => { set.vario = v; this.audio.varioOn = v; this.store(); this.renderSettings(); })),
       row('Ton', '', seg('setMute', [[false, 'An'], [true, 'Stumm']], set.muted, (v) => { set.muted = v; this.audio.setMuted(v); this.store(); this.renderSettings(); })),
@@ -4807,15 +5270,17 @@ const UIScreens = {
     s.appendChild(el('div', { class: 'panel help' }, [
       el('div', { class: 'eyebrow', text: 'Flugschule' }), el('h2', { text: 'So fliegst du' }),
       el('div', { class: 'diagram', html: diagram }),
+      el('p', { html: '<b>Starten.</b> Nach oben wischen zieht den Schirm auf. Kommt er über dich und schießt vor, kurz beide Bremsen antippen. Hängt er zur Seite, auf der hohen Seite bremsen (hängt er rechts, links ziehen). Steht er, loslaufen: tippen, tippen – erst ruhig, dann immer schneller, am besten abwechselnd links und rechts. In der Luft nach unten wischen, dann sitzt du im Gurtzeug. Wer es einfacher mag: Optionen → Start → Automatisch.' }),
       el('p', { html: '<b>Zwei Bremsen.</b> Die linke Bildschirmhälfte ist die linke Bremse, die rechte Hälfte die rechte. Daumen auflegen und nach unten ziehen – je weiter, desto mehr Bremse. Eine Bremse ziehen fliegt eine Kurve zu dieser Seite, beide zusammen machen den Schirm langsamer und senken das Sinken.' }),
       el('p', { html: '<b>Kurbeln.</b> In der Thermik eine Bremse etwa halb halten, dann kreist der Schirm gleichmäßig. Wird das Piepen schwächer, bist du aus dem Kern – Kurve kurz öffnen und wieder eindrehen. Auf der Karte siehst du die Bärte und deine grüne Steigspur.' }),
       el('p', { html: '<b>Die Karte.</b> Oben links, in Flugrichtung gedreht. Der blaue Keil am Rand zeigt, woher der Wind kommt, das weiße X ist der Landeplatz. Der Bogen links am Rand ist ein Vario: grün nach oben heißt Steigen. Antippen wechselt den Zoom.' }),
       el('p', { html: '<b>Gefahren.</b> Beide Bremsen lange voll gezogen reißt die Strömung ab: sofort loslassen. Eine Bremse tief bei langsamer Fahrt bringt dich ins Trudeln: ebenfalls loslassen. Klappt eine Seite ein, zieh die Bremse auf der offenen Seite etwa halb. Leicht angebremst zu fliegen hält den Schirm in Turbulenz stabil.' }),
-      el('p', { html: '<b>Steilspirale und Ohren.</b> Eine Bremse tief und über 55° Querlage halten ergibt eine Spirale mit mehr als 10 m/s Sinken. Die Taste „Ohren“ faltet die Flügelenden ein und bringt gut 2 m/s mehr Sinken – der sichere Weg nach unten.' }),
+      el('p', { html: '<b>Steilspirale und Ohren.</b> Eine Bremse tief und über 55° Querlage halten ergibt eine Spirale mit mehr als 10 m/s Sinken. Der Ohren-Knopf (links neben Pause, gehalten) faltet die Flügelenden ein und bringt gut 2 m/s mehr Sinken – der sichere Weg nach unten. Rechts neben Pause sitzt der Beschleuniger.' }),
+      el('p', { html: '<b>Zeitraffer.</b> Unter der Karte: 1×, 2×, 4× oder 8×. Er geht ab 120 m über Grund und schaltet sich bei Gefahr und in Bodennähe von selbst zurück.' }),
       el('p', { html: '<b>Landen.</b> Gegen den Wind anfliegen, der Windsack zeigt die Richtung. Etwa 2 m über dem Boden beide Bremsen ganz durchziehen: Das Abfangen verwandelt Fahrt in Auftrieb. Perfekt getroffen gibt es „Butterweich“ und Bonuserfahrung.' }),
       el('p', { html: '<b>Wolken sind tabu.</b> Unter der Basis saugt es weiter hoch. Wer in die Wolke fliegt, verliert die Sicht und den Flug.' }),
       el('div', { class: 'eyebrow', text: 'Am Rechner' }),
-      el('p', { html: '<kbd>←</kbd> <kbd>→</kbd> linke und rechte Bremse · <kbd>↓</kbd> beide · <kbd>Umschalt</kbd> voll durchziehen · <kbd>↑</kbd> oder <kbd>Leertaste</kbd> Beschleuniger · <kbd>E</kbd> Ohren · <kbd>Enter</kbd> Starten · <kbd>P</kbd> Pause' }),
+      el('p', { html: '<kbd>←</kbd> <kbd>→</kbd> linke und rechte Bremse · <kbd>↓</kbd> beide · <kbd>Umschalt</kbd> voll durchziehen · <kbd>↑</kbd> oder <kbd>Leertaste</kbd> Beschleuniger · <kbd>E</kbd> Ohren · <kbd>U</kbd> aufziehen, <kbd>J</kbd> Schritt, <kbd>H</kbd> hinsetzen · <kbd>Enter</kbd> automatisch starten · <kbd>P</kbd> Pause' }),
       this._back(() => this.toTitle()),
     ]));
   },
@@ -4833,9 +5298,15 @@ const UIScreens = {
         el('div', {}, [el('div', { class: 'k', text: 'Uhrzeit' }), el('div', { class: 'v', text: U.fmtClock(g.hour) })]),
       ]),
       el('button', { class: 'btn primary', onclick: () => { this.click(); this.resume(); } }, [el('span', { text: 'Weiterfliegen' })]),
-      el('button', { class: 'btn', onclick: () => { this.click(); this._fromPause = true; this.renderSettings(); this.show('settings'); } }, [el('span', { text: 'Einstellungen' })]),
-      el('button', { class: 'btn', onclick: () => { this.click(); this.startRun(this.lastCfg); } }, [el('span', { text: 'Neu starten' })]),
-      el('button', { class: 'btn ghost', onclick: () => { this.click(); this.game.stop(); this.toTitle(); } }, [el('span', { text: 'Flug abbrechen' })]),
+      el('div', { class: 'row' }, [
+        el('button', { class: 'btn', onclick: () => { this.click(); this.startRun(this.lastCfg); } }, [el('span', { text: 'Neu starten' })]),
+        el('button', { class: 'btn', id: 'btnQuit', onclick: () => { this.click(); this.game.stop(); this.toTitle(); } }, [el('span', { text: 'Hauptmenü' })]),
+      ]),
+      el('div', { class: 'row' }, [
+        el('button', { class: 'btn', onclick: () => { this.click(); this._fromPause = true; this.renderSettings(); this.show('settings'); } }, [el('span', { text: 'Einstellungen' })]),
+        el('button', { class: 'btn', onclick: () => { this.click(); this.editHud(() => { this.renderPause(); this.show('pause'); }); } }, [el('span', { text: 'Cockpit' })]),
+      ]),
+      el('p', { class: 'small', text: 'Hauptmenü bricht den Flug ab, er wird nicht gewertet.' }),
     ]));
   },
 
@@ -5221,11 +5692,11 @@ Object.assign(UI.prototype, UIProgress);
   pauseBtn.addEventListener('click', () => { audio.click(); ui.pause(); });
   const launchBtn = document.getElementById('btnLaunch');
   launchBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
-  launchBtn.addEventListener('click', () => { audio.init(); game.launch(); });
+  launchBtn.addEventListener('click', () => { audio.init(); game.launch(true); });
   const mm = document.getElementById('minimap');
   mm.addEventListener('pointerdown', (e) => { e.stopPropagation(); ui.minimap.cycleZoom(); document.getElementById('zoomTxt').textContent = ui.minimap.zoomLabel(); audio.click(); });
   input.onPause = () => { if (ui.cur === 'pause') ui.resume(); else if (!ui.cur) ui.pause(); else ui.closeScreen(); };
-  input.onStart = () => { if (!ui.cur) game.launch(); };
+  input.onStart = () => { if (!ui.cur) game.launch(true); };   // Eingabetaste: automatischer Start
 
   // Ton erst nach der ersten Berührung (Vorgabe der Browser)
   const wake = () => { audio.init(); window.removeEventListener('pointerdown', wake); window.removeEventListener('keydown', wake); };
