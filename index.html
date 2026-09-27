@@ -497,7 +497,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = '27.09.2026, 17:43 · 3e4c32e';
+window.AUFWIND_BUILD = '27.09.2026, 19:17 · 8de3a7e';
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -3929,8 +3929,8 @@ const QUALITY = {
 
 /* Warum der Zeitraffer gerade nicht geht: [beim Einschalten, beim automatischen Ausschalten] */
 const SPEED_BLOCK = {
-  air: ['Zeitraffer erst in der Luft', 'gelandet'], school: ['In der Flugschule ohne Zeitraffer', 'Flugschule'],
-  low: ['Zeitraffer erst ab 120 m über Grund', 'Bodennähe'], wing: ['Erst den Schirm beruhigen', 'Schirm unruhig'],
+  air: ['Zeitraffer erst in der Luft', 'gelandet'],
+  low: ['Zeitraffer erst ab 80 m über Grund', 'Bodennähe'], wing: ['Erst den Schirm beruhigen', 'Schirm unruhig'],
   cloud: ['Nicht in der Wolke', 'Wolke'], storm: ['Die Böenfront ist zu nah', 'Böenfront'],
 };
 
@@ -4106,7 +4106,7 @@ class Game {
     if (this.map.id === 'dolomiten' || this.map.id === 'fjord') d = Math.min(1, d + 0.15);
     return { cross: 3 + 5 * d, gust: 3 + 15 * d, instab: 0.3 + 0.6 * d, kick: 4 + 22 * d, over: 40, back: 45, easy: false, d };
   }
-  /* Zeitraffer 1×, 2×, 4×, 8×: nur in der Luft, mit Abstand zum Boden und ruhigem Schirm */
+  /* Zeitraffer 1×, 2×, 4×, 8×: in jeder Mission, aber nur in der Luft, ab 80 m über Grund und mit ruhigem Schirm */
   setSpeedup(k) {
     if (k > 1) { const why = this._speedBlock(); if (why) { this.ui.toast(SPEED_BLOCK[why][0]); k = 1; } }
     if (k !== this.speedup) { this.speedup = k; this.audio.click(); }
@@ -4114,8 +4114,7 @@ class Game {
   _speedBlock() {
     const p = this.pilot;
     if (!p || !p.flying || this.over) return 'air';
-    if (this.mission && this.mission.tutorial) return 'school';
-    if (p.agl < 120) return 'low';
+    if (p.agl < 80) return 'low';
     if (p.collapse || p.stall || p.spin) return 'wing';
     if (p.inCloud) return 'cloud';
     if (this.stormEta != null && this.stormEta < 45) return 'storm';
@@ -5140,7 +5139,7 @@ class UI {
     const chipKey = chips.map(c => c.join(':')).join('|');
     if (chipKey !== this._chipKey) { this._chipKey = chipKey; this.$('chips').innerHTML = chips.map(c => `<span class="chip ${c[0]}">${c[1]}</span>`).join(''); }
     // Zeitraffer
-    this._hid('wTime', !(H.show.time && p.flying && !g.over && !(g.mission && g.mission.tutorial)));
+    this._hid('wTime', !(H.show.time && p.flying && !g.over));
     for (const k of TIME_STEPS) this._tog('ts' + k, 'on', (g.speedup || 1) === k);
     // Foto
     if (g.photoFocus) { this._hid('photoRing', false); this._css('photoArc', 'strokeDashoffset', String(Math.round(170 * (1 - g.photoFocus.f)))); this._txt('photoName', g.photoFocus.lm.name); }
@@ -5519,7 +5518,7 @@ const UIScreens = {
       el('p', { html: '<b>Die Karte.</b> Oben links, in Flugrichtung gedreht. Der blaue Keil am Rand zeigt, woher der Wind kommt, das weiße X ist der Landeplatz. Der Bogen links am Rand ist ein Vario: grün nach oben heißt Steigen. Antippen wechselt den Zoom.' }),
       el('p', { html: '<b>Gefahren.</b> Beide Bremsen lange voll gezogen reißt die Strömung ab: sofort loslassen. Eine Bremse tief bei langsamer Fahrt bringt dich ins Trudeln: ebenfalls loslassen. Klappt eine Seite ein, zieh die Bremse auf der offenen Seite etwa halb. Leicht angebremst zu fliegen hält den Schirm in Turbulenz stabil.' }),
       el('p', { html: '<b>Steilspirale und Ohren.</b> Eine Bremse tief und über 55° Querlage halten ergibt eine Spirale mit mehr als 10 m/s Sinken. Der Ohren-Knopf (links neben Pause, gehalten) faltet die Flügelenden ein und bringt gut 2 m/s mehr Sinken – der sichere Weg nach unten. Rechts neben Pause sitzt der Beschleuniger.' }),
-      el('p', { html: '<b>Zeitraffer.</b> Unter der Karte: 1×, 2×, 4× oder 8×. Er geht ab 120 m über Grund und schaltet sich bei Gefahr und in Bodennähe von selbst zurück.' }),
+      el('p', { html: '<b>Zeitraffer.</b> Unter der Karte: 1×, 2×, 4× oder 8×. Er geht in jeder Mission ab 80 m über Grund und schaltet sich bei Gefahr und in Bodennähe von selbst zurück.' }),
       el('p', { html: '<b>Landen.</b> Gegen den Wind anfliegen, der Windsack zeigt die Richtung. Etwa 2 m über dem Boden beide Bremsen ganz durchziehen: Das Abfangen verwandelt Fahrt in Auftrieb. Perfekt getroffen gibt es „Butterweich“ und Bonuserfahrung.' }),
       el('p', { html: '<b>Wolken sind tabu.</b> Unter der Basis saugt es weiter hoch. Wer in die Wolke fliegt, verliert die Sicht und den Flug.' }),
       el('div', { class: 'eyebrow', text: 'Am Rechner' }),
