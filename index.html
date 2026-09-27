@@ -145,12 +145,16 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 .chip { display: inline-block; font-family: var(--font-d); font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; padding: 3px 8px; border-radius: 7px; background: rgba(6, 10, 16, calc(var(--ha) + 0.15)); color: var(--ink); }
 .chip.sun { color: var(--sun-ink); background: var(--sun); text-shadow: none; }
 .chip.bad { color: #fff; background: rgba(255, 106, 92, 0.85); }
-#wTime { left: calc(10px + var(--sl)); top: calc(10px + var(--st) + 142px * var(--hs)); transform-origin: top left; display: flex; align-items: center; gap: 1px; padding: 3px; border-radius: 999px; pointer-events: auto; touch-action: none; }
-#wTime .ticon { display: grid; place-items: center; width: 20px; }
-#wTime .ticon svg { width: 13px; height: 13px; fill: var(--ink-2); }
-.tstop { font-family: var(--font-d); font-size: 11.5px; font-weight: 700; color: var(--ink); min-width: 25px; height: 25px; padding: 0 3px; border-radius: 999px; }
+.chip.good { color: #06220f; background: rgba(124, 252, 154, 0.9); text-shadow: none; }
+/* Unten in einer Reihe: Ohren, Beschleuniger, Zeitraffer (zusammen rund 262 px, mittig) */
+#wTime { left: calc(50% - 12px * var(--hs)); bottom: calc(14px + 9px * var(--hs) + var(--sb)); transform-origin: bottom left; display: flex; align-items: center; gap: 1px; padding: 3px; border-radius: 999px; pointer-events: auto; touch-action: none; }
+.tstop { font-family: var(--font-d); font-size: 11.5px; font-weight: 700; color: var(--ink); min-width: 27px; height: 28px; padding: 0 3px; border-radius: 999px; }
 .tstop.on { background: var(--sun); color: var(--sun-ink); text-shadow: none; }
-#wBtns { left: 50%; bottom: calc(14px + var(--sb)); transform: translateX(-50%) scale(var(--hs)); transform-origin: bottom center; display: flex; gap: 10px; align-items: center; pointer-events: auto; }
+#wBtns { left: calc(50% - 136px * var(--hs)); bottom: calc(14px + var(--sb)); transform-origin: bottom left; display: flex; gap: 10px; align-items: center; pointer-events: auto; }
+#hud.tOff #wBtns { left: 50%; transform: translateX(-50%) scale(var(--hs)); transform-origin: bottom center; }
+/* Pause oben links unter der Karte */
+#wPause { left: calc(10px + var(--sl)); top: calc(10px + var(--st) + 142px * var(--hs)); transform-origin: top left; pointer-events: auto; }
+#wPause .hbtn { width: 40px; height: 40px; }
 .hbtn { width: 52px; height: 52px; border-radius: 15px; display: grid; place-items: center; background: rgba(6, 10, 16, calc(var(--ha) + 0.15)); border: 1px solid rgba(255, 255, 255, calc(var(--ha) * 0.35 + 0.1)); touch-action: none; }
 .hbtn svg { width: 30px; height: 30px; fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7)); }
 .hbtn svg .dot { fill: var(--ink); stroke: none; }
@@ -337,7 +341,9 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 .wbars { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 12px; margin-top: 4px; }
 .wb { display: grid; grid-template-columns: 58px 1fr; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-3); }
 .wb i { display: block; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.wb i { display: flex; }
 .wb b { display: block; height: 100%; background: var(--ink-2); border-radius: 2px; }
+.wb em { display: block; height: 100%; background: var(--climb); border-radius: 0 2px 2px 0; } .wb em.dn { background: rgba(255, 106, 92, 0.75); }
 .wcard .wbody .wb:nth-child(1) b { background: var(--sun); }
 .maps { display: grid; grid-template-columns: 1fr; gap: 6px; }
 .mapcard { display: grid; grid-template-columns: 38px 1fr auto; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 12px; background: var(--night-2); border: 1px solid var(--line); text-align: left; font-family: var(--font-b); }
@@ -384,6 +390,50 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 .sbody { display: flex; flex-direction: column; min-width: 0; }
 .sbody .nm { font-family: var(--font-d); font-weight: 700; font-size: 15px; } .sbody .mt { font-size: 12px; color: var(--ink-3); }
 .sitem .swatch { width: 54px; height: 54px; border-radius: 12px; background: linear-gradient(180deg, var(--rs) 0 45%, var(--rc) 45%); }
+
+/* Werkstatt, Perks, Design-Werkstatt */
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } .trio.two { grid-template-columns: 1fr 1fr; }
+.trio .mode { min-height: 58px; }
+.sw.big { width: 84px; height: 84px; border-radius: 16px; background: linear-gradient(180deg, #2f6fb8, #7fb5e6); display: grid; place-items: center; flex-shrink: 0; }
+.sw.big svg { width: 76px; height: 76px; }
+.tunetop { display: flex; gap: 14px; align-items: center; } .tunetop .wbars { flex: 1; grid-template-columns: 1fr; }
+.tunestats .v { font-family: var(--font-d); font-weight: 700; font-size: 17px; font-variant-numeric: tabular-nums; }
+.tunestats .v.up { color: var(--climb); } .tunestats .v.down { color: var(--sink); }
+.tunestats .was { font-size: 10.5px; color: var(--ink-3); }
+.uprow { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 13px; background: var(--night-2); border: 1px solid var(--line); }
+.uprow .buy { margin-top: 0; }
+.uph { display: flex; align-items: center; gap: 10px; }
+.pips { display: inline-flex; gap: 4px; } .pips i { width: 16px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.12); } .pips i.on { background: var(--climb); }
+.trimseg { align-self: stretch; } .trimseg button { flex: 1; padding: 9px 4px; }
+.pslots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pslot { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-height: 76px; padding: 9px 10px; border-radius: 13px; border: 1px dashed rgba(166, 196, 232, 0.35); background: rgba(18, 41, 74, 0.5); text-align: left; }
+.pslot.on { border: 1px solid var(--sun); background: linear-gradient(160deg, rgba(255, 194, 75, 0.18), var(--night-2) 70%); }
+.pslot.lock { border-style: solid; border-color: var(--line); }
+.pslot .pl { font-family: var(--font-d); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+.pslot .pn { font-family: var(--font-d); font-weight: 700; font-size: 14px; line-height: 1.15; } .pslot .pn.free { color: var(--ink-3); font-weight: 400; }
+.pslot .pfx, .pcard .pfx { font-family: var(--font-d); font-weight: 700; color: var(--sun); font-variant-numeric: tabular-nums; }
+.pslots > * { min-width: 0; }
+.pslot .buy { margin-top: auto; font-size: 10.5px; padding: 6px 7px; min-height: 30px; letter-spacing: 0.02em; white-space: normal; text-align: center; }
+.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.pcard { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 11px 12px; border-radius: 13px; background: var(--night-2); border: 1px solid var(--line); }
+.pcard .pfx { font-size: 26px; line-height: 1; letter-spacing: -0.01em; }
+.pcard.sel { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); }
+.pcard.locked .pfx { color: var(--ink-2); }
+.pcard .dn { font-family: var(--font-d); font-weight: 700; font-size: 14.5px; } .pcard .dd { font-size: 11.5px; color: var(--ink-3); line-height: 1.3; flex: 1; }
+.dprev { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 0 2px; }
+.sw.huge { width: min(100%, 300px); aspect-ratio: 16 / 10; border-radius: 18px; background: linear-gradient(180deg, #2a64b0 0%, #86bce9 70%, #cfe6f7 100%); display: grid; place-items: center; overflow: hidden; }
+.sw.huge svg { width: 96%; height: 96%; }
+.patgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.patcard { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 4px 8px; border-radius: 12px; background: var(--night-2); border: 1px solid var(--line); text-align: center; min-width: 0; }
+.patcard .sw { width: 48px; height: 48px; border-radius: 10px; background: linear-gradient(180deg, #2f6fb8, #7fb5e6); display: grid; place-items: center; }
+.patcard .sw svg { width: 44px; height: 44px; }
+.patcard .dn { font-size: 10.5px; font-weight: 700; line-height: 1.15; color: var(--ink-2); overflow-wrap: anywhere; hyphens: auto; }
+.patcard.sel { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); } .patcard.sel .dn { color: var(--sun); }
+.patcard.locked .sw { opacity: 0.55; } .patcard .buy { font-size: 10.5px; padding: 5px 7px; min-height: 30px; letter-spacing: 0.02em; }
+.swatches { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; }
+.swc { aspect-ratio: 1; border-radius: 50%; background: var(--c); border: 2px solid rgba(255, 255, 255, 0.18); min-width: 0; }
+.swc.on { border-color: var(--sun); box-shadow: 0 0 0 2px var(--night), 0 0 0 4px var(--sun); }
+@media (max-width: 420px) { .patgrid { grid-template-columns: repeat(4, 1fr); } .trio .mode small { font-size: 10.5px; } .pslot .pn { font-size: 12.5px; } }
 
 /* Einstellungen */
 .setting { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); }
@@ -463,7 +513,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 /* ---------------- Querformat am Handy ---------------- */
 @media (orientation: landscape) and (max-height: 540px) {
   #wMap { width: 104px; } #minimap { width: 104px; height: 104px; }
-  #wTime { top: calc(8px + var(--st) + 126px * var(--hs)); }
+  #wPause { top: calc(8px + var(--st) + 126px * var(--hs)); }
   .rail .track { height: 90px; }
   #launchPanel { bottom: calc(78px + var(--sb)); }
   .gthumb { top: 30%; } .gthumb .gtrack { height: 100px; } .gthumb .glbl { top: 118px; }
@@ -497,7 +547,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = '27.09.2026, 19:29 · 9667186';
+window.AUFWIND_BUILD = '27.09.2026, 22:09 · 04690e4';
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -755,8 +805,10 @@ const MAPS = [
     start: { x: 0, z: 0, heading: 200 },
     // Startplatz 50 m unter dem Gasthof Tulper (paraglidingearth.com), Landeplatz laut OpenStreetMap
     sites: { launch: { lat: 46.7629, lon: 11.7545, heading: 200 }, landing: { lat: 46.74767, lon: 11.74877 } },
-    decor: { trees: [['fichte', 0.6], ['laerche', 0.25], ['laub', 0.15]], lone: 0.06, bush: 'latsche', rocks: 0.6, houses: 'bayern', barn: 'stadel', church: 'kirche',
+    decor: { trees: [['fichte', 0.6], ['laerche', 0.25], ['laub', 0.15]], lone: 0.1, bush: 'latsche', rocks: 0.6, houses: 'bayern', barn: 'stadel', church: 'kirche',
       farms: 0.6, hay: true, fields: [0xd8c46a, 0xe8dc4e, 0x5f9a3a, 0x8f7048, 0x9fcf5f],
+      // dichter Fichten-Lärchen-Wald, Lärchenwiesen, Bergbauernhöfe (950–1750 m), Heustadel, Almhütten der Lüsner Alm
+      forestBoost: 1.0, larchFrom: 1500, alm: { farms: [950, 1750, 14], stadel: [1100, 2050, 16], huts: [1700, 2300, 14], chapels: 0.35 },
       animals: [['kuh', 'meadow', 4, 9, 2], ['schaf', 'meadow', 6, 12, 1], ['gams', 'rock', 3, 6, 1]], landingHerd: 'kuh', specials: [] },
     landmarks: [
       { id: 'kirche', type: 'kirche', name: 'Pfarrkirche Lüsen', lat: 46.7465, lon: 11.76092 },
@@ -790,6 +842,7 @@ const MAPS = [
     sites: { launch: { lat: 50.49709, lon: 9.93129, heading: 275 }, landing: { lat: 50.50542, lon: 9.90729 } },
     decor: { trees: [['laub', 0.62], ['fichte', 0.3], ['birke', 0.08]], lone: 0.09, bush: 'busch', rocks: 0.2, houses: 'bayern', barn: 'stadel', church: 'kirche',
       farms: 0.6, hay: true, fields: [0xd8c46a, 0xe8dc4e, 0x5f9a3a, 0x8f7048, 0x9fcf5f],
+      forestBoost: 0.9, alm: { farms: [420, 850, 6], stadel: [450, 900, 5], huts: null, chapels: 0.15 },
       animals: [['schaf', 'meadow', 8, 16, 2], ['kuh', 'meadow', 4, 8, 1]], landingHerd: 'schaf', specials: ['segelflieger'] },
     landmarks: [
       { id: 'radom', type: 'radom', name: 'Radom auf der Wasserkuppe', lat: 50.49809, lon: 9.9363 },
@@ -1096,6 +1149,110 @@ const DESIGNS = [
   { id: 'gold', name: 'Goldstück', price: 1000, main: 0xe8b73a, stripe: 0x151515, desc: 'Für echte Adleraugen.' },
 ];
 const DESIGN_BY_ID = Object.fromEntries(DESIGNS.map(d => [d.id, d]));
+
+/* ---------- Eigene Designs (Design-Werkstatt) ----------
+   Ein eigenes Design ist { id: 'eigen', pat, c: [Farbe 1, 2, 3], nose }. Muster färben die 16 Zellen von
+   links nach rechts; nose färbt die Eintrittskante in Farbe 3. Muster mit price kosten einmal Münzen. */
+const DESIGN_PATTERNS = [
+  { id: 'uni', name: 'Einfarbig', price: 0 }, { id: 'mitte', name: 'Mittelstreifen', price: 0 }, { id: 'spitzen', name: 'Spitzen', price: 0 },
+  { id: 'bloecke', name: 'Blöcke', price: 80 }, { id: 'streifen', name: 'Nadelstreifen', price: 80 }, { id: 'fluegel', name: 'Zwei Flügel', price: 120 },
+  { id: 'dreifarbig', name: 'Trikolore', price: 120 }, { id: 'verlauf', name: 'Verlauf', price: 180 },
+];
+const DESIGN_PATTERN_BY_ID = Object.fromEntries(DESIGN_PATTERNS.map(p => [p.id, p]));
+const DESIGN_COLORS = [0xf6f6f2, 0x8a9099, 0x16181f, 0xd7261e, 0xff7a1a, 0xffc93c, 0xe8b73a, 0x9bd13a, 0x2e9b4a, 0x1e5b34,
+  0x20b8b0, 0x3aa0ff, 0x2a5fd4, 0x1a2a5c, 0x6a3fc0, 0xb0268a, 0xff4f9a, 0x7a4a2a];
+function mixHex(a, b, t) {
+  const f = (s) => Math.round(((a >> s) & 255) * (1 - t) + ((b >> s) & 255) * t);
+  return (f(16) << 16) | (f(8) << 8) | f(0);
+}
+/* Farben der N Zellen einer Kappe (links → rechts) für Werksfarben, Laden-Designs und eigene Designs.
+   main: Grundfarbe (Leuchten der Kappe), le: Farbe der Eintrittskante oder null. */
+function designCells(wing, d, N) {
+  N = N || 16; const cells = new Array(N), h = N / 2;
+  d = d && d.id !== 'werk' ? d : null;
+  if (d && d.pat) {
+    const [a, b, c] = d.c;
+    for (let i = 0; i < N; i++) {
+      const m = i < h ? i : N - 1 - i;                      // Abstand von der Flügelspitze, symmetrisch
+      let col = a;
+      switch (d.pat) {
+        case 'uni': col = m === 0 ? b : a; break;
+        case 'mitte': col = m >= h - 2 ? b : (m === h - 3 ? c : a); break;
+        case 'spitzen': col = m < 2 ? b : (m === 2 ? c : a); break;
+        case 'bloecke': col = Math.floor(i / 2) % 2 ? b : a; break;
+        case 'streifen': col = m >= h - 1 ? c : (i % 3 === 1 ? b : a); break;
+        case 'fluegel': col = (i === h - 1 || i === h) ? c : (i < h ? a : b); break;
+        case 'dreifarbig': col = i < Math.round(N / 3) ? a : (i < N - Math.round(N / 3) ? b : c); break;
+        case 'verlauf': col = mixHex(a, b, m / (h - 1)); break;
+      }
+      cells[i] = col;
+    }
+    return { cells, main: a, le: d.nose ? c : null };
+  }
+  if (d && d.cells) { for (let i = 0; i < N; i++) cells[i] = d.cells[i % d.cells.length]; return { cells, main: d.cells[0], le: null }; }
+  const main = d && d.main != null ? d.main : wing.color, stripe = d && d.stripe != null ? d.stripe : wing.stripe;
+  const pattern = Math.max(0, WINGS.findIndex(x => x.id === wing.id)) % 4;
+  for (let i = 0; i < N; i++) {
+    if (pattern === 0) cells[i] = (i < 2 || i >= N - 2) ? stripe : main;
+    else if (pattern === 1) cells[i] = (i % 3 === 1) ? stripe : main;
+    else if (pattern === 2) cells[i] = (i >= 6 && i <= 9) ? stripe : main;
+    else cells[i] = (i < N / 2) ? main : stripe;
+  }
+  return { cells, main, le: null };
+}
+
+/* ---------- Werkstatt: Verbesserungen je Schirm (3 Stufen) und Trimmer ----------
+   Preis je Stufe = UPGRADE_COST × (1 + 0,12 × Rang des Schirms), auf 5 Münzen gerundet. */
+const UPGRADES = [
+  { id: 'glide', name: 'Gleiten', desc: 'Glatteres Tuch, weniger Leinenwiderstand', step: '+3,5 % Gleitzahl je Stufe' },
+  { id: 'climb', name: 'Steigen', desc: 'Leichtere Kappe, besseres Profil', step: '−3,5 % Sinken je Stufe' },
+  { id: 'speed', name: 'Tempo', desc: 'Längerer Beschleunigerweg', step: '+1 km/h Trimm, +1,6 km/h voll je Stufe' },
+  { id: 'handling', name: 'Wendigkeit', desc: 'Direktere Bremse, schnellere Kurven', step: '+7 % Wendigkeit, +2° Querlage je Stufe' },
+  { id: 'safety', name: 'Sicherheit', desc: 'Verstärkte Eintrittskante', step: '+10 % Klapper-Widerstand je Stufe' },
+];
+const UPGRADE_COST = [40, 90, 180];
+function upgradeCost(wing, lvl) { const r = Math.max(0, WINGS.findIndex(w => w.id === wing.id)); return Math.round(UPGRADE_COST[lvl] * (1 + 0.12 * r) / 5) * 5; }
+/* Trimmer −2 … +2: Tuch gezogen (langsam, steigt besser, stabiler) oder offen (schneller, sinkt mehr, nervöser) */
+const TRIM_STEPS = [[-2, 'Steigen'], [-1, ''], [0, 'Neutral'], [1, ''], [2, 'Tempo']];
+
+/* ---------- Perks: bis zu zwei (mit gekauftem dritten Platz drei) gleichzeitig aktiv ---------- */
+const PERKS = [
+  { id: 'thermik', name: 'Thermiknase', fx: '+15 %', desc: 'Bärte tragen dich 15 % stärker nach oben.', price: 300 },
+  { id: 'stahl', name: 'Stahlnerven', fx: '−30 %', desc: '30 % weniger Klapper in Turbulenz.', price: 250 },
+  { id: 'leicht', name: 'Leichtgepäck', fx: '−7 %', desc: 'Leichteres Gurtzeug: 7 % weniger Sinken.', price: 280 },
+  { id: 'ruhig', name: 'Ruhige Hand', fx: '−35 %', desc: 'Turbulenz schüttelt dich 35 % weniger durch.', price: 200 },
+  { id: 'turbo', name: 'Turbolader', fx: '+6 %', desc: 'Voller Beschleuniger ist 6 % schneller.', price: 220 },
+  { id: 'landung', name: 'Butterfüße', fx: '+35 %', desc: 'Landungen verzeihen 35 % mehr Sinken – leichter perfekt.', price: 180 },
+  { id: 'anlauf', name: 'Sprinter', fx: '+25 %', desc: 'Kräftigere Schritte beim Anlauf, der Takt verzeiht mehr.', price: 120 },
+  { id: 'foto', name: 'Schnellauslöser', fx: '×1,6', desc: 'Fotos sind 60 % schneller scharf.', price: 150 },
+  { id: 'schnueffler', name: 'Bartschnüffler', fx: '250 m', desc: 'Piept, wenn ein Bart näher als 250 m ist, und zeigt dir die Richtung.', price: 350 },
+  { id: 'engel', name: 'Schutzengel', fx: '1×', desc: 'Einmal pro Flug wird ein Absturz zur harten Landung (nicht im Wasser).', price: 450 },
+  { id: 'muenzen', name: 'Sparfuchs', fx: '+25 %', desc: '25 % mehr Münzen für jeden Flug.', price: 400 },
+  { id: 'xp', name: 'Lernbegierig', fx: '+15 %', desc: '15 % mehr Erfahrung für jeden Flug.', price: 400 },
+];
+const PERK_BY_ID = Object.fromEntries(PERKS.map(p => [p.id, p]));
+const PERK_SLOT3 = 500;
+
+/* Schirm mit Verbesserungen, Trimmer und Perks: eigenes Objekt mit denselben Feldern (id bleibt gleich) */
+function tunedWing(base, tune, perks) {
+  const w = Object.assign({}, base), up = (tune && tune.up) || {}, t = (tune && tune.trim) || 0, has = (id) => !!perks && perks.indexOf(id) >= 0;
+  const L = (k) => U.clamp(up[k] || 0, 0, 3);
+  w.glide *= 1 + 0.035 * L('glide');
+  w.sMin *= 1 - 0.035 * L('climb');
+  w.vTrim += 0.28 * L('speed'); w.vMax += 0.45 * L('speed');
+  w.agility *= 1 + 0.07 * L('handling'); w.bank += 2 * L('handling');
+  w.stability *= 1 + 0.1 * L('safety');
+  // Trimmer: offen = schneller, sinkt mehr, weniger stabil; gezogen = umgekehrt
+  w.vTrim += 0.3 * t; w.vMinSink += 0.15 * t; w.sMin += 0.02 * t; w.vMax += 0.15 * t; w.stability *= 1 - 0.05 * t;
+  if (has('leicht')) w.sMin *= 0.93;
+  if (has('stahl')) w.stability /= 0.7;
+  if (has('turbo')) w.vMax *= 1.06;
+  // Polare gültig halten: Trimm schneller als bestes Sinken, Sinken bei Trimm über dem geringsten Sinken
+  w.vMinSink = Math.min(w.vMinSink, w.vTrim - 0.8);
+  w.sMin = Math.min(w.sMin, w.vTrim / w.glide - 0.01);
+  w.tuned = true;
+  return w;
+}
 
 /* ---------- Herausforderungen über alle Flüge ----------
    kind: 'sum' zählt über alle Flüge, 'max' bester Einzelflug (höher ist besser),
@@ -1525,6 +1682,16 @@ function decorGeo(kind, pal) {
     case 'fichte': return colGeo([[stem(0.3, 0.45, 3.2, 4, 0, 1.6, 0), trunk], [cone(4.0, 7.5, 6, 0, 6.3, 0, true), tree], [cone(3.1, 6.5, 6, 0, 9.6, 0, true), _tint(tree, 1.07)], [cone(2.0, 5.2, 6, 0, 12.8, 0, true), _tint(tree, 1.14)]], true);
     case 'laerche': return colGeo([[stem(0.25, 0.4, 4, 4, 0, 2, 0), 0x6b4a30], [cone(2.8, 6.5, 6, 0, 6.8, 0, true), _mix(tree, 0xa8b84a, 0.55)], [cone(2.0, 5.5, 6, 0, 10.4, 0, true), _mix(tree, 0xb8c85a, 0.6)]], true);
     case 'laub': return colGeo([[stem(0.4, 0.6, 5, 4, 0, 2.5, 0), trunk], [ico(4.2, 1, 0.85, 1, 0, 7.6, 0), _mix(forest, 0x6fa040, 0.45)], [oct(2.9, 1, 0.9, 1, 1.6, 9.8, -0.8), _mix(forest, 0x86b44c, 0.5)]], true);
+    // Waldgruppen für den dichten Wald im echten Gelände: acht Kronen ohne Stamm auf rund 12 m (32 bzw. 48 Dreiecke)
+    case 'forst': case 'forstl': {
+      const L = kind === 'forstl', c0 = L ? _mix(tree, 0xa8b84a, 0.55) : new THREE.Color(tree);
+      const P = [[0, 0, 13, 3.3], [5.6, 1.4, 11, 3.0], [-4.6, 3.6, 12, 3.1], [1.4, -5.6, 10, 2.8], [-3.2, -4.2, 12.5, 3.2], [9.5, -4, 10.5, 2.9], [-9, -1.5, 11.5, 3.0], [3, 9.5, 12, 3.1]];
+      return colGeo(P.map(([x, z, h, r], i) => [new THREE.ConeGeometry(r * (L ? 0.8 : 1), h, 4, 1, true).rotateY(i * 0.7).translate(x, h / 2 - 1.2, z), c0.clone().multiplyScalar(0.9 + 0.045 * i)]), true);
+    }
+    case 'laubgr': {
+      const c0 = _mix(forest, 0x6fa040, 0.45), P = [[0, 0, 9, 4.2], [6, 1.5, 8, 3.8], [-5, 3.5, 8.5, 4], [1.5, -6, 7.5, 3.6], [-3.5, -4.5, 9.5, 4.1], [9.5, -4.5, 8, 3.7]];
+      return colGeo(P.map(([x, z, h, r], i) => [oct(r, 1, 0.8, 1, x, h - 1, z), c0.clone().multiplyScalar(0.88 + 0.06 * i)]), true);
+    }
     case 'birke': return colGeo([[stem(0.2, 0.3, 7, 4, 0, 3.5, 0), 0xe6e2d6], [ico(2.4, 0.9, 1.6, 0.9, 0, 8.6, 0), 0x96bf56]], true);
     case 'olive': return colGeo([[stem(0.35, 0.55, 2.6, 4, 0, 1.3, 0), 0x6e5a44], [ico(3.2, 1.25, 0.7, 1.2, 0, 3.8, 0), 0x7f9160]], true);
     case 'pinie': return colGeo([[stem(0.35, 0.5, 9, 4, 0, 4.5, 0), 0x7a5234], [cyl(4.8, 3.0, 2.0, 6, 0, 10, 0), 0x3d6a33]], true);
@@ -1563,6 +1730,8 @@ function decorGeo(kind, pal) {
       p.push([cyl(1.2, 1.2, 0.35, 8, 0, 23, 0), 0x3f7a34], [box(3.6, 0.5, 0.2, 0, 17, 0), 0xf4f4f4], [box(0.2, 0.5, 3.6, 0, 13, 0), 0x3a6fd0]);
       return colGeo(p);
     }
+    case 'kapelle': return colGeo([[box(4.4, 4.2, 6.6, 0, 2.1, 0.6), 0xf4f0e6], [prism(7.4, 5.2, 2.2, -0.6, 4.2, 0).rotateY(Math.PI / 2), 0x8a3a28],
+      [box(1.9, 3.2, 1.9, 0, 5.8, -2.4), 0xf4f0e6], [cone(1.35, 2.8, 4, 0, 8.8, -2.4), 0x3d5c50], [box(1.2, 2.1, 0.12, 0, 1.05, -2.72), 0x6a4a30]]);
     case 'huette': return colGeo([[box(9, 2.6, 7, 0, 1.3, 0), 0x9a9288], [box(9.1, 2.4, 7.1, 0, 3.8, 0), 0x6a4a30], [prism(10.4, 8.4, 2.4, 0, 5, 0), 0x55504a], [box(3, 0.2, 1.4, 0, 2.7, -4.2), 0x6a4a30], [box(0.12, 4, 0.12, 5.2, 2, -3.6), 0xe6e6e6], [box(1.8, 1.2, 0.08, 6.1, 3.4, -3.6), 0xd8322a]]);
     case 'norwegen': return colGeo([[box(8, 5, 6, 0, 2.5, 0), 0xa8322a], [box(8.3, 0.4, 6.3, 0, 5, 0), 0xf4f4f4], [prism(9, 7.2, 2.6, 0, 5.1, 0), 0x6f8f3a], [box(1.4, 1.2, 0.2, -2, 3, -3.05), 0xf4f4f4], [box(1.4, 1.2, 0.2, 2, 3, -3.05), 0xf4f4f4], [box(1.2, 2.2, 0.2, 0, 1.1, -3.05), 0x3a2a20]]);
     case 'mittelmeer': return colGeo([[box(7, 5, 7, 0, 2.5, 0), 0xf6f3ea], [box(7.4, 0.5, 7.4, 0, 5.2, 0), 0xe8e2d4], [box(1.2, 2.2, 0.2, -1.4, 1.1, -3.55), 0x2f6fb0], [box(1.2, 1.1, 0.2, 1.8, 3.2, -3.55), 0x2f6fb0], [box(4, 3, 4, 1.5, 6.9, 1.5), 0xf6f3ea], [box(4.3, 0.3, 4.3, 1.5, 8.5, 1.5), 0xc8643a]]);
@@ -1650,12 +1819,24 @@ class Decor {
     // Arten dieses Gebiets
     const c = this.cfg, d = this.det;
     const add = (k, per, nearOnly) => { if (per > 0 && this.active && !this.pools[k]) { const g = decorGeo(k, this.pal); if (g) this.pools[k] = new DecorPool(this.scene, g, this.mat, Math.ceil(per * (nearOnly ? near : eq))); } };
-    for (const [k, share] of (c.trees || [])) add(k, d.trees * Math.max(share, 0.3) * 1.2);
-    if (this.pools.fichte && (c.trees || []).some(t => t[0] === 'laerche')) add('laerche', d.trees * 0.35);
+    // Lärchen stehen im echten Gelände schon ab larchFrom: mehr Platz im Topf
+    const larch = c.larchFrom != null ? 1.6 : 1;
+    for (const [k, share] of (c.trees || [])) add(k, d.trees * Math.max(share, 0.3) * 1.2 * (k === 'laerche' ? larch : 1));
+    if (this.pools.fichte && (c.trees || []).some(t => t[0] === 'laerche')) add('laerche', d.trees * 0.35 * larch);
+    // Dichter Wald (echtes Gelände): im geschlossenen Wald stehen Waldgruppen statt Einzelbäumen, nahe Ringe bekommen mehr
+    if (c.forestBoost) {
+      const conifer = (c.trees || []).some(t => t[0] === 'fichte' && t[1] >= 0.4), per = d.trees * (1.3 + c.forestBoost * near / Math.max(1, eq));
+      add(conifer ? 'forst' : 'laubgr', per);
+      if (conifer && c.larchFrom != null) add('forstl', per * 0.6);
+    }
     add('fels', d.rocks);
     if (c.bush && d.bushes) add(c.bush, d.bushes, true);
     if (c.houses) { const real = !!this.map.cover; add(c.houses, real ? 45 : 24); if (c.barn) add(c.barn, real ? 10 : 6); if (c.church) add(c.church, 2); if (c.pole) add(c.pole, 2); }
     if (c.hay && d.small) add('heu', 14, true);
+    if (c.alm) {                                            // Bergbauernhöfe, Heustadel, Almhütten, Kapellen
+      if (c.houses) add(c.houses, c.alm.farms[2] * 1.3); if (c.barn) add(c.barn, (c.alm.farms[2] + c.alm.stadel[2]) * 1.1);
+      if (c.alm.huts) add('huette', c.alm.huts[2] * 1.2); if (c.alm.chapels) add('kapelle', 1.5);
+    }
     if (c.pump) add('windpumpe', 2);
     // Tiere: ein Topf je Art für alle Herden
     this.animal = {};
@@ -1687,7 +1868,9 @@ class Decor {
     // Wald in Gruppen und Einzelbäume
     const treeShares = c.trees || [];
     const pickTree = (u) => { let acc = 0; for (const [k, sh] of treeShares) { acc += sh; if (u <= acc) return k; } return treeShares.length ? treeShares[0][0] : null; };
-    const thr = c.forestThr != null ? c.forestThr : 0.07;
+    const thr = c.forestThr != null ? c.forestThr : 0.07, larchH = c.larchFrom != null ? c.larchFrom : m.treeLine - 250;
+    const groupKind = (h, u) => this.pools.forst ? (this.pools.forstl && h > larchH && u < 0.5 ? 'forstl' : 'forst') : (this.pools.laubgr ? 'laubgr' : null);
+    const group = (kind, x, z, h, sl, q) => push(kind, x, h - 0.3 - sl * 6, z, 0.8 + R(q, 5) * 0.45, R(q, 6) * 6.28, 0.9 + R(q, 7) * 0.3 + sl * 0.3, 0.78 + R(q, 8) * 0.3);
     for (let k = 0; k < d.trees * 1.6; k++) {
       if (R(k, 9) > level) continue;
       const x = x0 + (R(k, 0) - 0.5) * CHUNK, z = z0 + (R(k, 1) - 0.5) * CHUNK;
@@ -1698,8 +1881,12 @@ class Decor {
       if (h > m.treeLine + (lone ? -100 : 0) || wet(x, z, h)) continue;
       if (nearSite(x, z, 170, 90)) continue;
       const g = W.gradient(x, z); if (Math.hypot(g.x, g.z) > 0.9) continue;
+      // Echtes Gelände: im geschlossenen Wald eine Waldgruppe (fünf Kronen) statt eines Einzelbaums
+      // nah bleibt ein Teil Einzelbaum (Stamm, Artenmix), weiter weg nur Gruppen – dichter und billiger
+      const gk = !lone && f > thr + 0.12 && R(k, 24) < (level >= 0.99 ? 0.7 : 1) ? groupKind(h, R(k, 4)) : null;
+      if (gk && h < m.treeLine - 40) { group(gk, x, z, h, Math.hypot(g.x, g.z), k); continue; }
       let kind = pickTree(R(k, 3));
-      if (h > m.treeLine - 250 && this.pools.laerche && R(k, 4) < 0.6) kind = 'laerche';
+      if (h > larchH && this.pools.laerche && R(k, 4) < (lone ? 0.85 : 0.6)) kind = 'laerche';
       push(kind, x, h - 0.6, z, 0.75 + R(k, 5) * 0.6, R(k, 6) * 6.28, 0.85 + R(k, 7) * 0.35, 0.82 + R(k, 8) * 0.3);
       // Im Wald stehen Bäume in Gruppen: ein, zwei Nachbarn dicht daneben
       if (!lone && f > thr + 0.08) for (let j = 0; j < 2; j++) {
@@ -1707,6 +1894,51 @@ class Decor {
         const a = R(k, 12 + j) * 6.28, r = 6 + R(k, 14 + j) * 9, bx = x + Math.cos(a) * r, bz = z + Math.sin(a) * r, bh = W.height(bx, bz);
         if (bh > m.treeLine || wet(bx, bz, bh)) continue;
         push(kind, bx, bh - 0.6, bz, 0.65 + R(k, 16 + j) * 0.5, R(k, 18 + j) * 6.28, 0.85 + R(k, 20 + j) * 0.35, 0.8 + R(k, 22 + j) * 0.3);
+      }
+    }
+    // Echtes Gelände: der Wald ist so dicht wie in den Satellitendaten – zusätzliche Gruppen im geschlossenen Wald,
+    // nur in den nahen Ringen (dort sieht man einzelne Bäume; weiter weg reicht die dunkle Waldfarbe des Geländes)
+    if (c.forestBoost && level >= 0.99) for (let k = 0; k < d.trees * c.forestBoost; k++) {
+      const q = 40000 + k;
+      const x = x0 + (R(q, 0) - 0.5) * CHUNK, z = z0 + (R(q, 1) - 0.5) * CHUNK, f = W.forest(x, z);
+      if (f < thr + 0.12) continue;
+      const h = W.height(x, z); if (h > m.treeLine - 40 || wet(x, z, h) || nearSite(x, z, 190, 110)) continue;
+      const g = W.gradient(x, z), sl = Math.hypot(g.x, g.z); if (sl > 1.1) continue;
+      group(groupKind(h, R(q, 4)), x, z, h, sl, q);                      // so tief, dass die talseitigen Kronen auf dem Boden stehen
+    }
+    // Echtes Gelände: Bergbauernhöfe am Hang, Heustadel auf den Wiesen, Almhütten, Wegkapellen
+    if (c.alm && m.cover) {
+      const A = c.alm, open = (x, z) => { const cv = m.cover(x, z); return (cv === 0 || cv === 7 || cv === 1) && W.forest(x, z) < thr; };
+      const place = (k, x, z, h, sl, face, s) => push(k, x, h - 0.5 - sl * 4.5, z, s, face, 1, 0.86 + ((Math.round(x * 7 + z * 13) & 255) / 255) * 0.2);
+      for (let k = 0; k < A.farms[2]; k++) {                // Höfe, gern zu Weilern gehäuft
+        const q = 30000 + k; if (R(q, 9) > Math.max(level, 0.45)) continue;
+        const x = x0 + (R(q, 0) - 0.5) * CHUNK, z = z0 + (R(q, 1) - 0.5) * CHUNK, h = W.height(x, z);
+        if (h < A.farms[0] || h > A.farms[1] || !open(x, z) || wet(x, z, h) || nearSite(x, z, 200, 110)) continue;
+        if (N.noise(x / 1400 + 5, z / 1400 - 2) < -0.15 && R(q, 2) < 0.75) continue;
+        const g = W.gradient(x, z), sl = Math.hypot(g.x, g.z); if (sl > 0.55) continue;
+        const face = Math.atan2(g.x, g.z) + (R(q, 3) - 0.5) * 0.4;          // Giebel zum Tal
+        place(c.houses, x, z, h, sl, face, 0.85 + R(q, 4) * 0.3);
+        if (c.barn && R(q, 5) < 0.8) { const a = face + Math.PI / 2 * (R(q, 6) < 0.5 ? 1 : -1), bx = x + Math.sin(a) * 19, bz = z + Math.cos(a) * 19, bg = W.gradient(bx, bz);
+          place(c.barn, bx, bz, W.height(bx, bz), Math.hypot(bg.x, bg.z), face, 0.8 + R(q, 7) * 0.25); }
+      }
+      for (let k = 0; k < A.stadel[2]; k++) {               // einzelne Heustadel mitten in den Bergwiesen
+        const q = 31000 + k; if (R(q, 9) > level) continue;
+        const x = x0 + (R(q, 0) - 0.5) * CHUNK, z = z0 + (R(q, 1) - 0.5) * CHUNK, h = W.height(x, z);
+        if (h < A.stadel[0] || h > A.stadel[1] || !open(x, z) || wet(x, z, h) || nearSite(x, z, 170, 90)) continue;
+        const g = W.gradient(x, z), sl = Math.hypot(g.x, g.z); if (sl > 0.6) continue;
+        place(c.barn, x, z, h, sl, Math.atan2(g.x, g.z) + (R(q, 3) - 0.5) * 0.6, 0.55 + R(q, 4) * 0.25);
+      }
+      if (A.huts) for (let k = 0; k < A.huts[2]; k++) {    // Almhütten in Gruppen auf den Almwiesen
+        const q = 32000 + k; if (R(q, 9) > Math.max(level, 0.45)) continue;
+        const x = x0 + (R(q, 0) - 0.5) * CHUNK, z = z0 + (R(q, 1) - 0.5) * CHUNK, h = W.height(x, z);
+        if (h < A.huts[0] || h > A.huts[1] || !open(x, z) || wet(x, z, h) || nearSite(x, z, 170, 90)) continue;
+        if (N.noise(x / 1100 - 9, z / 1100 + 4) < 0.05) continue;
+        const g = W.gradient(x, z), sl = Math.hypot(g.x, g.z); if (sl > 0.45) continue;
+        place('huette', x, z, h, sl, Math.atan2(g.x, g.z) + (R(q, 3) - 0.5) * 0.5, 0.75 + R(q, 4) * 0.3);
+      }
+      if (A.chapels && R(33000, 1) < A.chapels * Math.max(level, 0.5)) {   // hin und wieder eine Wegkapelle
+        const x = x0 + (R(33000, 2) - 0.5) * CHUNK, z = z0 + (R(33000, 3) - 0.5) * CHUNK, h = W.height(x, z), g = W.gradient(x, z), sl = Math.hypot(g.x, g.z);
+        if (open(x, z) && sl < 0.4 && !wet(x, z, h) && !nearSite(x, z, 170, 90)) place('kapelle', x, z, h, sl, Math.atan2(g.x, g.z), 1);
       }
     }
     // Felsen: steile Hänge und über der Baumgrenze
@@ -2925,19 +3157,10 @@ function buildGliderModel(wing, opts) {
   const rig = new THREE.Group(); root.add(rig);
   const canopy = new THREE.Group(); canopy.position.y = RIG; rig.add(canopy);
   const N = 16, Rw = 5.2, maxA = U.rad(76);
-  const d = opts.design && opts.design.id !== 'werk' ? opts.design : null;      // Kappen-Design aus dem Laden
-  const main = new THREE.Color(d && d.main != null ? d.main : wing.color), stripe = new THREE.Color(d && d.stripe != null ? d.stripe : wing.stripe);
-  const cells = d && d.cells ? d.cells.map(c => new THREE.Color(c)) : null;
-  if (cells) main.copy(cells[0]);
-  const pattern = WINGS.indexOf(wing) % 4;
-  const cellColor = (i) => {
-    if (opts.color) return new THREE.Color(opts.color);
-    if (cells) return cells[i % cells.length];
-    if (pattern === 0) return (i < 2 || i >= N - 2) ? stripe : main;
-    if (pattern === 1) return (i % 3 === 1) ? stripe : main;
-    if (pattern === 2) return (i >= 6 && i <= 9) ? stripe : main;
-    return (i < N / 2) ? main : stripe;
-  };
+  // Zellfarben aus Werksfarben, Laden-Design oder eigenem Design (designCells in data.js)
+  const dc = designCells(wing, opts.design, N), main = new THREE.Color(dc.main);
+  const cells = dc.cells.map(c => new THREE.Color(c)), nose = dc.le != null ? new THREE.Color(dc.le) : null;
+  const cellColor = (i) => opts.color ? new THREE.Color(opts.color) : cells[i];
   const cols = [];
   for (let i = 0; i <= N; i++) {
     const a = -maxA + (2 * maxA) * i / N;
@@ -2948,15 +3171,15 @@ function buildGliderModel(wing, opts) {
   const refs = [], colors = [];
   const push = (ci, k, c, dark) => { refs.push(ci * 4 + k); colors.push(c.r * dark, c.g * dark, c.b * dark); };
   for (let i = 0; i < N; i++) {
-    const c = cellColor(i), j = i + 1;
-    // Obersegel
-    push(i, 0, c, 0.78); push(j, 0, c, 0.78); push(i, 1, c, 1);
-    push(j, 0, c, 0.78); push(j, 1, c, 1); push(i, 1, c, 1);
+    const c = cellColor(i), j = i + 1, n = nose && !opts.color ? nose : c;
+    // Obersegel (vorn die Nase, auf Wunsch in eigener Farbe)
+    push(i, 0, n, 0.78); push(j, 0, n, 0.78); push(i, 1, n, 1);
+    push(j, 0, n, 0.78); push(j, 1, n, 1); push(i, 1, n, 1);
     push(i, 1, c, 1); push(j, 1, c, 1); push(i, 2, c, 0.95);
     push(j, 1, c, 1); push(j, 2, c, 0.95); push(i, 2, c, 0.95);
     // Untersegel
-    push(i, 0, c, 0.7); push(i, 3, c, 0.82); push(j, 0, c, 0.7);
-    push(j, 0, c, 0.7); push(i, 3, c, 0.82); push(j, 3, c, 0.82);
+    push(i, 0, n, 0.7); push(i, 3, n, 0.82); push(j, 0, n, 0.7);
+    push(j, 0, n, 0.7); push(i, 3, n, 0.82); push(j, 3, n, 0.82);
     push(i, 3, c, 0.82); push(i, 2, c, 0.8); push(j, 3, c, 0.82);
     push(j, 3, c, 0.82); push(i, 2, c, 0.8); push(j, 2, c, 0.8);
   }
@@ -3056,6 +3279,8 @@ class Pilot {
     this.gnd = scene ? (x, z) => world.groundAt(x, z) : (x, z) => world.height(x, z);     // stehen, laufen
     this.solid = scene ? (x, z) => world.solidAt(x, z) : (x, z) => world.height(x, z);    // Aufprall im Flug
     this.manualCfg = null;                      // gesetzt = Start von Hand (Aufziehen, Anbremsen, Tipp-Lauf)
+    // Perks (Game.start): Thermik-Steigen, Turbulenz, Landetoleranz, Anlauf, Schutzengel (einmal je Flug)
+    this.mods = { lift: 1, turb: 1, land: 1, run: 1, angel: false };
     this.model = scene ? buildGliderModel(wing, { design }) : null; if (scene) scene.add(this.model);
     const w = wing, sTrim = w.vTrim / w.glide;
     this.k = (sTrim - w.sMin) / Math.pow(w.vTrim - w.vMinSink, 2);
@@ -3190,12 +3415,12 @@ class Pilot {
       let q;
       if (M.steps === 0 || iv > 1.4) q = 0.85;                                  // erster Schritt
       else if (iv < 0.4 * I) q = -1;                                            // zu schnell hinterher: Stolperer
-      else q = Math.exp(-Math.pow((iv - I) / (0.6 * I), 2));
+      else q = Math.exp(-Math.pow((iv - I) / ((this.mods.run > 1 ? 0.75 : 0.6) * I), 2));   // Perk Sprinter: Takt verzeiht mehr
       if (q >= 0 && inp.tapSide && inp.tapSide !== M.lastSide) q = Math.min(1, q + 0.1);   // abwechselnd links, rechts
       // Zu früh getippt = kurze Trippelschritte: bringen weniger (Schrittlänge × Takt)
       if (q > 0 && M.steps > 0) q *= Math.min(1, iv / I);
       M.lastSide = inp.tapSide; M.lastQ = q; M.lastEarly = iv < I; M.steps++;
-      M.runV = U.clamp(M.runV + (q < 0 ? -0.4 : 0.7 * q - 0.05), 0, 6.8);
+      M.runV = U.clamp(M.runV + (q < 0 ? -0.4 : (0.7 * q - 0.05) * this.mods.run), 0, 6.8);
       M.strideT += Math.PI;                                                     // der nächste Fuß setzt auf
       ev.push('step');
     }
@@ -3238,7 +3463,7 @@ class Pilot {
     const hanging = this.needSit && !this.seated;              // Beine im Wind: mehr Widerstand
     // ---- Luftmasse
     const L = W.liftAt(this.x, this.y, this.z);
-    this.lift = L.lift; this.turb = L.turb; this.thermal = L.thermal; this.ridge = L.ridge || 0;
+    this.lift = L.lift > 0 && L.thermal ? L.lift * this.mods.lift : L.lift; this.turb = L.turb * this.mods.turb; this.thermal = L.thermal; this.ridge = L.ridge || 0;
     this.wx = L.wx || 0; this.wz = L.wz || 0;
     this.gust = U.clamp(this.gust * Math.max(0, 1 - dt * 1.4) + (this.rand() - 0.5) * dt * 3.2, -1, 1);
     const gnd0 = this.solid(this.x, this.z); this.agl = this.y - gnd0;
@@ -3368,10 +3593,12 @@ class Pilot {
     if (W.isWater(this.x, this.z)) msg = 'Wasserlandung! Schirm nass, Laune auch.';
     else if (this.stall || this.spin) msg = 'Mit abgerissener Strömung eingeschlagen. Rettungsschirm wäre eine Idee gewesen.';
     else if (slope > 1.0 || (slope > 0.62 && (impact > 1.8 || this.gs > 7))) msg = 'In den Hang geflogen. Der Bergretter grüßt.';
-    else if (impact > 4.2) msg = 'Harter Einschlag – ' + U.fmtDec(impact) + ' m/s Sinken. Kurz vor dem Boden abfangen!';
+    else if (impact > 4.2 * this.mods.land) msg = 'Harter Einschlag – ' + U.fmtDec(impact) + ' m/s Sinken. Kurz vor dem Boden abfangen!';
     else if (this.gs > 15) msg = 'Mit ' + Math.round(this.gs * 3.6) + ' km/h aufgeschlagen – Rückenwindlandung?';
     let quality = 'gut';
-    if (!msg) quality = slope > 0.62 ? 'hang' : (impact < 1.0 && this.gs < 9 ? 'perfekt' : (impact < 2.2 ? 'gut' : 'hart'));
+    // Perk Schutzengel: einmal je Flug wird ein Absturz (außer im Wasser) zur harten Landung
+    if (msg && this.mods.angel && !W.isWater(this.x, this.z)) { msg = null; quality = 'hart'; this.mods.angel = false; this.stall = this.spin = null; ev.push('angel'); }
+    else if (!msg) { const k = this.mods.land; quality = slope > 0.62 ? 'hang' : (impact < 1.0 * k && this.gs < 9 ? 'perfekt' : (impact < 2.2 * k ? 'gut' : 'hart')); }
     this.touchdown = { impact, gs: this.gs, slope, quality };
     this.y = this.gnd(this.x, this.z);                       // ab jetzt auf der sichtbaren Fläche
     if (msg) { this.phase = 'crashed'; this.crashed = msg; ev.push('crashed'); }
@@ -4164,7 +4391,8 @@ class Game {
     if (cfg.seed != null) { seed = cfg.seed >>> 0; if (!(mission && this.mode === 'mission')) siteSeed = seed; }
     if (this.mode === 'daily') { const d = this.dailyPlan(cfg.unlockedMaps); mapId = d.mapId; seed = siteSeed = d.seed; mission = d.mission; }
     this.mission = mission;
-    const map = MAP_BY_ID[mapId], wing = WING_BY_ID[cfg.wingId];
+    // Schirm mit Werkstatt-Verbesserungen, Trimmer und Perks (cfg.tune, cfg.perks aus dem Spielstand)
+    const perks = this.perks = (cfg.perks || []).slice(), map = MAP_BY_ID[mapId], wing = tunedWing(WING_BY_ID[cfg.wingId], cfg.tune, perks);
     this.map = map; this.wingDef = wing;
     const hints = cfg.hints !== false && !(mission && mission.thermalHint === false);
     const world = this._buildWorld(map, seed, siteSeed, q, hints);
@@ -4175,7 +4403,9 @@ class Game {
 
     const L = world.launch;
     const airAGL = (mission && mission.startAGL) || (L.airOnly ? 300 : 0);
-    this.pilot = new Pilot(wing, world, this.scene, DESIGN_BY_ID[cfg.design] || null);
+    this.pilot = new Pilot(wing, world, this.scene, cfg.designDef || DESIGN_BY_ID[cfg.design] || null);
+    const has = (id) => perks.indexOf(id) >= 0;
+    Object.assign(this.pilot.mods, { lift: has('thermik') ? 1.15 : 1, turb: has('ruhig') ? 0.65 : 1, land: has('landung') ? 1.35 : 1, run: has('anlauf') ? 1.25 : 1, angel: has('engel') });
     if (airAGL) this.pilot.reset(L.x, L.h + airAGL, L.z, L.heading, 'fly');
     else this.pilot.reset(L.x, L.h, L.z, L.heading, 'ready');
     if (this.pilot.phase === 'ready' && !cfg.autoLaunch) this.pilot.manualCfg = this._launchCfg(mission);
@@ -4190,7 +4420,7 @@ class Game {
     this.cloudT = 0; this.wave = 0; this.waveT = 0; this.frontDist = null; this.flashT = 8;
     this.camShake = 0; this.camBob = 0; this.over = false; this.paused = false; this.result = null; this.endT = 0;
     this.tpIndex = 0; this.tpCount = 0; this.startPos = { x: L.x, z: L.z }; this.navTarget = null;
-    this.maneuvers = {}; this.flags = { recovered: 0, spinRecovered: 0, eagleMiss: 0, stormEscaped: false };
+    this.maneuvers = {}; this.flags = { recovered: 0, spinRecovered: 0, eagleMiss: 0, stormEscaped: false, angel: false }; this.sniff = null; this.sniffT = 0; this.sniffBeep = 0;
     this.photoFocus = null; this.tut = { step: 0, t: 0 }; this.timeScale = 1; this.bellT = 3;
     this.ais = []; this.storms = []; this.eagle = null; this.race = null;
     this.avgBuf = []; this.avgClimb = 0; this.resultShown = false; this.eagleDone = false; this.eagleMode = null;
@@ -4538,6 +4768,7 @@ const GameRules = {
     this._updateStorm(dt);
     this._photos(dt);
     this._sounds(dt);
+    this._sniffer(dt);
     this._trackManeuvers();
     if (this.speedup > 1) { const why = this._speedBlock(); if (why) { this.speedup = 1; this.ui.toast('Zeitraffer aus – ' + SPEED_BLOCK[why][1]); } }
     this.chT += dt;
@@ -4571,6 +4802,7 @@ const GameRules = {
       case 'launchFail': au.collapse(); ui.warn(LAUNCH_FAIL[p.failKind][0], 1.6); ui.hint(LAUNCH_FAIL[p.failKind][1], 4); break;
       case 'sit': au.chime(); ui.toast('Sitzt! Guten Flug'); break;
       case 'sitAuto': ui.toast('Ins Gurtzeug gerutscht'); break;
+      case 'angel': this.flags.angel = true; ui.warn('SCHUTZENGEL!', 1.6); break;
       case 'collapse': au.collapse(); this.camShake = 1; ui.warn('KLAPPER!', 1.6);
         ui.hint((p.collapse && p.collapse.side < 0 ? 'Rechte' : 'Linke') + ' Bremse etwa halb ziehen – auf der offenen Seite gegensteuern', 3.5); break;
       case 'recovered': ui.warn('', 0); this.flags.recovered++; this.maneuvers.collapse = true; ui.toast('Schirm wieder offen'); break;
@@ -4583,7 +4815,7 @@ const GameRules = {
       case 'landed': {
         au.thump();
         const q = p.touchdown.quality;
-        this._finish('landed', q === 'perfekt' ? 'Butterweich gelandet!' : q === 'gut' ? 'Sauber gelandet.' : q === 'hang' ? 'Am Hang gelandet – nicht elegant, aber heil.' : 'Etwas hart aufgesetzt – kurz vor dem Boden abfangen.');
+        this._finish('landed', this.flags.angel ? 'Schutzengel! Der Absturz wurde zur harten Landung – Glück gehabt.' : q === 'perfekt' ? 'Butterweich gelandet!' : q === 'gut' ? 'Sauber gelandet.' : q === 'hang' ? 'Am Hang gelandet – nicht elegant, aber heil.' : 'Etwas hart aufgesetzt – kurz vor dem Boden abfangen.');
         break;
       }
       case 'crashed': au.thump(); this.camShake = 1; this._finish('crashed', p.crashed); break;
@@ -4695,6 +4927,23 @@ const GameRules = {
   },
 
   /* ---------------- Geräusche der Landschaft: Kuhglocken im Tiefflug ---------------- */
+  /* Perk Bartschnüffler: nächster Bart im Umkreis von 250 m (nicht der, in dem man schon kreist) */
+  _sniffer(dt) {
+    if (this.perks.indexOf('schnueffler') < 0) return;
+    this.sniffT = (this.sniffT || 0) - dt; if (this.sniffT > 0) return;
+    this.sniffT = 0.5;
+    const p = this.pilot, W = this.world; let best = 250, bx = 0, bz = 0;
+    if (p.flying) for (const th of W.thermals) {
+      if (th === p.thermal || th.age < th.birth || p.y > th.top) continue;
+      const c = W.thermalCenterAt(th, p.y), d = U.dist2(p.x, p.z, c.x, c.z);
+      if (d < best) { best = d; bx = c.x; bz = c.z; }
+    }
+    if (best >= 250) { this.sniff = null; return; }
+    const rel = U.wrapAngle(U.bearing(p.x, p.z, bx, bz) - p.heading);
+    this.sniff = { d: best, arrow: '↑↗→↘↓↙←↖'[((Math.round(rel / (Math.PI / 4)) % 8) + 8) % 8] };
+    this.sniffBeep = (this.sniffBeep || 0) - 0.5;
+    if (this.sniffBeep <= 0) { this.sniffBeep = 1 + best / 125; this.audio.tone(1500, 0.09, 'sine', 0.06, 500); }
+  },
   _sounds(dt) {
     const p = this.pilot, D = this.world.decor;
     this.bellT -= dt;
@@ -4749,7 +4998,7 @@ const GameRules = {
       if (lm.photographed) continue;
       if (this.mode === 'mission' && !lm.target) continue;
       const d = U.dist2(p.x, p.z, lm.x, lm.z), dy = Math.abs(p.y - lm.y);
-      if (d < lm.radius && dy < lm.vert) { lm.focus += dt; this.photoFocus = { lm, f: U.clamp(lm.focus / 1.1, 0, 1) }; }
+      if (d < lm.radius && dy < lm.vert) { lm.focus += dt * (this.perks.indexOf('foto') >= 0 ? 1.6 : 1); this.photoFocus = { lm, f: U.clamp(lm.focus / 1.1, 0, 1) }; }
       else lm.focus = Math.max(0, lm.focus - dt * 2);
       if (lm.focus >= 1.1) {
         this.landmarks.photographed(lm); this.audio.shutter(); this.ui.flash(0.9, true); this.chRun.fotos++;
@@ -4816,11 +5065,12 @@ const GameRules = {
     const landQ = kind === 'landed' ? p.touchdown.quality : null;
     if (landQ === 'perfekt') xp += 20;
     if (this.wingDef.scoreMul) { points = Math.round(points * this.wingDef.scoreMul); xp = Math.round(xp * this.wingDef.scoreMul); }
+    if (this.perks.indexOf('xp') >= 0) xp = Math.round(xp * 1.15);                    // Perk Lernbegierig
 
     this.result = {
       kind, msg, success, stars, xp, points, mode: this.mode,
       missionId: m && this.mode === 'mission' ? m.id : null, missionName: m ? m.name : null, dayKey: m && m.dayKey,
-      mapId: this.map.id, wingId: this.wingDef.id,
+      mapId: this.map.id, wingId: this.wingDef.id, perks: this.perks.slice(),
       time: this.t, dist: p.stats.dist, maxDist: this.maxDist, maxAlt: p.stats.maxAlt, maxClimb: p.stats.maxClimb,
       climbTotal: this.climbTotal, bestClimbRun: this.bestClimbRun, collapses: p.stats.collapses, recovered: this.flags.recovered,
       spinRecovered: this.flags.spinRecovered, eagleMiss: this.flags.eagleMiss, stormEscaped: this.flags.stormEscaped,
@@ -4860,17 +5110,24 @@ function el(tag, props, kids) {
   return e;
 }
 function wingSvg(w, d) {
-  d = d && d.id !== 'werk' ? d : null;
-  const c = U.hex(d ? (d.cells ? d.cells[0] : d.main) : w.color), s = U.hex(d ? (d.cells ? d.cells[1] : d.stripe) : w.stripe);
-  return `<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M3 21 Q24 4 45 21 Q24 15 3 21 Z" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width=".6"/>
-    <path d="M18 13.4 Q24 12 30 13.4 L30 16.8 Q24 15.4 18 16.8 Z" fill="${s}"/>
+  const N = 16, dc = designCells(w, d, N), f = (p) => p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+  const bz = (y1, t) => [3 + 42 * t, (1 - t) * (1 - t) * 21 + 2 * (1 - t) * t * y1 + t * t * 21];   // Obersegel y1 = 4, Unterkante 15
+  let cells = '';
+  for (let i = 0; i < N; i++) {
+    const t0 = i / N, t1 = (i + 1) / N;
+    cells += `<path d="M${f(bz(4, t0))} L${f(bz(4, t1))} L${f(bz(15, t1))} L${f(bz(15, t0))}Z" fill="${U.hex(dc.cells[i])}"/>`;
+  }
+  const jacket = U.hex(dc.le != null ? dc.le : dc.cells[N - 1 - Math.floor(N / 4)]);
+  return `<svg viewBox="0 0 48 48" aria-hidden="true">${cells}
+    ${dc.le != null ? `<path d="M3 21 Q24 4 45 21" fill="none" stroke="${U.hex(dc.le)}" stroke-width="1.5"/>` : ''}
+    <path d="M3 21 Q24 4 45 21 Q24 15 3 21 Z" fill="none" stroke="rgba(0,0,0,.3)" stroke-width=".6"/>
     <path d="M7 20 L22 32 M41 20 L26 32 M15 17 L23 32 M33 17 L25 32" stroke="rgba(230,238,248,.5)" stroke-width=".8"/>
-    <circle cx="24" cy="35" r="3.4" fill="${s}"/><circle cx="24" cy="31.6" r="1.6" fill="#ffc24b"/></svg>`;
+    <circle cx="24" cy="35" r="3.4" fill="${jacket}"/><circle cx="24" cy="31.6" r="1.6" fill="#ffc24b"/></svg>`;
 }
 const COIN = '<i class="coin" aria-hidden="true"></i>';
-const TIME_STEPS = [1, 2, 4, 8];
+const TIME_CHOICES = [2, 3, 4, 6, 8, 10, 15, 20];        // wählbare Zeitraffer-Stufen (Optionen → Cockpit)
 const HUD_SIZES = { s: 0.85, m: 1, l: 1.15 };
-const HUD_DEFAULT = () => ({ a: 0.3, s: 'm', show: { map: true, instr: true, vario: false, task: true, time: true, rails: true }, pos: { p: {}, l: {} } });
+const HUD_DEFAULT = () => ({ a: 0.3, s: 'm', show: { map: true, instr: true, vario: false, task: true, time: true, rails: true }, pos: { p: {}, l: {} }, ts: [3, 6, 10, 20] });
 function starStr(n, max = 3) { let s = ''; for (let i = 0; i < max; i++) s += i < n ? '★' : '<span class="off">★</span>'; return s; }
 
 class UI {
@@ -4886,7 +5143,9 @@ class UI {
     const def = {
       xp: 0, missions: {}, bestXC: {}, bestEndless: {}, flights: 0, totalKm: 0, totalClimb: 0, airtime: 0,
       wing: 'schul', map: 'voralpen', badges: {}, photos: {}, daily: { key: 0, stars: 0, best: 0 }, bestSpot: null,
-      coins: 0, design: 'werk', owned: { wings: {}, maps: {}, designs: {} }, chal: { c: {}, b: {}, t: {} },
+      coins: 0, design: 'werk', owned: { wings: {}, maps: {}, designs: {}, pats: {} }, chal: { c: {}, b: {}, t: {} },
+      // Werkstatt je Schirm { up: { glide, climb, speed, handling, safety }, trim }, Perks, eigenes Design
+      tune: {}, perks: { own: {}, on: [], slots: 2 }, custom: { pat: 'mitte', c: [0x2fb7d6, 0xf6f6f2, 0xffc93c], nose: false },
       set: { tiltWS: false, sens: 1.0, invert: false, muted: false, vario: true, quality: 'mid', hints: true, unlockAll: false, launch: 'manual', hud: HUD_DEFAULT() },
     };
     let s = null;
@@ -4903,6 +5162,7 @@ class UI {
     const out = Object.assign(def, s, {
       set: Object.assign(def.set, s.set || {}), daily: Object.assign(def.daily, s.daily || {}),
       owned: Object.assign(def.owned, s.owned || {}), chal: Object.assign(def.chal, s.chal || {}),
+      tune: s.tune || {}, perks: Object.assign(def.perks, s.perks || {}), custom: Object.assign(def.custom, s.custom || {}),
     });
     const h0 = HUD_DEFAULT(), h = (s.set && s.set.hud) || {};
     out.set.hud = Object.assign(h0, h, { show: Object.assign(h0.show, h.show || {}), pos: Object.assign(h0.pos, h.pos || {}) });
@@ -4916,7 +5176,18 @@ class UI {
   mapUnlocked(m) { return this.testMode || this.save.xp >= m.unlockXP || !!this.save.owned.maps[m.id]; }
   unlockedMaps() { return MAPS.filter(m => this.mapUnlocked(m)).map(m => m.id); }
   designAvailable(d) { return this.testMode || !d.price || !!this.save.owned.designs[d.id]; }
-  currentDesign() { const d = DESIGN_BY_ID[this.save.design]; return d && this.designAvailable(d) ? d : DESIGNS[0]; }
+  currentDesign() {
+    if (this.save.design === 'eigen') return this.customDesign();
+    const d = DESIGN_BY_ID[this.save.design]; return d && this.designAvailable(d) ? d : DESIGNS[0];
+  }
+  customDesign() { const c = this.save.custom; return { id: 'eigen', name: 'Eigenes Design', pat: c.pat, c: c.c.slice(), nose: !!c.nose }; }
+  patternAvailable(p) { return this.testMode || !p.price || !!this.save.owned.pats[p.id]; }
+  /* Werkstatt und Perks */
+  tuneOf(wingId) { return this.save.tune[wingId] || (this.save.tune[wingId] = { up: {}, trim: 0 }); }
+  tunedWingOf(w) { return tunedWing(w, this.tuneOf(w.id), this.activePerks()); }
+  perkOwned(p) { return this.testMode || !!this.save.perks.own[p.id]; }
+  perkSlots() { return this.testMode ? 3 : U.clamp(this.save.perks.slots || 2, 2, 3); }
+  activePerks() { const P = this.save.perks; return P.on.filter(id => PERK_BY_ID[id] && this.perkOwned(PERK_BY_ID[id])).slice(0, this.perkSlots()); }
   missionUnlocked(i) {
     if (this.testMode) return true;
     const m = MISSIONS[i]; if (!this.mapUnlocked(MAP_BY_ID[m.map])) return false;
@@ -4945,7 +5216,7 @@ class UI {
     window.addEventListener('resize', () => this.applyHudLayout());
     this.scrWrap = el('div', { id: 'screens' });
     root.appendChild(this.scrWrap);
-    for (const n of ['loading', 'title', 'missions', 'setup', 'wings', 'brief', 'settings', 'help', 'pause', 'result', 'stats', 'challenges', 'shop']) {
+    for (const n of ['loading', 'title', 'missions', 'setup', 'wings', 'brief', 'settings', 'help', 'pause', 'result', 'stats', 'challenges', 'shop', 'tune', 'perks', 'designer']) {
       const s = el('div', { class: 'screen', id: 'scr' + n[0].toUpperCase() + n.slice(1), hidden: 'hidden' });
       this.screens[n] = s; this.scrWrap.appendChild(s);
     }
@@ -4979,11 +5250,12 @@ class UI {
         ]),
         el('div', { id: 'chips' }),
       ]),
-      // Zeitraffer: antippen oder mit dem Finger darüberziehen
-      el('div', { class: 'hudw hpanel', id: 'wTime', 'data-w': 'time', role: 'group', 'aria-label': 'Zeitraffer', hidden: 'hidden' }, [
-        el('span', { class: 'ticon', html: icon('<path d="M4 8 14 16 4 24Z M15 8 25 16 15 24Z"/>', 'fill') }),
-        ...[1, 2, 4, 8].map(k => el('button', { class: 'tstop' + (k === 1 ? ' on' : ''), id: 'ts' + k, 'data-k': String(k), text: k + '×', 'aria-label': 'Zeitraffer ' + k + '-fach' })),
+      // Pause: oben links unter der Karte
+      el('div', { class: 'hudw', id: 'wPause', 'data-w': 'pause' }, [
+        el('button', { class: 'hbtn round', id: 'btnPause', 'aria-label': 'Pause', html: icon('<rect x="10" y="8" width="4.5" height="16" rx="1.2"/><rect x="17.5" y="8" width="4.5" height="16" rx="1.2"/>', 'fill') }),
       ]),
+      // Zeitraffer: unten neben dem Beschleuniger; antippen oder mit dem Finger darüberziehen (Stufen: Optionen → Cockpit)
+      el('div', { class: 'hudw hpanel', id: 'wTime', 'data-w': 'time', role: 'group', 'aria-label': 'Zeitraffer', hidden: 'hidden' }),
       el('div', { id: 'warn' }), el('div', { id: 'hint' }),
       // Anlauf: Ring schrumpft auf den Kreis zu – dann ist der nächste Schritt fällig
       el('div', { id: 'beat', hidden: 'hidden', 'aria-hidden': 'true' }, [el('div', { class: 'bt-target' }), el('div', { class: 'bt-ring', id: 'beatRing' }), el('div', { class: 'bt-lbl', id: 'beatLbl' })]),
@@ -4998,11 +5270,10 @@ class UI {
           el('div', { class: 'lbar run', id: 'lRun' }, [el('span', { text: 'Tempo' }), el('i', {}, [el('u', { id: 'lRunF' })]), el('span', { text: 'Abheben' })]),
         ]),
       ]),
-      // Knöpfe: Ohren anlegen, Pause, Beschleuniger
+      // Knöpfe: Ohren anlegen, Beschleuniger
       el('div', { class: 'hudw', id: 'wBtns', 'data-w': 'btns' }, [
         el('button', { class: 'hbtn', id: 'btnEars', 'aria-label': 'Ohren anlegen (halten)', title: 'Ohren anlegen',
           html: icon('<path d="M9.5 14 Q16 7.5 22.5 14"/><path d="M9.5 14 7 20.5 M22.5 14 25 20.5"/><path d="M11 14.5 16 25 21 14.5"/><circle cx="16" cy="26" r="1.6" class="dot"/>') }),
-        el('button', { class: 'hbtn round', id: 'btnPause', 'aria-label': 'Pause', html: icon('<rect x="10" y="8" width="4.5" height="16" rx="1.2"/><rect x="17.5" y="8" width="4.5" height="16" rx="1.2"/>', 'fill') }),
         el('button', { class: 'hbtn', id: 'btnBar', 'aria-label': 'Beschleuniger (halten)', title: 'Beschleuniger',
           html: icon('<path d="M8.5 17.5 16 10 23.5 17.5"/><path d="M8.5 25 16 17.5 23.5 25"/>') }),
       ]),
@@ -5038,6 +5309,17 @@ class UI {
     }
     this.$('wMap').hidden = !H.show.map; this.$('wInstr').hidden = !H.show.instr; this.$('vario').hidden = !H.show.vario;
     this.$('taskBar').hidden = !H.show.task; this.$('railL').hidden = this.$('railR').hidden = !H.show.rails;
+    hud.classList.toggle('tOff', !H.show.time);
+    this._buildTimeSteps();
+  }
+  /* Zeitraffer-Knöpfe: 1× und die gewählten Stufen (höchstens vier) */
+  timeSteps() { const t = (this.save.set.hud.ts || []).filter(k => TIME_CHOICES.indexOf(k) >= 0).sort((a, b) => a - b).slice(0, 4); return [1, ...(t.length ? t : [3, 6, 10, 20])]; }
+  _buildTimeSteps() {
+    const steps = this.timeSteps(), key = steps.join(','), tw = this.$('wTime');
+    if (this._tsKey === key) return;
+    this._tsKey = key; tw.innerHTML = '';
+    for (const k of steps) tw.appendChild(el('button', { class: 'tstop' + (k === 1 ? ' on' : ''), id: 'ts' + k, 'data-k': String(k), text: k + '×', 'aria-label': 'Zeitraffer ' + k + '-fach' }));
+    if (this._tg) for (const k in this._tg) if (k.startsWith('ts')) delete this._tg[k];
   }
   _dragStart(e, w) {
     if (!this.hud.classList.contains('editing')) return;
@@ -5142,7 +5424,8 @@ class UI {
   /* ---------- Flug starten und beenden ---------- */
   startRun(cfg) {
     this.lastCfg = cfg;
-    cfg = Object.assign({}, cfg, { quality: this.save.set.quality, hints: this.save.set.hints, unlockedMaps: this.unlockedMaps(), design: this.currentDesign().id, autoLaunch: this.save.set.launch === 'auto' });
+    cfg = Object.assign({}, cfg, { quality: this.save.set.quality, hints: this.save.set.hints, unlockedMaps: this.unlockedMaps(), design: this.currentDesign().id, designDef: this.currentDesign(),
+      tune: this.tuneOf(cfg.wingId), perks: this.activePerks(), autoLaunch: this.save.set.launch === 'auto' });
     this.screens.loading.innerHTML = '';
     const mapName = cfg.mode === 'daily' ? 'Tagesaufgabe' : MAP_BY_ID[cfg.mapId].name;
     this.screens.loading.appendChild(el('div', { class: 'panel loading' }, [
@@ -5264,11 +5547,12 @@ class UI {
     if (g.stormEta != null) chips.push([g.stormEta < 60 ? 'bad' : '', g.stormEta > 0 ? 'Böen in ' + U.fmtTime(g.stormEta) : 'Böen da!']);
     if (g.mode === 'endless' && g.frontDist != null) chips.push([g.frontDist < 800 ? 'bad' : '', 'Front ' + U.fmtKm(Math.max(0, g.frontDist))]);
     if (p.inSpiral) chips.push(['bad', 'Spirale ' + U.fmtSigned(p.vz) + ' m/s']);
+    if (g.sniff) chips.push(['good', 'Bart ' + g.sniff.arrow + ' ' + Math.round(g.sniff.d / 10) * 10 + ' m']);   // Perk Bartschnüffler
     const chipKey = chips.map(c => c.join(':')).join('|');
     if (chipKey !== this._chipKey) { this._chipKey = chipKey; this.$('chips').innerHTML = chips.map(c => `<span class="chip ${c[0]}">${c[1]}</span>`).join(''); }
     // Zeitraffer
     this._hid('wTime', !(H.show.time && p.flying && !g.over));
-    for (const k of TIME_STEPS) this._tog('ts' + k, 'on', (g.speedup || 1) === k);
+    for (const k of this.timeSteps()) this._tog('ts' + k, 'on', (g.speedup || 1) === k);
     // Foto
     if (g.photoFocus) { this._hid('photoRing', false); this._css('photoArc', 'strokeDashoffset', String(Math.round(170 * (1 - g.photoFocus.f)))); this._txt('photoName', g.photoFocus.lm.name); }
     else this._hid('photoRing', true);
@@ -5473,6 +5757,7 @@ const UIScreens = {
       el('div', { class: 'eyebrow', text: 'Schirm · ' + startTxt }),
       this._wingCard(wing, { compact: true, onclick: fixed ? null : () => { this.click(); this.renderWings(m); this.show('wings'); } }),
       fixed ? el('p', { class: 'small', text: 'Diese Mission fliegst du mit einem vorgegebenen Schirm.' }) : null,
+      this.activePerks().length ? el('p', { class: 'small', text: 'Perks: ' + this.activePerks().map(id => PERK_BY_ID[id].name).join(' · ') }) : null,
       el('button', { class: 'btn primary', onclick: () => {
         this.click();
         if (m.daily) this.startRun({ mode: 'daily', wingId: wing.id });
@@ -5486,14 +5771,13 @@ const UIScreens = {
   _wingCard(w, o) {
     o = o || {};
     const unlocked = this.wingUnlocked(w);
-    const bars = [['Gleiten', (w.glide - 5.5) / 7], ['Steigen', (1.9 - w.sMin) / 1.0], ['Tempo', (w.vMax - 11.5) / 8], ['Wendig', (w.agility - 0.55) / 1.6], ['Sicher', (w.stability - 0.4) / 1.25]];
     return el('div', { class: 'wcard' + (unlocked ? '' : ' locked') + (o.sel ? ' sel' : '') + (o.onclick ? ' tap' : ''), role: o.onclick ? 'button' : null, tabindex: o.onclick ? '0' : null, onclick: o.onclick || null }, [
       el('div', { class: 'sw', html: wingSvg(w, this.currentDesign()) }),
       el('div', { class: 'wbody' }, [
         el('div', { class: 'whead' }, [el('span', { class: 'nm', text: w.name }), el('span', { class: 'cls', text: w.cls })]),
         o.compact ? el('div', { class: 'wsum', text: 'Gleitzahl ' + U.fmtDec(w.glide) + ' · Sinken ' + U.fmtDec(w.sMin, 2) + ' m/s · bis ' + Math.round(w.vMax * 3.6) + ' km/h' })
           : (unlocked ? el('div', { class: 'ds', text: w.desc }) : el('div', { class: 'ds', text: 'Frei ab ' + U.fmtInt(w.unlockXP) + ' XP oder im Laden für ' + U.fmtInt(w.price) + ' Münzen' })),
-        o.compact || !unlocked ? null : el('div', { class: 'wbars' }, bars.map(([k, v]) => el('div', { class: 'wb' }, [el('span', { text: k }), el('i', {}, [el('b', { style: `width:${(U.clamp(v, 0.06, 1) * 100).toFixed(0)}%` })])]))),
+        o.compact || !unlocked ? null : this._wingBars(w, this.tunedWingOf(w)),
       ]),
       o.compact ? el('span', { class: 'chev', text: o.onclick ? 'Wechseln' : '' }) : null,
     ]);
@@ -5501,7 +5785,7 @@ const UIScreens = {
   renderWings(mission) {
     const s = this.screens.wings; s.innerHTML = '';
     const cards = el('div', { class: 'cards' });
-    const selId = mission ? this.briefWing : this.save.wing;
+    const selId = mission ? this.briefWing : this.save.wing, backHere = () => { this.renderWings(mission); this.show('wings'); };
     for (const w of WINGS) {
       const unlocked = this.wingUnlocked(w);
       cards.appendChild(this._wingCard(w, { sel: w.id === selId, onclick: () => {
@@ -5513,9 +5797,14 @@ const UIScreens = {
     }
     s.appendChild(el('div', { class: 'panel wide' }, [
       el('div', { class: 'eyebrow', text: 'Ausrüstung' }), el('h2', { text: 'Hangar' }),
-      el('p', { text: 'Je höher die Klasse, desto besser Gleiten und Tempo – und desto nervöser der Schirm in Turbulenz. Der Tandem zählt jede Wertung 1,5-fach.' }),
+      el('p', { text: 'Je höher die Klasse, desto besser Gleiten und Tempo – und desto nervöser der Schirm in Turbulenz. Der Tandem zählt jede Wertung 1,5-fach. Grün in den Balken: was Werkstatt und Perks dazugeben.' }),
       cards,
-      el('button', { class: 'btn', onclick: () => { this.click(); this.renderShop(() => { this.renderWings(mission); this.show('wings'); }); this.show('shop'); } }, [
+      el('div', { class: 'trio' }, [
+        el('button', { class: 'mode', id: 'hgTune', onclick: () => { this.click(); this.renderTune(selId, backHere); this.show('tune'); } }, [el('b', { text: 'Werkstatt' }), el('small', { text: 'Tuning und Trimmer' })]),
+        el('button', { class: 'mode', id: 'hgPerks', onclick: () => { this.click(); this.renderPerks(backHere); this.show('perks'); } }, [el('b', { text: 'Perks' }), el('small', { text: this.activePerks().length + ' von ' + this.perkSlots() + ' aktiv' })]),
+        el('button', { class: 'mode', id: 'hgDesign', onclick: () => { this.click(); this.renderDesigner(backHere); this.show('designer'); } }, [el('b', { text: 'Design' }), el('small', { text: 'Eigene Farben' })]),
+      ]),
+      el('button', { class: 'btn', onclick: () => { this.click(); this.renderShop(backHere); this.show('shop'); } }, [
         el('span', { text: 'Laden · Designs und Schirme' }), el('span', { class: 'meta', html: COIN + U.fmtInt(this.save.coins) }),
       ]),
       this._back(() => { if (mission) { this.renderBrief(mission); this.show('brief'); } else this.toTitle(); }),
@@ -5574,6 +5863,19 @@ const UIScreens = {
       el('div', { class: 'setting col' }, [
         el('div', {}, [el('div', { class: 'sl', text: 'Anzeigen im Flug' }), el('small', { text: 'Steigen und Sinken zeigt auch der Bogen am Kartenrand.' })]),
         el('div', { class: 'chipset', id: 'setShow' }, HUD_PARTS.map(([k, t]) => el('button', { class: set.hud.show[k] ? 'on' : '', 'aria-pressed': String(!!set.hud.show[k]), text: t, onclick: () => { this.click(); set.hud.show[k] = !set.hud.show[k]; this.store(); this.applyHudLayout(); this.renderSettings(); } }))),
+      ]),
+      el('div', { class: 'setting col' }, [
+        el('div', {}, [el('div', { class: 'sl', text: 'Zeitraffer-Stufen' }), el('small', { text: 'Bis zu vier Stufen neben 1×. Sie stehen unten neben dem Beschleuniger und gehen ab 80 m über Grund.' })]),
+        el('div', { class: 'chipset', id: 'setTs' }, TIME_CHOICES.map(k => {
+          const on = this.timeSteps().indexOf(k) > 0;
+          return el('button', { class: on ? 'on' : '', 'aria-pressed': String(on), text: k + '×', onclick: () => {
+            this.click();
+            const cur = this.timeSteps().slice(1), i = cur.indexOf(k);
+            if (i >= 0) { if (cur.length === 1) { this.toast('Mindestens eine Stufe'); return; } cur.splice(i, 1); }
+            else { if (cur.length >= 4) { this.toast('Höchstens vier Stufen – erst eine abwählen'); return; } cur.push(k); }
+            set.hud.ts = cur.sort((a, b) => a - b); this.store(); this.applyHudLayout(); this.renderSettings();
+          } });
+        })),
       ]),
       row('Anordnen', 'Anzeigen mit dem Finger an ihren Platz ziehen.', el('div', { class: 'btnpair' }, [
         el('button', { class: 'minibtn', id: 'setMove', text: 'Verschieben', onclick: () => { this.click(); const fp = this._fromPause; this.editHud(() => { this._fromPause = fp; this.renderSettings(); this.show('settings'); }); } }),
@@ -5646,7 +5948,7 @@ const UIScreens = {
       el('p', { html: '<b>Die Karte.</b> Oben links, in Flugrichtung gedreht. Der blaue Keil am Rand zeigt, woher der Wind kommt, das weiße X ist der Landeplatz. Der Bogen links am Rand ist ein Vario: grün nach oben heißt Steigen. Antippen wechselt den Zoom.' }),
       el('p', { html: '<b>Gefahren.</b> Beide Bremsen lange voll gezogen reißt die Strömung ab: sofort loslassen. Eine Bremse tief bei langsamer Fahrt bringt dich ins Trudeln: ebenfalls loslassen. Klappt eine Seite ein, zieh die Bremse auf der offenen Seite etwa halb. Leicht angebremst zu fliegen hält den Schirm in Turbulenz stabil.' }),
       el('p', { html: '<b>Steilspirale und Ohren.</b> Eine Bremse tief und über 55° Querlage halten ergibt eine Spirale mit mehr als 10 m/s Sinken. Der Ohren-Knopf (links neben Pause, gehalten) faltet die Flügelenden ein und bringt gut 2 m/s mehr Sinken – der sichere Weg nach unten. Rechts neben Pause sitzt der Beschleuniger.' }),
-      el('p', { html: '<b>Zeitraffer.</b> Unter der Karte: 1×, 2×, 4× oder 8×. Er geht in jeder Mission ab 80 m über Grund und schaltet sich bei Gefahr und in Bodennähe von selbst zurück.' }),
+      el('p', { html: '<b>Zeitraffer.</b> Unten neben dem Beschleuniger: 1×, 3×, 6×, 10× oder 20× (Stufen in Optionen → Cockpit wählbar). Er geht in jeder Mission ab 80 m über Grund und schaltet sich bei Gefahr und in Bodennähe von selbst zurück.' }),
       el('p', { html: '<b>Landen.</b> Gegen den Wind anfliegen, der Windsack zeigt die Richtung. Etwa 2 m über dem Boden beide Bremsen ganz durchziehen: Das Abfangen verwandelt Fahrt in Auftrieb. Perfekt getroffen gibt es „Butterweich“ und Bonuserfahrung.' }),
       el('p', { html: '<b>Wolken sind tabu.</b> Unter der Basis saugt es weiter hoch. Wer in die Wolke fliegt, verliert die Sicht und den Flug.' }),
       el('div', { class: 'eyebrow', text: 'Am Rechner' }),
@@ -5742,7 +6044,7 @@ const UIScreens = {
     if (r.mode === 'endless' && r.points > (sv.bestEndless[r.mapId] || 0)) { sv.bestEndless[r.mapId] = r.points; unlocks.push('Neuer Punkterekord: <b>' + U.fmtInt(r.points) + '</b>'); }
     if (r.kind === 'landed' && (sv.bestSpot == null || r.landDist < sv.bestSpot)) sv.bestSpot = Math.round(r.landDist * 10) / 10;
     // Münzen: etwa ein Viertel der Erfahrung, dazu die Stufen der Herausforderungen
-    const coins = Math.max(r.kind === 'landed' ? 2 : 0, Math.round(r.xp / 4));
+    const coins = Math.max(r.kind === 'landed' ? 2 : 0, Math.round(r.xp / 4 * (r.perks && r.perks.indexOf('muenzen') >= 0 ? 1.25 : 1)));   // Perk Sparfuchs
     sv.coins += coins;
     this.recordFlight(r, firstDaily);
     const chal = this.claimChallenges();
@@ -5990,8 +6292,13 @@ const UIProgress = {
   renderShop(back) {
     if (back) this._shopBack = back;
     const s = this.screens.shop, sv = this.save, wing = WING_BY_ID[sv.wing] || WINGS[0]; s.innerHTML = '';
-    const cur = this.currentDesign();
+    const cur = this.currentDesign(), backShop = () => { this.renderShop(); this.show('shop'); };
     const designs = el('div', { class: 'dgrid' });
+    designs.appendChild(el('div', { class: 'dcard' + (cur.id === 'eigen' ? ' sel' : '') }, [
+      el('div', { class: 'sw', html: wingSvg(wing, this.customDesign()) }),
+      el('div', { class: 'dn', text: 'Eigenes Design' }), el('div', { class: 'dd', text: 'Muster und Farben selbst zusammenstellen.' }),
+      el('button', { class: 'buy own', id: 'shopDesigner', text: cur.id === 'eigen' ? 'Bearbeiten' : 'Gestalten', onclick: () => { this.click(); this.renderDesigner(backShop); this.show('designer'); } }),
+    ]));
     for (const d of DESIGNS) {
       const have = this.designAvailable(d), active = cur.id === d.id;
       designs.appendChild(el('div', { class: 'dcard' + (active ? ' sel' : '') }, [
@@ -6009,6 +6316,11 @@ const UIProgress = {
       el('div', { class: 'chsum' }, [el('div', {}, [el('span', { text: 'Dein Guthaben' })]), el('span', { class: 'coinchip big', html: COIN + U.fmtInt(sv.coins) })]),
       el('p', { class: 'small', text: 'Münzen gibt es für jeden Flug (etwa ein Viertel der Erfahrung) und für jede Stufe einer Herausforderung.' }),
       this.testMode ? el('div', { class: 'unlock', text: 'Testmodus ist an: Schirme, Gebiete und Designs sind schon alle frei.' }) : null,
+      el('div', { class: 'eyebrow', text: 'Schirm verbessern' }),
+      el('div', { class: 'trio two' }, [
+        el('button', { class: 'mode', id: 'shopTune', onclick: () => { this.click(); this.renderTune(sv.wing, backShop); this.show('tune'); } }, [el('b', { text: 'Werkstatt' }), el('small', { text: 'Gleiten, Steigen, Tempo, Trimmer' })]),
+        el('button', { class: 'mode', id: 'shopPerks', onclick: () => { this.click(); this.renderPerks(backShop); this.show('perks'); } }, [el('b', { text: 'Perks' }), el('small', { text: this.activePerks().length + ' von ' + this.perkSlots() + ' aktiv' })]),
+      ]),
       el('div', { class: 'eyebrow', text: 'Kappen-Designs · für jeden Schirm' }), designs,
       el('div', { class: 'eyebrow', text: 'Schirme früher freischalten' }),
       lockedWings.length ? el('div', { class: 'cards' }, lockedWings.map(w => item(el('span', { class: 'sw small', html: wingSvg(w, cur) }), w.name + ' · ' + w.cls, 'Sonst ab ' + U.fmtInt(w.unlockXP) + ' XP', this._buyBtn(w.price, () => { sv.owned.wings[w.id] = 1; }))))
@@ -6019,19 +6331,146 @@ const UIProgress = {
       this._back(() => (this._shopBack || (() => this.toTitle()))()),
     ]));
   },
-  /* Kaufen mit zweitem Tipp zur Bestätigung (kein Browser-Dialog) */
-  _buyBtn(price, onBuy) {
-    const label = 'Kaufen · ' + U.fmtInt(price) + COIN;
+  /* Seite neu aufbauen, ohne dass sie nach oben springt */
+  _keepScroll(s, fn) { const st = s.scrollTop; fn(); s.scrollTop = st; },
+
+  /* ---------------- Werkstatt: Verbesserungen und Trimmer je Schirm ---------------- */
+  renderTune(wingId, back) {
+    if (back) this._tuneBack = back;
+    const sv = this.save, s = this.screens.tune, open = WINGS.filter(w => this.wingUnlocked(w));
+    let base = WING_BY_ID[wingId] || WING_BY_ID[sv.wing] || WINGS[0];
+    if (!this.wingUnlocked(base)) base = open[0];
+    this._tuneWing = base.id;
+    const T = this.tuneOf(base.id), tw = tunedWing(base, T, this.activePerks()), rer = () => this._keepScroll(s, () => this.renderTune(base.id));
+    const line = (k, a, b, higher, unit, dec) => {
+      const same = Math.abs(a - b) < 0.005, good = higher ? b > a : b < a;
+      return el('div', {}, [el('div', { class: 'k', text: k }), el('div', { class: 'v' + (same ? '' : good ? ' up' : ' down'), text: U.fmtDec(b, dec) + unit }),
+        el('div', { class: 'was', text: same ? 'wie ab Werk' : 'Werk ' + U.fmtDec(a, dec) + unit })]);
+    };
+    const rows = UPGRADES.map(u => {
+      const lv = U.clamp(T.up[u.id] || 0, 0, 3);
+      const pips = el('span', { class: 'pips', 'aria-label': 'Stufe ' + lv + ' von 3' }, [0, 1, 2].map(k => el('i', { class: k < lv ? 'on' : '' })));
+      const btn = lv >= 3 ? el('span', { class: 'buy on', text: 'Voll' }) : this._buyBtn(upgradeCost(base, lv), () => { T.up[u.id] = lv + 1; }, rer);
+      return el('div', { class: 'uprow', id: 'up_' + u.id }, [el('div', { class: 'sbody' }, [el('div', { class: 'uph' }, [el('span', { class: 'nm', text: u.name }), pips]), el('span', { class: 'mt', text: u.desc + ' · ' + u.step })]), btn]);
+    });
+    const trim = el('div', { class: 'seg trimseg', id: 'tuneTrim', role: 'group', 'aria-label': 'Trimmer' }, TRIM_STEPS.map(([v, t]) =>
+      el('button', { class: (T.trim || 0) === v ? 'on' : '', text: t || (v < 0 ? '‹' : '›'), 'aria-label': 'Trimmer ' + (v > 0 ? '+' : '') + v, onclick: () => { this.click(); T.trim = v; this.store(); rer(); } })));
+    s.innerHTML = '';
+    s.appendChild(el('div', { class: 'panel wide' }, [
+      el('div', { class: 'eyebrow', text: 'Werkstatt' }), el('h2', { text: base.name + ' · ' + base.cls }),
+      open.length > 1 ? el('div', { class: 'chipset', id: 'tuneWings' }, open.map(w => el('button', { class: w.id === base.id ? 'on' : '', text: w.name, onclick: () => { this.click(); this._keepScroll(s, () => this.renderTune(w.id)); } }))) : null,
+      el('div', { class: 'tunetop' }, [el('div', { class: 'sw big', html: wingSvg(base, this.currentDesign()) }), this._wingBars(base, tw)]),
+      el('div', { class: 'statgrid four tunestats' }, [
+        line('Gleitzahl', base.glide, tw.glide, true, '', 1), line('Sinken', base.sMin, tw.sMin, false, ' m/s', 2),
+        line('Trimm', base.vTrim * 3.6, tw.vTrim * 3.6, true, ' km/h', 0), line('Vollgas', base.vMax * 3.6, tw.vMax * 3.6, true, ' km/h', 0),
+      ]),
+      this.activePerks().length ? el('p', { class: 'small', text: 'Mit deinen Perks gerechnet: ' + this.activePerks().map(id => PERK_BY_ID[id].name).join(', ') + '.' }) : null,
+      el('div', { class: 'eyebrow', text: 'Verbesserungen · nur für diesen Schirm' }),
+      el('div', { class: 'cards' }, rows),
+      el('div', { class: 'eyebrow', text: 'Trimmer' }),
+      el('div', { class: 'setting col' }, [el('small', { text: 'Gezogen steigt der Schirm besser und liegt ruhiger, offen fliegt er schneller, sinkt aber mehr und wird nervöser. Kostet nichts – stell ihn je nach Aufgabe ein.' }), trim]),
+      el('div', { class: 'chsum' }, [el('div', {}, [el('span', { text: 'Dein Guthaben' })]), el('span', { class: 'coinchip big', html: COIN + U.fmtInt(sv.coins) })]),
+      this._back(() => (this._tuneBack || (() => this.toTitle()))()),
+    ]));
+  },
+  /* Balken Gleiten, Steigen, Tempo, Wendig, Sicher: Werkswert, darüber grün, was die Werkstatt dazugibt (rot: Trimmer kostet) */
+  _wingBars(w, t) {
+    const val = (x) => [['Gleiten', (x.glide - 5.5) / 7], ['Steigen', (1.9 - x.sMin) / 1.0], ['Tempo', (x.vMax - 11.5) / 8], ['Wendig', (x.agility - 0.55) / 1.6], ['Sicher', (x.stability - 0.4) / 1.25]];
+    const a = val(w), b = val(t || w), pct = (v) => (v * 100).toFixed(1) + '%';
+    return el('div', { class: 'wbars' }, a.map(([k, v], i) => {
+      const v0 = U.clamp(v, 0.06, 1), v1 = U.clamp(b[i][1], 0.06, 1);
+      return el('div', { class: 'wb' }, [el('span', { text: k }), el('i', {}, [
+        el('b', { style: 'width:' + pct(Math.min(v0, v1)) }),
+        v1 > v0 + 0.004 ? el('em', { style: 'width:' + pct(v1 - v0) }) : (v1 < v0 - 0.004 ? el('em', { class: 'dn', style: 'width:' + pct(v0 - v1) }) : null),
+      ])]);
+    }));
+  },
+
+  /* ---------------- Perks: bis zu drei Vorteile für jeden Flug ---------------- */
+  renderPerks(back) {
+    if (back) this._perksBack = back;
+    const sv = this.save, P = sv.perks, s = this.screens.perks, slots = this.perkSlots(), on = this.activePerks();
+    const rer = () => this._keepScroll(s, () => this.renderPerks());
+    const takeOff = (id) => { this.click(); P.on = on.filter(x => x !== id); this.store(); rer(); };
+    const slotEls = [0, 1, 2].map(i => {
+      if (i >= slots) return el('div', { class: 'pslot lock' }, [el('span', { class: 'pl', text: 'Platz 3' }), this._buyBtn(PERK_SLOT3, () => { P.slots = 3; }, rer)]);
+      const id = on[i];
+      if (!id) return el('div', { class: 'pslot' }, [el('span', { class: 'pl', text: 'Platz ' + (i + 1) }), el('span', { class: 'pn free', text: 'frei' })]);
+      const p = PERK_BY_ID[id];
+      return el('button', { class: 'pslot on', 'aria-label': p.name + ' ablegen', onclick: () => takeOff(id) }, [el('span', { class: 'pl', text: 'Platz ' + (i + 1) + ' · ablegen' }), el('span', { class: 'pn', text: p.name }), el('span', { class: 'pfx', text: p.fx })]);
+    });
+    const cards = PERKS.map(p => {
+      const own = this.perkOwned(p), act = on.indexOf(p.id) >= 0;
+      const btn = !own ? this._buyBtn(p.price, () => { P.own[p.id] = 1; const cur = this.activePerks(); if (cur.length < this.perkSlots()) P.on = cur.concat(p.id); }, rer)
+        : act ? el('button', { class: 'buy on', text: 'Aktiv · ablegen', onclick: () => takeOff(p.id) })
+          : el('button', { class: 'buy own', text: 'Ausrüsten', onclick: () => {
+            this.click(); if (on.length >= slots) { this.toast('Alle Plätze belegt – erst einen Perk ablegen'); return; }
+            P.on = on.concat(p.id); this.store(); rer();
+          } });
+      return el('div', { class: 'pcard' + (act ? ' sel' : '') + (own ? '' : ' locked'), id: 'perk_' + p.id }, [el('div', { class: 'pfx', text: p.fx }), el('div', { class: 'dn', text: p.name }), el('div', { class: 'dd', text: p.desc }), btn]);
+    });
+    s.innerHTML = '';
+    s.appendChild(el('div', { class: 'panel wide' }, [
+      el('div', { class: 'eyebrow', text: 'Ausrüstung' }), el('h2', { text: 'Perks' }),
+      el('p', { text: 'Perks gelten für jeden Flug und jeden Schirm. Zwei trägst du gleichzeitig, ein dritter Platz lässt sich kaufen. Tippe einen belegten Platz an, um den Perk abzulegen.' }),
+      el('div', { class: 'pslots' }, slotEls),
+      el('div', { class: 'chsum' }, [el('div', {}, [el('span', { text: 'Dein Guthaben' })]), el('span', { class: 'coinchip big', html: COIN + U.fmtInt(sv.coins) })]),
+      this.testMode ? el('div', { class: 'unlock', text: 'Testmodus ist an: alle Perks und drei Plätze sind frei.' }) : null,
+      el('div', { class: 'pgrid' }, cards),
+      this._back(() => (this._perksBack || (() => this.toTitle()))()),
+    ]));
+  },
+
+  /* ---------------- Design-Werkstatt: eigenes Muster und eigene Farben ---------------- */
+  renderDesigner(back) {
+    if (back) this._designBack = back;
+    const sv = this.save, C = sv.custom, s = this.screens.designer, wing = WING_BY_ID[sv.wing] || WINGS[0];
+    const d = this.customDesign(), active = sv.design === 'eigen', rer = () => this._keepScroll(s, () => this.renderDesigner());
+    const pats = DESIGN_PATTERNS.map(p => {
+      const ok = this.patternAvailable(p), sel = C.pat === p.id, prev = el('span', { class: 'sw', html: wingSvg(wing, Object.assign({}, d, { pat: p.id })) });
+      if (!ok) return el('div', { class: 'patcard locked' }, [prev, el('span', { class: 'dn', text: p.name }), this._buyBtn(p.price, () => { sv.owned.pats[p.id] = 1; C.pat = p.id; }, rer, true)]);
+      return el('button', { class: 'patcard' + (sel ? ' sel' : ''), 'aria-pressed': String(sel), id: 'pat_' + p.id, onclick: () => { this.click(); C.pat = p.id; this.store(); rer(); } }, [prev, el('span', { class: 'dn', text: p.name })]);
+    });
+    const swatches = (k) => el('div', { class: 'swatches', role: 'group', 'aria-label': 'Farbe ' + (k + 1) }, DESIGN_COLORS.map(c =>
+      el('button', { class: 'swc' + (C.c[k] === c ? ' on' : ''), style: '--c:' + U.hex(c), 'aria-label': 'Farbe ' + (k + 1) + ': ' + U.hex(c), 'aria-pressed': String(C.c[k] === c), onclick: () => { this.click(); C.c[k] = c; this.store(); rer(); } })));
+    const random = () => {
+      this.click();
+      const pool = DESIGN_PATTERNS.filter(p => this.patternAvailable(p)), cols = DESIGN_COLORS.slice();
+      C.pat = pool[Math.floor(Math.random() * pool.length)].id;
+      for (let k = 0; k < 3; k++) C.c[k] = cols.splice(Math.floor(Math.random() * cols.length), 1)[0];
+      C.nose = Math.random() < 0.35; this.store(); rer();
+    };
+    s.innerHTML = '';
+    s.appendChild(el('div', { class: 'panel wide' }, [
+      el('div', { class: 'eyebrow', text: 'Design-Werkstatt' }), el('h2', { text: 'Eigenes Design' }),
+      el('div', { class: 'dprev' }, [el('div', { class: 'sw huge', html: wingSvg(wing, d) }), el('div', { class: 'small', text: active ? 'Ist aktiv – so fliegst du.' : 'Vorschau am ' + wing.name + '. Gilt für jeden Schirm.' })]),
+      el('div', { class: 'eyebrow', text: 'Muster' }), el('div', { class: 'patgrid' }, pats),
+      el('div', { class: 'eyebrow', text: 'Farbe 1 · Grundfarbe' }), swatches(0),
+      el('div', { class: 'eyebrow', text: 'Farbe 2 · Muster' }), swatches(1),
+      el('div', { class: 'eyebrow', text: 'Farbe 3 · Akzent' }), swatches(2),
+      el('div', { class: 'setting' }, [el('div', {}, [el('div', { class: 'sl', text: 'Nase in Farbe 3' }), el('small', { text: 'Färbt die Eintrittskante vorn an der Kappe.' })]),
+        el('div', { class: 'seg', id: 'setNose' }, [[true, 'An'], [false, 'Aus']].map(([v, t]) => el('button', { class: !!C.nose === v ? 'on' : '', text: t, onclick: () => { this.click(); C.nose = v; this.store(); rer(); } })))]),
+      el('div', { class: 'row' }, [
+        el('button', { class: 'btn', id: 'dsRandom', onclick: random }, [el('span', { text: 'Zufall' })]),
+        el('button', { class: 'btn primary', id: 'dsApply', onclick: () => { this.click(); sv.design = 'eigen'; this.store(); this.toast('Eigenes Design aktiv'); rer(); } }, [el('span', { text: active ? 'Aktiv' : 'Übernehmen' })]),
+      ]),
+      this._back(() => (this._designBack || (() => this.toTitle()))()),
+    ]));
+  },
+
+  /* Kaufen mit zweitem Tipp zur Bestätigung (kein Browser-Dialog); after baut die Seite danach neu auf */
+  _buyBtn(price, onBuy, after, short) {
+    const label = (short ? '' : 'Kaufen · ') + U.fmtInt(price) + COIN;
     const b = el('button', { class: 'buy' + (this.save.coins < price ? ' poor' : ''), html: label });
     b.addEventListener('click', () => {
       const sv = this.save;
       if (sv.coins < price) { this.click(); this.toast('Dir fehlen noch ' + U.fmtInt(price - sv.coins) + ' Münzen'); return; }
       if (!b.classList.contains('arm')) {
-        this.click(); b.classList.add('arm'); b.textContent = 'Sicher? Nochmal tippen';
+        this.click(); b.classList.add('arm'); b.textContent = short ? 'Sicher?' : 'Sicher? Nochmal tippen';
         clearTimeout(b._t); b._t = setTimeout(() => { b.classList.remove('arm'); b.innerHTML = label; }, 3000);
         return;
       }
-      clearTimeout(b._t); sv.coins -= price; onBuy(); this.store(); this.audio.chime(); this.renderShop();
+      clearTimeout(b._t); sv.coins -= price; onBuy(); this.store(); this.audio.chime(); (after || (() => this.renderShop()))();
     });
     return b;
   },
