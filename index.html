@@ -49,7 +49,7 @@
   --night: #0b1f3a; --night-2: #12294a; --night-3: #1a355c;
   --panel: rgba(11, 31, 58, 0.86); --panel-solid: #0e2543;
   --sun: #ffc24b; --sun-2: #ffd98a; --sun-ink: #1a1200;
-  --climb: #7cfc9a; --sink: #ff6a5c; --wind: #5fb2f0; --cloud: #f2f6fa;
+  --climb: #7cfc9a; --sink: #ff6a5c; --wind: #5fb2f0; --cloud: #f2f6fa; --lock: #8fd3ff;
   --ink: #e6eef8; --ink-2: #a9bbd3; --ink-3: #7489a8;
   --line: rgba(166, 196, 232, 0.16); --grid: rgba(166, 196, 232, 0.12); --ground: #4a4436;
   --bronze: #d08a4e; --silver: #c9d3de; --gold: #ffc24b;
@@ -88,6 +88,9 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 .thumb .end { position: absolute; left: calc(-11px * var(--bs)); width: calc(22px * var(--bs)); height: calc(3px * var(--bs)); margin-top: calc(-1.5px * var(--bs)); border-radius: 2px; background: rgba(255, 106, 92, 0.75); }
 .thumb .knob { position: absolute; left: 0; top: calc(-15px * var(--bs)); width: calc(30px * var(--bs)); height: calc(30px * var(--bs)); border-radius: 50%; background: var(--sun); box-shadow: 0 0 18px rgba(255, 194, 75, 0.55); }
 .thumb.deep .knob { background: var(--sink); box-shadow: 0 0 18px rgba(255, 106, 92, 0.7); }
+/* Raste: letztes Stück vor 100 % (schraffiert); dort losgelassen bleibt die Bremse gezogen */
+.thumb .zone { position: absolute; left: calc(-7px * var(--bs)); width: calc(14px * var(--bs)); border-radius: 3px; background: repeating-linear-gradient(135deg, rgba(143, 211, 255, 0.6) 0 3px, rgba(143, 211, 255, 0.12) 3px 6px); }
+.thumb.latch .knob { background: var(--lock); box-shadow: 0 0 20px rgba(143, 211, 255, 0.85); }
 /* Probierfeld in den Optionen */
 .brkLen { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
 .brkLen b { font-family: var(--font-d); font-size: 12px; color: var(--sun); font-variant-numeric: tabular-nums; }
@@ -107,6 +110,9 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 .gthumb .glbl { position: absolute; top: 150px; left: 0; transform: translateX(-50%); white-space: nowrap; font-family: var(--font-d); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8); }
 @keyframes ghostPull { 0%, 12% { transform: translateY(0); opacity: 0.2; } 20% { opacity: 1; } 70% { transform: translateY(120px); opacity: 1; } 88%, 100% { transform: translateY(120px); opacity: 0; } }
 .rail.teach .track { box-shadow: 0 0 0 3px rgba(255, 194, 75, 0.45), 0 0 22px rgba(255, 194, 75, 0.6); }
+/* Klapper droht: die Seite blinkt rot */
+.rail.threat .track { animation: railWarn 0.3s ease-in-out infinite alternate; }
+@keyframes railWarn { from { box-shadow: 0 0 0 2px rgba(255, 106, 92, 0.35), 0 0 8px rgba(255, 106, 92, 0.4); } to { box-shadow: 0 0 0 4px rgba(255, 106, 92, 0.95), 0 0 26px rgba(255, 106, 92, 0.9); } }
 
 /* ---------------- Cockpit ----------------
    Jede Anzeige ist ein eigenes Element (.hudw) und lässt sich verschieben (Optionen → Cockpit).
@@ -215,6 +221,12 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 .rail .fill { position: absolute; left: -1px; right: -1px; top: -1px; height: 0; border-radius: 4px; background: linear-gradient(180deg, rgba(255, 194, 75, 0.35), var(--sun)); }
 .rail .grip { position: absolute; left: 50%; top: 0; width: calc(24px * var(--bs)); height: calc(12px * var(--bs)); border-radius: 6px; background: var(--sun); border: 2px solid rgba(0, 0, 0, 0.55); transform: translate(-50%, -50%); }
 .rail.deep .fill { background: linear-gradient(180deg, rgba(255, 106, 92, 0.35), var(--sink)); } .rail.deep .grip { background: var(--sink); }
+.rail .zone { position: absolute; left: -2px; right: -2px; top: 88%; bottom: -1px; border-radius: 0 0 4px 4px; border-top: 1.5px solid rgba(143, 211, 255, 0.7); background: repeating-linear-gradient(135deg, rgba(143, 211, 255, 0.45) 0 3px, transparent 3px 6px); }
+#hud.nolock .rail .zone { display: none; }
+.rail .rlock { display: none; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: calc(15px * var(--bs)); height: calc(15px * var(--bs)); }
+.rail .rlock svg { display: block; width: 100%; height: 100%; fill: none; stroke: var(--lock); stroke-width: 1.7; stroke-linejoin: round; }
+.rail.locked .rlock { display: block; } .rail.locked .rlbl { visibility: hidden; }   /* Schloss statt Prozentzahl, Balken bleibt stehen */
+.rail.locked .fill { background: linear-gradient(180deg, rgba(143, 211, 255, 0.3), var(--lock)); } .rail.locked .grip { background: var(--lock); box-shadow: 0 0 12px rgba(143, 211, 255, 0.8); }
 .rail .rlbl { font-family: var(--font-d); font-size: 11px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
 /* Anzeigen verschieben */
 #hud.editing .hudw { pointer-events: auto; cursor: move; touch-action: none; outline: 2px dashed rgba(255, 194, 75, 0.95); outline-offset: 4px; border-radius: 12px; }
@@ -582,7 +594,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = '28.09.2026, 14:36 · ee3aa01';
+window.AUFWIND_BUILD = '28.09.2026, 19:47 · 91d7bdf';
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -1432,6 +1444,7 @@ const CHALLENGES = [
   { id: 'kreise', cat: 'Flugkunst', name: 'Vollkreise', kind: 'sum', tiers: [50, 300, 1500], goal: '{v} Vollkreise fliegen', desc: 'Jede volle Umdrehung zählt, ob in der Thermik oder zum Spaß.' },
   { id: 'spirale', cat: 'Flugkunst', name: 'Steilspirale', kind: 'sum', tiers: [3, 15, 50], goal: '{v} Steilspiralen ausleiten', desc: 'Über 55° Querlage einleiten und sauber ausleiten. Nicht mit dem Schulschirm.' },
   { id: 'klapper', cat: 'Flugkunst', name: 'Kühler Kopf', kind: 'sum', tiers: [3, 20, 75], goal: '{v} Klapper ausleiten', desc: 'Klappt eine Seite ein: auf der offenen Seite gegenbremsen.' },
+  { id: 'abfangen', cat: 'Flugkunst', name: 'Aktiv fliegen', kind: 'sum', tiers: [3, 25, 100], goal: '{v} Klapper abfangen', desc: 'Flattert eine Flügelspitze: auf dieser Seite kurz kräftig anbremsen, bevor sie einklappt.' },
   { id: 'butter', cat: 'Landen', name: 'Butterweich', kind: 'sum', tiers: [5, 25, 100], goal: '{v} perfekte Landungen', desc: 'Etwa 2 m über dem Boden beide Bremsen durchziehen.' },
   { id: 'punkt', cat: 'Landen', name: 'Punktlandung', kind: 'min', tiers: [10, 5, 2], unit: 'm', dec: 1, goal: 'Unter {v} m vom Zielkreuz landen', desc: 'In jedem Flug möglich – Hauptsache nah am weißen X.' },
   { id: 'baerte', cat: 'Thermik', name: 'Bärte auskurbeln', kind: 'sum', tiers: [10, 60, 250], goal: '{v} Bärte auskurbeln', desc: 'Ein Bart zählt ab 150 m Höhengewinn darin.' },
@@ -1620,6 +1633,20 @@ class GameAudio {
     const g = c.createGain(); g.gain.value = 0.6; s.connect(f); f.connect(g); g.connect(this.master); s.start(t);
   }
   collapse() { this.thump(); this.tone(180, 0.5, 'square', 0.12, -80); }
+  /* Flattern der Flügelspitze vor einem Klapper: Rauschen, schnell pulsierend */
+  flutter() {
+    if (!this.ctx || !this.enabled) return;
+    const c = this.ctx, t = c.currentTime, len = Math.floor(c.sampleRate * 0.55), b = c.createBuffer(1, len, c.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < len; i++) { const x = i / c.sampleRate, am = 0.5 + 0.5 * Math.sin(x * Math.PI * 2 * 21); d[i] = (Math.random() * 2 - 1) * am * am * Math.min(1, x * 30) * Math.pow(1 - i / len, 0.8); }
+    const s = c.createBufferSource(); s.buffer = b; const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 900; f.Q.value = 0.8;
+    const g = c.createGain(); g.gain.value = 0.55; s.connect(f); f.connect(g); g.connect(this.master); s.start(t);
+    this.tone(640, 0.12, 'triangle', 0.08); setTimeout(() => this.tone(640, 0.12, 'triangle', 0.08), 160);
+  }
+  /* Raste der Bremse: mechanisches Klacken (einrasten), leiser Klick (freigeben) */
+  latch(on) {
+    if (on) { this.tone(2400, 0.02, 'square', 0.05); setTimeout(() => this.tone(1100, 0.035, 'square', 0.07), 28); }
+    else this.tone(1700, 0.025, 'square', 0.04);
+  }
   click() { this.tone(1500, 0.04, 'square', 0.06); }
   _noise(dur, freq, vol, type) {
     if (!this.ctx || !this.enabled) return;
@@ -1679,8 +1706,13 @@ class GameAudio {
    Optional: Handy kippen = Gewichtsverlagerung. Tastatur für den Rechner.
    Gesten für den Start von Hand: nach oben wischen (Schirm aufziehen), Finger aufsetzen (Laufschritt),
    schnell nach unten wischen (ins Gurtzeug setzen). Sie werden als Ereignisse abgelegt, die der
-   Pilot beim Lesen zurücksetzt (swipeUp, tapN/tapIv/tapSide, flickDown). */
+   Pilot beim Lesen zurücksetzt (swipeUp, tapN/tapIv/tapSide, flickDown).
+   Raste: Wer eine Bremse im Flug bis ins letzte Stück zieht (ab BRAKE_LOCK) und loslässt, lässt sie eingerastet –
+   sie bleibt gezogen (z. B. für den Strömungsabriss). Ein Daumen auf dieser Seite greift die Bremse dort, wo sie
+   steht; nach oben schieben lässt sie nach, oberhalb der Raste loslassen gibt sie frei. */
 'use strict';
+
+const BRAKE_LOCK = 0.88;
 
 class Input {
   constructor() {
@@ -1693,6 +1725,10 @@ class Input {
     this.tiltWS = false; this.tiltAvailable = false;
     this.sensitivity = 1.0; this.invert = false;   // sensitivity: nur noch fürs Kippen
     this.brakeLen = 170;                    // Länge der Bremsleinen: Daumenweg bis voll in CSS-Pixeln (Optionen)
+    this.lockOn = true;                     // Raste unten im Bremsweg (Optionen)
+    this.lockOk = false;                    // nur im Flug (Game._step); am Boden gibt Loslassen die Bremse immer frei
+    this.lock = { L: 0, R: 0 };             // eingerastete Bremse je Seite (0 = frei)
+    this.onLock = null;                     // Rückmeldung (Seite, 'lock' | 'free')
     this.pointers = new Map();              // pointerId -> {side, x0, y0, x, y}
     this.keys = {};
     this.lastTilt = { roll: 0, pitch: 50 };
@@ -1733,11 +1769,13 @@ class Input {
       for (const [id, p] of this.pointers) if (p.side === side) { this.pointers.delete(id); }
       const now = performance.now();
       const p = { side, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, xs: e.clientX, ys: e.clientY, ts: now };
+      // Eingerastete Bremse: der Daumen greift sie dort, wo sie steht (Startpunkt der Leine liegt entsprechend höher)
+      if (this.lock[side]) { p.y0 = e.clientY - this.lock[side] * this.range; p.grab = true; this.lock[side] = 0; }
       // Laufschritt zählt schon beim Aufsetzen – auch längere Tipper und zwei Daumen gleichzeitig
       this.tapIv = (now - this._lastTap) / 1000; this._lastTap = now; this.tapN++; this.tapSide = side; this.tapX = e.clientX; this.tapY = e.clientY;
       this.pointers.set(e.pointerId, p);
       try { el.setPointerCapture(e.pointerId); } catch (_) {}
-      if (this.onThumb) this.onThumb(side, p, 0);
+      if (this.onThumb) this.onThumb(side, p, p.grab ? this._amount(p) : 0);
     });
     el.addEventListener('pointermove', (e) => {
       const p = this.pointers.get(e.pointerId); if (!p) return;
@@ -1749,6 +1787,8 @@ class Input {
     const end = (e) => {
       const p = this.pointers.get(e.pointerId); if (!p) return;
       this.pointers.delete(e.pointerId);
+      if (e.type === 'pointerup' && e.clientY) { p.y = e.clientY; if (p.y < p.y0) p.y0 = p.y; }
+      this._release(p);
       if (this.onThumb) this.onThumb(p.side, null, 0);
       if (e.type === 'pointerup') this._gesture(p, e.clientX, e.clientY);
     };
@@ -1756,9 +1796,16 @@ class Input {
     el.addEventListener('contextmenu', (e) => e.preventDefault());
   }
   _amount(p) {
-    if (this.brakeDelay && performance.now() - p.ts < this.brakeDelay * 1000) return 0;
+    if (!p.grab && this.brakeDelay && performance.now() - p.ts < this.brakeDelay * 1000) return 0;
     return U.clamp((p.y - p.y0) / this.rangeFor(p), 0, 1);
   }
+  /* Daumen weg: in der Raste bleibt die Bremse gezogen, sonst ist sie frei */
+  _release(p) {
+    const a = this._amount(p);
+    if (this.lockOn && this.lockOk && a >= BRAKE_LOCK) { this.lock[p.side] = a; if (this.onLock) this.onLock(p.side, 'lock'); }
+    else if (p.grab && this.onLock) this.onLock(p.side, 'free');
+  }
+  get locked() { return this.lock.L > 0 || this.lock.R > 0; }
   _gesture(p, x, y) {
     const now = performance.now(), dt = now - p.ts, dx = x - p.xs, dy = y - p.ys;
     if (-dy > 50 && -dy > Math.abs(dx) * 1.2 && dt < 900) {          // nach oben wischen = aufziehen
@@ -1773,9 +1820,11 @@ class Input {
     el.addEventListener('pointerdown', on); el.addEventListener('pointerup', off);
     el.addEventListener('pointercancel', off); el.addEventListener('pointerleave', off);
   }
-  releaseAll() {
+  /* Alles loslassen (Start, Ende, Pause). keepLocks: eingerastete Bremsen bleiben (Pause), sonst frei */
+  releaseAll(keepLocks) {
+    if (!keepLocks) this.lock.L = this.lock.R = 0;
     this.pointers.clear(); this.bar = false; this.ears = false; this.keys = {};
-    this.brakeL = this.brakeR = 0; this.barV = 0;
+    this.brakeL = this.lock.L; this.brakeR = this.lock.R; this.barV = 0;
     this.swipeUp = 0; this.flickDown = false;
     if (this.onThumb) { this.onThumb('L', null, 0); this.onThumb('R', null, 0); }
   }
@@ -1809,7 +1858,8 @@ class Input {
   }
 
   update(dt) {
-    let tL = 0, tR = 0;
+    if (!this.lockOk || !this.lockOn) this.lock.L = this.lock.R = 0;
+    let tL = this.lock.L, tR = this.lock.R;
     for (const p of this.pointers.values()) {
       const a = this._amount(p);
       if (p.side === 'L') tL = Math.max(tL, a); else tR = Math.max(tR, a);
@@ -2659,6 +2709,10 @@ const ATMO = {
     atmoShF: { value: null }, atmoShFR: { value: new THREE.Vector4(0, 0, 1e-6, 0) },   // Schattenfeld fern
     atmoCl: { value: Array.from({ length: ATMO_CLOUDS }, () => new THREE.Vector4(0, 0, -1e5, 1)) },   // Wolken: x, z, Unterseite, Radius
     atmoClN: { value: 0 },
+    // Kameraposition für Lambert und Phong: three.js r128 lädt cameraPosition nur für Phong, Standard und
+    // ShaderMaterial hoch – bei Lambert blieb sie 0, das Schattenfeld wurde am Weltursprung gelesen und Bäume,
+    // Häuser, Tiere, Wiesen und der Pilot lagen im Schatten (Game._buildWorld setzt atmoCam vor jedem Bild)
+    atmoCam: { value: new THREE.Vector3() },
   },
 };
 /* Leeres Schattenfeld (1 × 1, Rechenwert „nie verdeckt“), bis das echte fertig ist */
@@ -2719,11 +2773,11 @@ vec2 atmoLight( vec3 wp ) {
 /* Nebel-Bausteine von three.js ersetzen (gilt für alle Materialien mit fog: true) */
 (function installAtmo() {
   const SC = THREE.ShaderChunk;
-  SC.fog_pars_vertex = '#ifdef USE_FOG\nvarying vec3 vAtmoW;\n#if defined( LAMBERT ) || defined( PHONG )\nuniform vec3 atmoSun; uniform vec4 atmoF;\n' + ATMO_LIGHT_GLSL + '\n#endif\n#ifdef PHONG\nvarying vec2 vAtmoL;\n#endif\n#endif';
+  SC.fog_pars_vertex = '#ifdef USE_FOG\nvarying vec3 vAtmoW;\n#if defined( LAMBERT ) || defined( PHONG )\nuniform vec3 atmoSun; uniform vec4 atmoF; uniform vec3 atmoCam;\n' + ATMO_LIGHT_GLSL + '\n#endif\n#ifdef PHONG\nvarying vec2 vAtmoL;\n#endif\n#endif';
   SC.fog_vertex = `#ifdef USE_FOG
   vAtmoW = ( vec4( mvPosition.xyz, 0.0 ) * viewMatrix ).xyz;
   #if defined( LAMBERT ) || defined( PHONG )
-    vec2 atmoL = atmoLight( cameraPosition + vAtmoW );
+    vec2 atmoL = atmoLight( atmoCam + vAtmoW );
     #ifdef LAMBERT
       vLightFront *= atmoL.x; vIndirectFront *= atmoL.y;
       #ifdef DOUBLE_SIDED
@@ -3354,7 +3408,7 @@ class World {
   /* Die Wiesen von Start- und Landeplatz liegen etwas über dem Gelände */
   _pads(x, z, h) {
     const L = this.landing; if (L && U.dist2(x, z, L.x, L.z) < (L.pad || 120) - 2) h = Math.max(h, L.h + 0.64);
-    const S = this.launch; if (S && U.dist2(x, z, S.x, S.z) < 33) h = Math.max(h, S.h + 0.37);
+    const S = this.launch; if (S && U.dist2(x, z, S.x, S.z) < 33) h += 0.37;         // Startwiese liegt auf dem Gelände (_buildSites)
     return h;
   }
   /* Worauf Figuren stehen und laufen: die sichtbare Fläche */
@@ -3915,8 +3969,23 @@ class World {
     for (const [dx, dz, c] of [[-20, -8, 0x3c8de8], [-20, 2, 0xf4f4f4]]) { const x = kx + dx, z = kz + dz, h = H(x, z); P.push([box(2, 1.2, 4.4, x, h + 0.9, z), c], [box(1.8, 0.8, 2.4, x, h + 1.8, z + 0.3), 0x2a3440]); }
     for (let i = 0; i < 4; i++) { const x = L.x - 70 + i * 3, z = L.z + 70, h = H(x, z); P.push([box(1.1, 0.6, 1.6, x, h + 0.3, z), [0xe8453c, 0x33c26b, 0xf28c28, 0x3c8de8][i]]); }
     // Startplatz: Wiese, Flaggen, wartende Piloten mit ausgelegten Schirmen, ein Bus
-    P.push([new THREE.CircleGeometry(34, 18).rotateX(-Math.PI / 2).translate(Lp.x, Lp.h + 0.35, Lp.z), padCol]);
     const fx = Math.sin(Lp.heading), fz = -Math.cos(Lp.heading), rx = Math.cos(Lp.heading), rz = Math.sin(Lp.heading);
+    // Startwiese: fein unterteilt, 0,35 m über der gezeichneten Fläche, weich schattiert, gemähte Bahnen in Startrichtung,
+    // zum Rand hin in die Farbe des Geländes übergehend (früher eine flache Scheibe, die bergseitig im Hang steckte)
+    { const g = new THREE.RingGeometry(0.02, 34, 32, 8).rotateX(-Math.PI / 2).translate(Lp.x, 0, Lp.z), pa = g.attributes.position;
+      const col = new Float32Array(pa.count * 3), nor = g.attributes.normal, c = new THREE.Color(), n = new THREE.Vector3();
+      for (let i = 0; i < pa.count; i++) {
+        const x = pa.getX(i), z = pa.getZ(i), d = U.dist2(x, z, Lp.x, Lp.z);
+        pa.setY(i, this.meshHeight(x, z) + 0.35);
+        // Normale aus dem Gelände (ohne Naht, die der Ring bei 0° hätte)
+        n.set(this.meshHeight(x - 1.5, z) - this.meshHeight(x + 1.5, z), 3, this.meshHeight(x, z - 1.5) - this.meshHeight(x, z + 1.5)).normalize();
+        nor.setXYZ(i, n.x, n.y, n.z);
+        const stripe = 0.94 + 0.06 * Math.sign(Math.sin(((x - Lp.x) * rx + (z - Lp.z) * rz) * 0.45));
+        c.copy(padCol).lerp(fieldCol, 0.35).multiplyScalar(stripe).lerp(padCol, U.smoothstep(24, 34, d) * 0.5);
+        col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+      }
+      g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+      this.scene.add(new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true }))); }
     for (const side of [-1, 1]) {
       const x = Lp.x + rx * 14 * side, z = Lp.z + rz * 14 * side, h = H(x, z);
       P.push([cyl(0.15, 0.15, 5, 4, x, h + 2.5, z), 0xeeeeee], [box(0.1, 1.3, 2.2).rotateY(-Lp.heading + Math.PI / 2).translate(x, h + 4.3, z), 0xff7a3d]);
@@ -4209,182 +4278,377 @@ class World {
 /* Abstand Pilot -> Kappenmitte. Physik und Modellursprung liegen beim Piloten. */
 const RIG = 7.45;
 
-/* Low-Poly-Kappe mit Ober- und Untersegel. Die Hinterkante lässt sich pro Seite
-   herunterziehen (Bremse), eine Seite kann einklappen, die Ohren falten die Enden. */
+/* Kappe: 32 Zellen (die Design-Muster haben 16 Felder, je zwei Zellen eines), Bogen mit flacher Mitte und
+   heruntergezogenen Stabilos, elliptischer Grundriss mit gepfeilter Nase, gewölbtes Profil (Obersegel ab der
+   Nase, Untersegel ab der Einlasslippe). Je Zelle drei Stationen: Rippe, Zellmitte (bauchig), Rippe. */
+const CANOPY = {
+  NC: 32, B: 6.0, arc: 1.5, arcP: 1.6, c0: 2.75,
+  XU: [0, 0.015, 0.05, 0.11, 0.2, 0.32, 0.46, 0.62, 0.8, 1],
+  XL: [0.07, 0.12, 0.3, 0.45, 0.62, 0.8, 1],
+};
+/* Leinen: Farben der Ebenen A, B, C, Bremse und der Tragegurte; Aufhängepunkte je Ebene (Index im Untersegel) */
+const LINE_COL = [0xa8453a, 0xc49a45, 0x4a6a92, 0xd98236, 0x24282e];
+const LINE_ROWS = [1, 2, 4];
+
+/* Kappe mit Zellen, Leinen als Kaskade (Galerie- und Stammleinen, Tragegurte, Karabiner, Bremsleinen über die
+   Umlenkrolle bis in die Hand) und Pilot mit Helm, Armen an den Bremsgriffen und Beinen.
+   deform(st) passt Kappe und Leinen an: Bremsen ziehen die Hinterkante herunter, eine Seite kann einklappen
+   (die Außenseite faltet sich unter die Kappe), die Ohren falten die Enden, vor einem Klapper flattert die
+   Spitze, ausgelegt am Boden liegt die Kappe flach und schlaff. */
 function buildGliderModel(wing, opts) {
   opts = opts || {};
   const root = new THREE.Group(); root.rotation.order = 'YXZ';
   const rig = new THREE.Group(); root.add(rig);
   const canopy = new THREE.Group(); canopy.position.y = RIG; rig.add(canopy);
-  const N = 16, Rw = 5.2, maxA = U.rad(76);
-  // Zellfarben aus Werksfarben, Laden-Design oder eigenem Design (designCells in data.js)
-  const dc = designCells(wing, opts.design, N), main = new THREE.Color(dc.main);
-  const cells = dc.cells.map(c => new THREE.Color(c)), nose = dc.le != null ? new THREE.Color(dc.le) : null;
-  const cellColor = (i) => opts.color ? new THREE.Color(opts.color) : cells[i];
-  const cols = [];
-  for (let i = 0; i <= N; i++) {
-    const a = -maxA + (2 * maxA) * i / N;
-    cols.push({ a, t: Math.abs(a) / maxA, side: a < 0 ? -1 : 1, x: Rw * Math.sin(a), y: -Rw * (1 - Math.cos(a)), chord: 2.6 * (0.32 + 0.68 * Math.cos(a)) });
+  const C = CANOPY, NC = C.NC, S = 2 * NC + 1, XU = C.XU, XL = C.XL, KU = XU.length, KL = XL.length, KP = KU + KL;
+  // Zellfarben aus Werksfarben, Laden-Design oder eigenem Design (designCells in data.js, 16 Felder)
+  const dc = designCells(wing, opts.design, 16), main = new THREE.Color(opts.color != null ? opts.color : dc.main);
+  const cells = dc.cells.map(c => new THREE.Color(c)), nose = dc.le != null && opts.color == null ? new THREE.Color(dc.le) : null;
+  const cellColor = (ci) => opts.color != null ? main : cells[Math.min(15, Math.floor(ci * 16 / NC))];
+
+  // ---- Stationen der ungestörten Kappe: Bogen (ax, ay) mit Normale (anx, any), Nase z, Tiefe, Dicke
+  const u = new Float32Array(S), ax = new Float32Array(S), ay = new Float32Array(S), anx = new Float32Array(S), any = new Float32Array(S);
+  const zle = new Float32Array(S), ch = new Float32Array(S), th = new Float32Array(S);
+  {
+    const H = NC, sub = 32, n = H * sub, at = new Float32Array(H + 1), atY = new Float32Array(H + 1), atP = new Float32Array(H + 1);
+    let X = 0, Y = 0;
+    for (let i = 0; i <= n; i++) {                                   // Bogen von der Mitte zur Spitze aufsummieren
+      const phi = C.arc * Math.pow(i / n, C.arcP);
+      if (i) { X += C.B * Math.cos(phi) / n; Y -= C.B * Math.sin(phi) / n; }
+      if (i % sub === 0) { at[i / sub] = X; atY[i / sub] = Y; atP[i / sub] = phi; }
+    }
+    for (let j = 0; j < S; j++) {
+      const uu = -1 + 2 * j / (S - 1), a = Math.abs(uu), r = Math.round(a * H), sg = uu < 0 ? -1 : 1;
+      u[j] = uu; ax[j] = sg * at[r]; ay[j] = atY[r]; anx[j] = sg * Math.sin(atP[r]); any[j] = Math.cos(atP[r]);
+      ch[j] = C.c0 * (0.22 + 0.78 * Math.sqrt(Math.max(0, 1 - Math.pow(a, 1.9))));      // elliptisch, Spitzen schmal
+      zle[j] = -0.3 * C.c0 + 0.3 * C.c0 * Math.pow(a, 2.2);                              // Nase außen nach hinten gepfeilt
+      th[j] = (0.155 - 0.05 * a * a) * (1 - 0.8 * U.smoothstep(0.9, 1, a));
+    }
   }
-  // Punkte pro Rippe: 0 Eintrittskante, 1 Obersegel, 2 Hinterkante, 3 Untersegel; NB: Normalen je Punkt, oben und unten
-  const P = new Float32Array((N + 1) * 4 * 3), NB = new Float32Array(2 * (N + 1) * 4 * 3);
-  const PSEQ = [[0, 1, 2], [0, 3, 2]], PIDX = [[0, 1, 2, -1], [0, -1, 2, 1]];
-  let NSIGN = 1;
-  const refs = [], colors = [], sides = [];
-  // side: 0 Obersegel, 1 Untersegel
-  const push = (ci, k, c, dark, side) => { refs.push(ci * 4 + k); sides.push(side); colors.push(c.r * dark, c.g * dark, c.b * dark); };
-  for (let i = 0; i < N; i++) {
-    const c = cellColor(i), j = i + 1, n = nose && !opts.color ? nose : c;
-    // Obersegel (vorn die Nase, auf Wunsch in eigener Farbe); an den Rippen i und j etwas dunkler
-    push(i, 0, n, 0.8, 0); push(j, 0, n, 0.8, 0); push(i, 1, n, 1, 0);
-    push(j, 0, n, 0.8, 0); push(j, 1, n, 1, 0); push(i, 1, n, 1, 0);
-    push(i, 1, c, 1, 0); push(j, 1, c, 1, 0); push(i, 2, c, 0.95, 0);
-    push(j, 1, c, 1, 0); push(j, 2, c, 0.95, 0); push(i, 2, c, 0.95, 0);
-    // Untersegel
-    push(i, 0, n, 0.72, 1); push(i, 3, n, 0.84, 1); push(j, 0, n, 0.72, 1);
-    push(j, 0, n, 0.72, 1); push(i, 3, n, 0.84, 1); push(j, 3, n, 0.84, 1);
-    push(i, 3, c, 0.84, 1); push(i, 2, c, 0.8, 1); push(j, 3, c, 0.84, 1);
-    push(j, 3, c, 0.84, 1); push(i, 2, c, 0.8, 1); push(j, 2, c, 0.8, 1);
+  // Profil (Anteil der Tiefe): Wölbungslinie 3 % bei 30 %, Dicke nach NACA; Zellmitte bauchig (Ballooning)
+  const camber = (x) => x < 0.3 ? 0.03 / 0.09 * (0.6 * x - x * x) : 0.03 / 0.49 * (0.4 + 0.6 * x - x * x);
+  const thick = (x) => 5 * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x * x * x - 0.1036 * x * x * x * x);
+  const PY = new Float32Array(S * KP), PT = new Float32Array(S * KP);   // Wölbung und Dicke je Station und Punkt
+  for (let j = 0; j < S; j++) {
+    const mid = j % 2 === 1, bal = mid ? 1.12 : 1;
+    for (let k = 0; k < KP; k++) {
+      const up = k < KU, x = up ? XU[k] : XL[k - KU], t = th[j] * thick(x) * bal;
+      PY[j * KP + k] = camber(x) * (th[j] / 0.155);
+      PT[j * KP + k] = (up ? t : -t) + (mid && up ? 0.006 * Math.sin(Math.PI * x) : 0);
+    }
   }
-  const vref = Int32Array.from(refs), vside = Uint8Array.from(sides);
+
+  // ---- Geometrie: je Zelle drei Stationen × (Obersegel KU + Untersegel KL + Einlass 2) Ecken, indiziert
+  const VS = KP + 2, NV = NC * 3 * VS;
+  const wpos = new Float32Array(NV * 3), wnor = new Float32Array(NV * 3), wcol = new Float32Array(NV * 3), idx = [];
+  const vref = new Int32Array(NV), vsurf = new Int8Array(NV);        // Punkt (Station·KP + k) und Fläche (0 oben, 1 unten, 2 Einlass)
+  for (let ci = 0; ci < NC; ci++) {
+    const c = cellColor(ci), tip = ci === 0 || ci === NC - 1;
+    for (let q = 0; q < 3; q++) {
+      const j = 2 * ci + q, base = (ci * 3 + q) * VS, rib = q !== 1;
+      for (let k = 0; k < VS; k++) {
+        const v = base + k; let col = c, f, surf, ref;
+        if (k < KU) { surf = 0; ref = j * KP + k; if (nose && XU[k] < 0.13) col = nose; f = rib ? 0.9 : 1; }
+        else if (k < KP) { surf = 1; ref = j * KP + k; if (nose && XL[k - KU] < 0.13) col = nose; f = rib ? 0.64 : 0.8; }   // unten: Rippen dunkel
+        else { surf = 2; ref = j * KP + (k === KP ? 0 : KU); f = tip ? 0.62 : 0.16; }                                      // Einlass dunkel, Stabilo zu
+        vref[v] = ref; vsurf[v] = surf;
+        wcol[v * 3] = col.r * f; wcol[v * 3 + 1] = col.g * f; wcol[v * 3 + 2] = col.b * f;
+      }
+    }
+    for (let q = 0; q < 2; q++) {
+      const a0 = (ci * 3 + q) * VS, b0 = a0 + VS;
+      for (let k = 0; k < KU - 1; k++) { const a = a0 + k, b = b0 + k, c2 = b0 + k + 1, d = a0 + k + 1; idx.push(a, c2, b, a, d, c2); }
+      for (let k = KU; k < KP - 1; k++) { const a = a0 + k, b = b0 + k, c2 = b0 + k + 1, d = a0 + k + 1; idx.push(a, b, c2, a, c2, d); }
+      { const a = a0 + KP, b = b0 + KP, c2 = b0 + KP + 1, d = a0 + KP + 1; idx.push(a, b, c2, a, c2, d); }
+    }
+  }
   const wg = new THREE.BufferGeometry();
-  const wpos = new Float32Array(vref.length * 3), wnor = new Float32Array(vref.length * 3);
   wg.setAttribute('position', new THREE.BufferAttribute(wpos, 3));
   wg.setAttribute('normal', new THREE.BufferAttribute(wnor, 3));
-  wg.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-  // Weich schattiert wie gespanntes Tuch: Normalen je Rippenpunkt aus Spannweite und Profil (in deform)
+  wg.setAttribute('color', new THREE.BufferAttribute(wcol, 3));
+  wg.setIndex(idx);
   const wingMesh = new THREE.Mesh(wg, new THREE.MeshPhongMaterial({
     vertexColors: true, side: THREE.DoubleSide, shininess: 22, specular: 0x2a2a2a,
-    emissive: (opts.color ? new THREE.Color(opts.color) : main).clone().multiplyScalar(0.28), // Sonne scheint durchs Tuch
+    emissive: main.clone().multiplyScalar(0.26),                     // Sonne scheint durchs Tuch
   }));
   wingMesh.frustumCulled = false;
   canopy.add(wingMesh);
-  // Leinen: A (Eintrittskante), B (Untersegel), Bremse (Hinterkante)
-  const lineRefs = [];
-  for (let i = 0; i <= N; i += 2) { lineRefs.push(i * 4 + 0, i * 4 + 3); }
-  for (let i = 0; i <= N; i += 2) { if (cols[i].t > 0.25) lineRefs.push(i * 4 + 2); }
-  const lpos = new Float32Array(lineRefs.length * 6);
-  const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.BufferAttribute(lpos, 3));
-  const lines = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ color: 0x2a2a2a, transparent: true, opacity: 0.6 }));
-  lines.frustumCulled = false;
-  canopy.add(lines);
-  const riserY = -RIG + 0.55;
 
-  function deform(st) {
-    const bL = st.bL || 0, bR = st.bR || 0, cs = st.collapseSide || 0, ca = st.collapseAmt || 0, ears = st.ears ? 1 : 0;
-    for (let i = 0; i <= N; i++) {
-      const c = cols[i]; let x = c.x, y = c.y, leDrop = 0;
-      const brake = c.side < 0 ? bL : bR;
-      const teDrop = brake * (0.25 + 0.95 * U.smoothstep(0.05, 0.95, c.t));
-      if (cs && c.side === cs && c.t > 0.28) { const f = (c.t - 0.28) / 0.72 * ca; x *= (1 - 0.5 * f); y -= 2.3 * f; leDrop = 0.9 * f; }
-      if (ears && c.t > 0.76) { const f = (c.t - 0.76) / 0.24; x *= (1 - 0.14 * f); y -= 1.4 * f; }
-      const o = i * 12, ch = c.chord;
-      P[o] = x; P[o + 1] = y - 0.05 - leDrop; P[o + 2] = -ch / 2;
-      P[o + 3] = x; P[o + 4] = y + 0.34 - leDrop * 0.4; P[o + 5] = -ch * 0.1;
-      P[o + 6] = x; P[o + 7] = y - teDrop; P[o + 8] = ch / 2 + teDrop * 0.25;
-      P[o + 9] = x; P[o + 10] = y - 0.14 - leDrop * 0.5; P[o + 11] = -ch * 0.15;
-    }
-    for (let v = 0; v < vref.length; v++) { const r = vref[v] * 3; wpos[v * 3] = P[r]; wpos[v * 3 + 1] = P[r + 1]; wpos[v * 3 + 2] = P[r + 2]; }
-    wg.attributes.position.needsUpdate = true;
-    // Normalen: Spannweite (Nachbarrippen) × Profil (Punkte davor und dahinter), oben nach außen, unten nach innen
-    for (let i = 0; i <= N; i++) {
-      const a = Math.max(0, i - 1) * 12, b = Math.min(N, i + 1) * 12, o = i * 12;
-      for (let k = 0; k < 4; k++) {
-        const sx = P[b + k * 3] - P[a + k * 3], sy = P[b + k * 3 + 1] - P[a + k * 3 + 1], sz = P[b + k * 3 + 2] - P[a + k * 3 + 2];
-        for (let side = 0; side < 2; side++) {
-          // Profil oben 0 → 1 → 2, unten 0 → 3 → 2
-          const seq = PSEQ[side], q = PIDX[side][k]; if (q < 0) continue;
-          const f = seq[Math.min(2, q + 1)], e = seq[Math.max(0, q - 1)];
-          const cx = P[o + f * 3] - P[o + e * 3], cy = P[o + f * 3 + 1] - P[o + e * 3 + 1], cz = P[o + f * 3 + 2] - P[o + e * 3 + 2];
-          let nx = sy * cz - sz * cy, ny = sz * cx - sx * cz, nz = sx * cy - sy * cx;
-          const l = Math.hypot(nx, ny, nz) || 1, sg = (side ? -1 : 1) * NSIGN / l;
-          const t = (side * (N + 1) * 4 + i * 4 + k) * 3; NB[t] = nx * sg; NB[t + 1] = ny * sg; NB[t + 2] = nz * sg;
+  // ---- Leinen: Punkte (Kappe, Gabeln, Tragegurte, Karabiner, Hände) und Segmente [a, b, Farbe, Galerie?]
+  const PTS = [], SEG = [];
+  const pt = (o) => { PTS.push(o); return PTS.length - 1; };
+  const ribJ = (s, r) => NC + s * 2 * r;                             // Station der Rippe r (1 … NC/2) auf Seite s
+  const LC = LINE_COL.map(c => [new THREE.Color(c), new THREE.Color(c).lerp(new THREE.Color(0xbcc4cd), 0.45)]);
+  for (const s of [-1, 1]) {
+    const hand = pt({ t: 'h', s }), carab = pt({ t: 'k', s }), ml = [0, 1, 2].map(row => pt({ t: 'm', s, row }));
+    for (let row = 0; row < 3; row++) {
+      SEG.push([carab, ml[row], 4, 0]);                               // Tragegurt
+      const att = [1, 3, 5, 7, 9, 11, 13, 15].map(r => pt({ t: 'c', j: ribJ(s, r), k: KU + LINE_ROWS[row] }));
+      for (let g = 0; g < 2; g++) {
+        const four = att.slice(g * 4, g * 4 + 4), stem = pt({ t: 'j', base: ml[row], refs: four, f: 0.42 });
+        SEG.push([ml[row], stem, row, 0]);                            // Stammleine
+        for (let h = 0; h < 2; h++) {
+          const two = four.slice(h * 2, h * 2 + 2), mid = pt({ t: 'j', base: stem, refs: two, f: 0.55 });
+          SEG.push([stem, mid, row, 0]);
+          for (const a of two) SEG.push([mid, a, row, 1]);            // Galerieleinen
         }
+        if (row === 2 && g === 1) SEG.push([stem, pt({ t: 'c', j: ribJ(s, NC / 2), k: KU + 3 }), 2, 1]);   // Stabiloleine
       }
     }
-    for (let v = 0; v < vref.length; v++) { const t = (vside[v] * (N + 1) * 4 + vref[v]) * 3; wnor[v * 3] = NB[t]; wnor[v * 3 + 1] = NB[t + 1]; wnor[v * 3 + 2] = NB[t + 2]; }
-    wg.attributes.normal.needsUpdate = true;
-    for (let l = 0; l < lineRefs.length; l++) {
-      const r = lineRefs[l] * 3, o = l * 6, sx = P[r] < 0 ? -0.22 : 0.22;
-      lpos[o] = P[r]; lpos[o + 1] = P[r + 1]; lpos[o + 2] = P[r + 2];
-      lpos[o + 3] = sx; lpos[o + 4] = riserY; lpos[o + 5] = 0.05;
-    }
-    lg.attributes.position.needsUpdate = true;
-  }
-  deform({});
-  // Richtung festlegen: in der Mitte zeigt das Obersegel nach oben; Dreiecke so drehen, dass ihre Vorderseite zur Normalen passt
-  if (NB[((N >> 1) * 4 + 1) * 3 + 1] < 0) { NSIGN = -1; deform({}); }
-  for (let v = 0; v < vref.length; v += 3) {
-    const A = v * 3, B = A + 3, C = A + 6;
-    const ux = wpos[B] - wpos[A], uy = wpos[B + 1] - wpos[A + 1], uz = wpos[B + 2] - wpos[A + 2], qx = wpos[C] - wpos[A], qy = wpos[C + 1] - wpos[A + 1], qz = wpos[C + 2] - wpos[A + 2];
-    const gx = uy * qz - uz * qy, gy = uz * qx - ux * qz, gz = ux * qy - uy * qx;
-    if (gx * (wnor[A] + wnor[B] + wnor[C]) + gy * (wnor[A + 1] + wnor[B + 1] + wnor[C + 1]) + gz * (wnor[A + 2] + wnor[B + 2] + wnor[C + 2]) < 0) {
-      const t = vref[v + 1]; vref[v + 1] = vref[v + 2]; vref[v + 2] = t;
-      const ca = wg.attributes.color.array; for (let e = 0; e < 3; e++) { const x = ca[(v + 1) * 3 + e]; ca[(v + 1) * 3 + e] = ca[(v + 2) * 3 + e]; ca[(v + 2) * 3 + e] = x; }
+    // Bremsleinen: Hinterkante außen → Gabeln → Umlenkrolle am hinteren Tragegurt → Bremsgriff in der Hand
+    const pul = pt({ t: 'p', s }), te = [4, 6, 8, 10, 12, 14, 16].map(r => pt({ t: 'c', j: ribJ(s, r), k: KU - 1 }));
+    const bm = pt({ t: 'j', base: pul, refs: te, f: 0.36 });
+    SEG.push([hand, pul, 3, 0], [pul, bm, 3, 0]);
+    for (const grp of [te.slice(0, 2), te.slice(2, 4), te.slice(4)]) {
+      const mid = pt({ t: 'j', base: bm, refs: grp, f: 0.62 });
+      SEG.push([bm, mid, 3, 0]);
+      for (const a of grp) SEG.push([mid, a, 3, 1]);
     }
   }
-  deform({});
-  wg.computeBoundingSphere();
+  const PP = new Float32Array(PTS.length * 3);
+  const lpos = new Float32Array(SEG.length * 6), lcol = new Float32Array(SEG.length * 6);
+  SEG.forEach(([, , c, up], i) => { const col = LC[c][up]; for (let e = 0; e < 2; e++) { lcol[i * 6 + e * 3] = col.r; lcol[i * 6 + e * 3 + 1] = col.g; lcol[i * 6 + e * 3 + 2] = col.b; } });
+  const lg = new THREE.BufferGeometry();
+  lg.setAttribute('position', new THREE.BufferAttribute(lpos, 3));
+  lg.setAttribute('color', new THREE.BufferAttribute(lcol, 3));
+  const lines = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.6 }));
+  lines.frustumCulled = false;
+  canopy.add(lines);
 
-  // Pilot: Gurtzeug, Oberkörper mit Armen und Helm, zwei Beine – einzeln beweglich, damit er stehen,
-  // laufen und sich nach dem Start ins Gurtzeug setzen kann. Ursprung = Aufhängung auf Hüfthöhe.
+  // ---- Pilot: Gurtzeug (Sitz an der Hüfte, Rückenteil am Oberkörper), Oberkörper mit Helm und Instrumenten,
+  //      Arme an den Bremsgriffen, Beine mit Knie. Ursprung = Aufhängung auf Hüfthöhe.
   const body = new THREE.Group(), lam = new THREE.MeshLambertMaterial({ vertexColors: true });
-  const jacket = opts.color || cells[Math.min(1, cells.length - 1)].getHex();
-  const hn = opts.harness || {}, pod = new THREE.Mesh(harnessGeo(opts.ai ? 'schule' : hn.look, opts.ai ? 0x333a44 : (hn.color != null ? hn.color : 0x1f2a44), hn.acc != null ? hn.acc : 0xff7a3d), lam);
+  const jacket = opts.color != null ? opts.color : cells[1].getHex(), helmet = opts.ai ? 0xf2f2f2 : 0xffc24b, skin = 0xe0ac86, glove = 0x22262c, pants = 0x2b3140;
+  const hn = opts.harness || {}, look = opts.ai ? 'schule' : (hn.look || 'schule');
+  const hcol = opts.ai ? 0x333a44 : (hn.color != null ? hn.color : 0x1f2a44), hacc = opts.ai ? 0x444a55 : (hn.acc != null ? hn.acc : 0xff7a3d);
+  const pod = new THREE.Mesh(harnessGeo(look, hcol, hacc), lam);
+  const TAU = Math.PI * 2;
   const upper = new THREE.Mesh(colGeo([
-    [new THREE.BoxGeometry(0.44, 0.58, 0.3).translate(0, 0.33, 0), jacket],
-    [new THREE.BoxGeometry(0.11, 0.5, 0.11).rotateZ(0.35).translate(-0.3, 0.62, 0), jacket],
-    [new THREE.BoxGeometry(0.11, 0.5, 0.11).rotateZ(-0.35).translate(0.3, 0.62, 0), jacket],
-    [new THREE.SphereGeometry(0.2, 8, 6).translate(0, 0.84, 0), opts.ai ? 0xf2f2f2 : 0xffc24b],
-    [new THREE.BoxGeometry(0.28, 0.1, 0.06).translate(0, 0.82, -0.2), 0x1a1a1a],
+    [_soft(new THREE.CylinderGeometry(0.19, 0.16, 0.5, 10).scale(1, 1, 0.68).translate(0, 0.3, 0)), jacket],
+    [_soft(new THREE.SphereGeometry(0.2, 10, 5, 0, TAU, 0, Math.PI / 2).scale(1, 0.42, 0.68).translate(0, 0.55, 0)), jacket],
+    [_soft(new THREE.BoxGeometry(0.34, 0.16, 0.24).translate(0, -0.02, 0.02)), pants],                                  // Hüfte
+    [new THREE.BoxGeometry(0.35, 0.06, 0.25).translate(0, 0.08, 0), new THREE.Color(jacket).multiplyScalar(0.55)],       // Gürtel
+    [new THREE.CylinderGeometry(0.05, 0.055, 0.1, 6).translate(0, 0.63, 0), skin],
+    [_soft(new THREE.SphereGeometry(0.1, 10, 7).scale(1, 1.1, 1).translate(0, 0.76, -0.012)), skin],
+    [_soft(new THREE.SphereGeometry(0.135, 12, 8, 5.67, 4.36, 0, Math.PI * 0.62).translate(0, 0.775, 0.012)), helmet],   // Helm, vorn offen
+    [_soft(new THREE.SphereGeometry(0.136, 8, 3, 3.75, 1.92, 0, Math.PI * 0.3).translate(0, 0.775, 0.012)), helmet],    // Stirn
+    [new THREE.SphereGeometry(0.139, 8, 2, 3.8, 1.82, Math.PI * 0.3, Math.PI * 0.14).translate(0, 0.775, 0.012), 0x1b2027], // Visier
+    [new THREE.BoxGeometry(0.3, 0.035, 0.19).rotateX(-0.55).translate(0, 0.2, -0.27), 0x2a2e35],                          // Cockpit
+    [new THREE.BoxGeometry(0.13, 0.01, 0.09).rotateX(-0.55).translate(0.05, 0.222, -0.275), 0x8fb7c9],                   // Vario
+    [new THREE.BoxGeometry(0.035, 0.36, 0.02).rotateX(0.05).translate(-0.1, 0.36, -0.135), hacc],                         // Brustgurte
+    [new THREE.BoxGeometry(0.035, 0.36, 0.02).rotateX(0.05).translate(0.1, 0.36, -0.135), hacc],
+    [new THREE.BoxGeometry(0.24, 0.035, 0.02).translate(0, 0.3, -0.14), 0x2b2f36],
   ]), lam);
-  const legGeo = colGeo([[new THREE.BoxGeometry(0.15, 0.84, 0.17).translate(0, -0.42, 0), 0x2b3140], [new THREE.BoxGeometry(0.16, 0.09, 0.28).translate(0, -0.86, -0.06), 0x161616]]);
-  const legL = new THREE.Group(), legR = new THREE.Group();
-  legL.position.set(-0.12, -0.04, 0); legR.position.set(0.12, -0.04, 0);
-  legL.add(new THREE.Mesh(legGeo, lam)); legR.add(new THREE.Mesh(legGeo, lam));
+  const backGeo = harnessBackGeo(look, hcol, hacc); if (backGeo) upper.add(new THREE.Mesh(backGeo, lam));
+  // Arme: Oberarm (Drehpunkt Schulter) und Unterarm mit Handschuh und Bremsgriff (Drehpunkt Ellbogen), zeigen nach −y
+  const armU = colGeo([[_soft(new THREE.CylinderGeometry(0.052, 0.045, 0.3, 7).translate(0, -0.15, 0)), jacket]]);
+  const armL = colGeo([[_soft(new THREE.CylinderGeometry(0.045, 0.038, 0.27, 7).translate(0, -0.135, 0)), jacket],
+    [_soft(new THREE.SphereGeometry(0.05, 7, 5).translate(0, -0.29, 0)), glove], [new THREE.BoxGeometry(0.03, 0.03, 0.12).translate(0, -0.33, 0.01), 0xff7a1a]]);
+  const arms = {};
+  for (const s of [-1, 1]) { const a = new THREE.Mesh(armU, lam), b = new THREE.Mesh(armL, lam); upper.add(a, b); arms[s] = { a, b, hand: [0, 0, 0] }; }
+  // Beine: Oberschenkel (Hüfte) und Unterschenkel mit Schuh (Knie); gestreckt reichen die Sohlen 0,95 m unter die Aufhängung
+  const thighGeo = colGeo([[_soft(new THREE.CylinderGeometry(0.08, 0.065, 0.44, 7).translate(0, -0.22, 0)), pants]]);
+  const shinGeo = colGeo([[_soft(new THREE.CylinderGeometry(0.06, 0.05, 0.4, 7).translate(0, -0.2, 0)), pants], [new THREE.BoxGeometry(0.12, 0.09, 0.27).translate(0, -0.43, -0.06), 0x161616]]);
+  const legL = new THREE.Group(), legR = new THREE.Group(), kneeL = new THREE.Group(), kneeR = new THREE.Group();
+  legL.position.set(-0.11, -0.04, 0); legR.position.set(0.11, -0.04, 0);
+  kneeL.position.y = kneeR.position.y = -0.44;
+  legL.add(new THREE.Mesh(thighGeo, lam), kneeL); legR.add(new THREE.Mesh(thighGeo, lam), kneeR);
+  kneeL.add(new THREE.Mesh(shinGeo, lam)); kneeR.add(new THREE.Mesh(shinGeo, lam));
   body.add(pod, upper, legL, legR);
   root.add(body);
 
-  root.userData = { rig, canopy, wingMesh, lines, body, pod, upper, legL, legR, deform };
-  poseBody(root.userData, 0, 0, 0, 0);
+  // ---- Verformen: Kappe und Leinen (st aus Pilot._pose, wird wiederverwendet)
+  const P = new Float32Array(S * KP * 3), NB = new Float32Array(S * KP * 3), NI = new Float32Array(S * 3);
+  // Punkt aus dem Oberkörper (Drehung bx um x: Körper + Oberkörper) oder aus dem Rig (rigSpace) in Kappen-Koordinaten
+  function toCanopy(x, y, z, bx, rigSpace, out, o) {
+    let c, s;
+    if (!rigSpace) {
+      c = Math.cos(bx); s = Math.sin(bx); const y1 = y * c - z * s, z1 = y * s + z * c; y = y1; z = z1;
+      c = Math.cos(-rig.rotation.x); s = Math.sin(-rig.rotation.x); const y2 = y * c - z * s, z2 = y * s + z * c; y = y2; z = z2;
+      c = Math.cos(-rig.rotation.z); s = Math.sin(-rig.rotation.z); const x3 = x * c - y * s, y3 = x * s + y * c; x = x3; y = y3;
+    }
+    x -= canopy.position.x; y -= canopy.position.y; z -= canopy.position.z;
+    c = Math.cos(-canopy.rotation.x); s = Math.sin(-canopy.rotation.x);
+    out[o] = x / canopy.scale.x; out[o + 1] = y * c - z * s; out[o + 2] = y * s + z * c;
+  }
+  function deform(st) {
+    const bL = st.bL || 0, bR = st.bR || 0, flat = st.flat || 0, defl = st.deflate || 0, stall = st.stall || 0;
+    const cs = st.collapseSide || 0, ca = st.collapseAmt || 0, cu = 0.66 - 0.36 * (st.collapseSev || 0.8);
+    const ears = st.ears || 0, ts = st.threatSide || 0, ta = st.threatAmt || 0;
+    for (let j = 0; j < S; j++) {
+      const uu = u[j], a = Math.abs(uu), sg = uu < 0 ? -1 : 1, c = ch[j];
+      // Bogen, am Boden flach ausgelegt (Hufeisen zum Piloten hin)
+      const px = U.lerp(ax[j], uu * C.B * 0.93, flat), py = U.lerp(ay[j], 0, flat);
+      let nx = U.lerp(anx[j], 0, flat), ny = U.lerp(any[j], 1, flat); const nl = Math.hypot(nx, ny) || 1; nx /= nl; ny /= nl;
+      const z0 = zle[j] - 0.9 * flat * uu * uu;
+      // Dicke: entleert am Boden, im Stall weich, in der gefalteten Außenseite zusammengefallen
+      let tk = (1 - 0.88 * defl) * (1 - 0.35 * stall);
+      const brake = (sg < 0 ? bL : bR) * (0.25 + 0.95 * U.smoothstep(0.08, 0.95, a)) * (1 - defl);
+      // Falten: Klapper (eine Seite), Ohren (beide Enden), Vorwarnung (Spitze flattert); Achse entlang der Profiltiefe
+      let fold = 0, fu = 0;
+      // Winkel so, dass die Außenseite nach unten und unter die Kappe fällt (die Spitze hängt schon schräg nach unten)
+      if (cs && sg === cs && ca > 0) { const f = U.smoothstep(cu, cu + 0.14, a); if (f > 0) { fold = ca * 1.45 * f; fu = cu; } }
+      if (ears > 0 && a > 0.74) { fold = Math.max(fold, ears * 1.25 * U.smoothstep(0.74, 0.86, a)); fu = fu || 0.74; }
+      if (ts && sg === ts && ta > 0 && a > 0.58) { fold = Math.max(fold, ta * 0.42 * U.smoothstep(0.58, 1, a)); fu = fu || 0.58; }
+      let fx = 0, fy = 0, fc = 1, fs = 0;
+      if (fold > 0) {
+        tk *= 1 - 0.65 * Math.min(1, fold / 1.2);
+        const jf = Math.round((fu * sg + 1) / 2 * (S - 1));            // Station der Faltlinie
+        fx = U.lerp(ax[jf], u[jf] * C.B * 0.93, flat); fy = U.lerp(ay[jf], 0, flat);
+        fc = Math.cos(-sg * fold); fs = Math.sin(-sg * fold);
+      }
+      for (let k = 0; k < KP; k++) {
+        const i = j * KP + k, x = k < KU ? XU[k] : XL[k - KU];
+        let h = (PY[i] + PT[i] * tk) * c, z = z0 + x * c;
+        if (x > 0.5 && brake > 0) { const d = (x - 0.5) / 0.5; h -= brake * 0.44 * c * d * d; z -= brake * 0.06 * c * d * d; }
+        if (stall > 0 && x > 0.6) h -= stall * 0.12 * c * Math.sin(x * 9 + j * 0.7);
+        let X = px + nx * h, Y = py + ny * h;
+        if (fold > 0) {
+          const dx = X - fx, dy = Y - fy;
+          X = fx + dx * fc - dy * fs; Y = fy + dx * fs + dy * fc;
+          z += 0.25 * Math.abs(fs) * (1 - x) * (a - fu);                 // die Nase knickt stärker ein
+        }
+        P[i * 3] = X; P[i * 3 + 1] = Y; P[i * 3 + 2] = z;
+      }
+    }
+    // Normalen je Punkt: Spannweite × Profil; oben nach außen, unten nach innen, am Einlass nach vorn
+    for (let j = 0; j < S; j++) {
+      const ja = Math.max(0, j - 1) * KP, jb = Math.min(S - 1, j + 1) * KP, o = j * KP;
+      const tu = (o + 5) * 3, tl = (o + KU + 2) * 3;
+      const tx = P[tu] - P[tl], ty = P[tu + 1] - P[tl + 1], tz = P[tu + 2] - P[tl + 2];      // Dickenrichtung (unten → oben)
+      for (let k = 0; k < KP; k++) {
+        const up = k < KU, kp = Math.max(up ? 0 : KU, k - 1), kn = Math.min(up ? KU - 1 : KP - 1, k + 1);
+        const A = (ja + k) * 3, B = (jb + k) * 3, E = (o + kp) * 3, F = (o + kn) * 3;
+        const sx = P[B] - P[A], sy = P[B + 1] - P[A + 1], sz = P[B + 2] - P[A + 2];
+        const qx = P[F] - P[E], qy = P[F + 1] - P[E + 1], qz = P[F + 2] - P[E + 2];
+        const nx = sy * qz - sz * qy, ny = sz * qx - sx * qz, nz = sx * qy - sy * qx;
+        let l = Math.hypot(nx, ny, nz) || 1; if ((nx * tx + ny * ty + nz * tz) * (up ? 1 : -1) < 0) l = -l;
+        const t = (o + k) * 3; NB[t] = nx / l; NB[t + 1] = ny / l; NB[t + 2] = nz / l;
+      }
+      // Einlass: Spannweite × (Nase → Lippe), nach vorn
+      const N0 = o * 3, L0 = (o + KU) * 3, A = ja * 3, B = jb * 3;
+      const sx = P[B] - P[A], sy = P[B + 1] - P[A + 1], sz = P[B + 2] - P[A + 2];
+      const qx = P[L0] - P[N0], qy = P[L0 + 1] - P[N0 + 1], qz = P[L0 + 2] - P[N0 + 2];
+      const nx = sy * qz - sz * qy, ny = sz * qx - sx * qz, nz = sx * qy - sy * qx;
+      let l = Math.hypot(nx, ny, nz) || 1; if (nx * (P[N0] - P[tu]) + ny * (P[N0 + 1] - P[tu + 1]) + nz * (P[N0 + 2] - P[tu + 2]) < 0) l = -l;
+      NI[j * 3] = nx / l; NI[j * 3 + 1] = ny / l; NI[j * 3 + 2] = nz / l;
+    }
+    for (let v = 0; v < NV; v++) {
+      const r = vref[v] * 3, w = v * 3; wpos[w] = P[r]; wpos[w + 1] = P[r + 1]; wpos[w + 2] = P[r + 2];
+      if (vsurf[v] === 2) { const n = Math.floor(vref[v] / KP) * 3; wnor[w] = NI[n]; wnor[w + 1] = NI[n + 1]; wnor[w + 2] = NI[n + 2]; }
+      else { wnor[w] = NB[r]; wnor[w + 1] = NB[r + 1]; wnor[w + 2] = NB[r + 2]; }
+    }
+    wg.attributes.position.needsUpdate = true; wg.attributes.normal.needsUpdate = true;
+    // Leinen: Kappenpunkte, Maillons und Umlenkrolle (hängen im Rig über dem Piloten), Karabiner und Hände aus dem
+    // Oberkörper, dann die Gabeln zwischen ihrem Ansatz und der Mitte ihrer Leinen – in der Reihenfolge wie angelegt
+    const bx = body.rotation.x + upper.rotation.x;
+    for (let i = 0; i < PTS.length; i++) {
+      const q = PTS[i], o = i * 3;
+      if (q.t === 'c') { const r = (q.j * KP + q.k) * 3; PP[o] = P[r]; PP[o + 1] = P[r + 1]; PP[o + 2] = P[r + 2]; }
+      else if (q.t === 'm') toCanopy(q.s * (0.22 + 0.015 * q.row), 0.98 - 0.02 * q.row, -0.06 + 0.08 * q.row, 0, true, PP, o);
+      else if (q.t === 'p') toCanopy(q.s * 0.27, 0.86, 0.15, 0, true, PP, o);
+      else if (q.t === 'k') toCanopy(q.s * 0.2, 0.4, 0.02, bx, false, PP, o);
+      else if (q.t === 'h') { const h = arms[q.s].hand; toCanopy(h[0], h[1], h[2], bx, false, PP, o); }
+      else {
+        let cx = 0, cy = 0, cz = 0; for (const r of q.refs) { cx += PP[r * 3]; cy += PP[r * 3 + 1]; cz += PP[r * 3 + 2]; }
+        const n = q.refs.length, b = q.base * 3;
+        PP[o] = U.lerp(PP[b], cx / n, q.f); PP[o + 1] = U.lerp(PP[b + 1], cy / n, q.f); PP[o + 2] = U.lerp(PP[b + 2], cz / n, q.f);
+      }
+    }
+    for (let i = 0; i < SEG.length; i++) {
+      const a = SEG[i][0] * 3, b = SEG[i][1] * 3, o = i * 6;
+      lpos[o] = PP[a]; lpos[o + 1] = PP[a + 1]; lpos[o + 2] = PP[a + 2]; lpos[o + 3] = PP[b]; lpos[o + 4] = PP[b + 1]; lpos[o + 5] = PP[b + 2];
+    }
+    lg.attributes.position.needsUpdate = true;
+  }
+
+  root.userData = { rig, canopy, wingMesh, lines, body, pod, upper, legL, legR, kneeL, kneeR, arms, deform,
+    teZ: zle[NC] + ch[NC],                                           // Mitte der Hinterkante: Drehpunkt beim Auslegen
+    seat: look !== 'liege' && look !== 'expedition', _q: new THREE.Quaternion(), _v: new THREE.Vector3(), _down: new THREE.Vector3(0, -1, 0) };
+  poseBody(root.userData, 0, 0, 0, 0, 0, 0, 0);
+  deform({});
+  wg.computeBoundingSphere();
   return root;
 }
 
-/* Gurtzeug als eine Geometrie (Ursprung = Mitte des Sitzes, vorn = −z). look aus HARNESSES, col Hauptfarbe, acc Akzent */
+/* Gurtzeug an der Hüfte als eine Geometrie (vorn = −z). look aus HARNESSES, col Hauptfarbe, acc Akzent.
+   Sitzgurtzeuge: Ursprung = Hinterkante des Sitzes, die Beine hängen frei; stehend klappt der Sitz nach unten.
+   Liegegurtzeug und Expedition: Kokon mit Beinsack (Ursprung = Mitte), stehend als Rucksack. */
 function harnessGeo(look, col, acc) {
+  const B = (w, h, d, x, y, z) => new THREE.BoxGeometry(w, h, d).translate(x || 0, y || 0, z || 0);
+  switch (look) {
+    case 'leicht':          // dünnes Sitzbrett mit Beinschlaufen
+      return colGeo([[B(0.44, 0.04, 0.46, 0, -0.02, -0.23), col], [B(0.46, 0.035, 0.05, 0, 0, -0.43), acc], [B(0.46, 0.035, 0.05, 0, 0, -0.03), acc]]);
+    case 'liege': {         // Kokon mit Beinsack bis vor die Füße und Heckverkleidung
+      const tail = new THREE.ConeGeometry(0.2, 0.7, 8).rotateX(Math.PI / 2).translate(0, 0.02, 0.72);
+      const noseG = new THREE.ConeGeometry(0.2, 0.42, 8).rotateX(-Math.PI / 2).scale(1.25, 0.8, 1).translate(0, -0.04, -1.3);
+      return colGeo([[_soft(new THREE.CylinderGeometry(0.26, 0.22, 1.62, 10).rotateX(Math.PI / 2).scale(1, 0.72, 1).translate(0, 0, -0.28)), col], [noseG, col], [tail, col],
+        [B(0.54, 0.04, 1.4, 0, 0.18, -0.3), acc], [B(0.3, 0.02, 0.34, 0, 0.19, -0.62), 0x1b2027]]);
+    }
+    case 'akro':            // kurz und straff, zwei Rettungscontainer an der Seite
+      return colGeo([[B(0.46, 0.13, 0.5, 0, -0.065, -0.25), col], [B(0.12, 0.2, 0.34, -0.3, -0.03, -0.2), acc], [B(0.12, 0.2, 0.34, 0.3, -0.03, -0.2), acc]]);
+    case 'expedition':      // dick gefüttert, quer abgesteppt
+      return colGeo([[_soft(new THREE.CylinderGeometry(0.3, 0.28, 1.4, 10).rotateX(Math.PI / 2).scale(1, 0.75, 1).translate(0, -0.02, -0.05)), col],
+        ...[-0.5, -0.05, 0.4].map(z => [new THREE.CylinderGeometry(0.31, 0.31, 0.06, 10).rotateX(Math.PI / 2).scale(1, 0.76, 1).translate(0, -0.02, z), acc])]);
+    case 'kurier':          // fester Sitz mit Seitengurten (das Frachtfach sitzt im Rücken)
+      return colGeo([[B(0.46, 0.11, 0.5, 0, -0.055, -0.25), col], [B(0.04, 0.1, 0.52, -0.24, 0.02, -0.25), acc], [B(0.04, 0.1, 0.52, 0.24, 0.02, -0.25), acc]]);
+    default:                // Schulgurtzeug: gepolsterter Sitz mit großem Airbag darunter
+      return colGeo([[B(0.46, 0.1, 0.5, 0, -0.05, -0.25), col], [_soft(new THREE.SphereGeometry(0.3, 10, 6).scale(0.8, 0.46, 1.05).translate(0, -0.18, -0.2)), 0x39424f],
+        [B(0.05, 0.12, 0.5, -0.25, -0.02, -0.25), acc], [B(0.05, 0.12, 0.5, 0.25, -0.02, -0.25), acc]]);
+  }
+}
+/* Rückenteil eines Sitzgurtzeugs am Oberkörper (Rückenprotektor, Packsack, Frachtfach); Kokons haben keins */
+function harnessBackGeo(look, col, acc) {
   const B = (w, h, d, x, y, z) => new THREE.BoxGeometry(w, h, d).translate(x || 0, y || 0, z || 0);
   const dark = new THREE.Color(col).multiplyScalar(0.62).getHex();
   switch (look) {
-    case 'leicht':          // dünnes Sitzbrett mit Gurten, kleiner Rucksack-Wulst hinten
-      return colGeo([[B(0.46, 0.1, 0.95, 0, -0.06, -0.12), col], [B(0.5, 0.05, 0.08, 0, -0.01, -0.55), acc], [B(0.5, 0.05, 0.08, 0, -0.01, 0.2), acc], [B(0.4, 0.2, 0.28, 0, 0.02, 0.4), dark]]);
-    case 'liege': {         // Kokon mit Beinsack bis vor die Füße und Heckverkleidung
-      const tail = new THREE.ConeGeometry(0.2, 0.7, 6).rotateX(Math.PI / 2).translate(0, 0.02, 0.72);
-      const nose = new THREE.ConeGeometry(0.2, 0.42, 6).rotateX(-Math.PI / 2).scale(1.25, 0.8, 1).translate(0, -0.04, -1.3);
-      return colGeo([[B(0.52, 0.34, 1.62, 0, 0, -0.28), col], [nose, col], [tail, col], [B(0.54, 0.05, 1.5, 0, 0.16, -0.3), acc]]);
-    }
-    case 'akro':            // kurz und straff, zwei Rettungscontainer an der Seite
-      return colGeo([[B(0.48, 0.34, 1.05, 0, 0, -0.2), col], [B(0.13, 0.2, 0.42, -0.31, 0.02, -0.1), acc], [B(0.13, 0.2, 0.42, 0.31, 0.02, -0.1), acc], [B(0.5, 0.06, 0.1, 0, 0.18, 0.28), acc]]);
-    case 'expedition':      // dick gefüttert, quer abgesteppt
-      return colGeo([[B(0.6, 0.44, 1.4, 0, -0.02, -0.02), col], ...[-0.45, 0, 0.45].map(z => [B(0.62, 0.46, 0.06, 0, -0.02, z), acc])]);
-    case 'kurier':          // Sitz mit großem Frachtfach im Rücken
-      return colGeo([[B(0.5, 0.34, 1.25, 0, 0, -0.05), col], [B(0.48, 0.44, 0.44, 0, 0.2, 0.55), acc], [B(0.5, 0.05, 0.46, 0, 0.43, 0.55), dark]]);
-    default:                // Schulgurtzeug: Sitzsack mit Airbag darunter
-      return colGeo([[B(0.5, 0.34, 1.35), col], [B(0.44, 0.2, 0.8, 0, -0.24, 0.18), 0x39424f], [B(0.52, 0.05, 1.2, 0, 0.17, 0), acc]]);
+    case 'liege': case 'expedition': return null;
+    case 'leicht': return colGeo([[B(0.38, 0.5, 0.04, 0, 0.24, 0.155), col], [_soft(new THREE.SphereGeometry(0.17, 9, 6).scale(1.05, 0.8, 0.6).translate(0, 0.14, 0.26)), dark]]);
+    case 'akro': return colGeo([[B(0.44, 0.58, 0.16, 0, 0.25, 0.2), col], [B(0.46, 0.06, 0.2, 0, 0.52, 0.22), acc]]);
+    case 'kurier': return colGeo([[B(0.42, 0.56, 0.12, 0, 0.25, 0.19), col], [B(0.44, 0.46, 0.32, 0, 0.26, 0.41), acc], [B(0.46, 0.05, 0.34, 0, 0.5, 0.42), dark]]);
+    default: return colGeo([[B(0.44, 0.6, 0.15, 0, 0.26, 0.2), col], [B(0.46, 0.05, 0.16, 0, 0.1, 0.21), acc]]);
   }
 }
 
-/* Körperhaltung: s = 0 sitzt im Gurtzeug (Beine im Sitzsack), s = 1 steht (Sitzsack auf dem Rücken).
-   swing: Beinschwung beim Laufen, lean: Oberkörper nach vorn (negativ) oder hinten, base: Beine nach vorn */
-function poseBody(ud, s, swing, lean, base) {
-  ud.pod.position.set(0, U.lerp(-0.16, 0.28, s), U.lerp(-0.3, 0.3, s));
-  ud.pod.rotation.x = U.lerp(0.1, 1.5, s); ud.pod.scale.set(1, U.lerp(1, 0.7, s), U.lerp(1, 0.82, s));   // stehend flacher Rucksack
+/* Körperhaltung: s = 0 sitzt im Gurtzeug, s = 1 steht. swing: Beinschwung beim Laufen, lean: Oberkörper nach vorn
+   (negativ) oder hinten, base: Beine nach vorn, bL/bR: Bremsen (die Hände ziehen die Griffe herunter),
+   bar: Beschleuniger (die Beine strecken sich nach vorn) */
+function poseBody(ud, s, swing, lean, base, bL, bR, bar) {
+  if (ud.seat) {                                              // Sitz unter den Oberschenkeln, stehend hängt er hinter dem Gesäß
+    ud.pod.position.set(0, -0.1, 0.15); ud.pod.rotation.x = U.lerp(0, -1.25, s); ud.pod.scale.set(1, 1, 1);
+  } else {                                                    // Kokon über den Beinen, stehend als Rucksack
+    ud.pod.position.set(0, U.lerp(-0.16, 0.28, s), U.lerp(-0.3, 0.3, s));
+    ud.pod.rotation.x = U.lerp(0.1, 1.5, s); ud.pod.scale.set(1, U.lerp(1, 0.7, s), U.lerp(1, 0.82, s));
+  }
   ud.upper.rotation.x = U.lerp(0.32, -0.08, s) + lean;
-  const legX = U.lerp(1.45, 0, s) + base;
-  ud.legL.rotation.x = legX + swing; ud.legR.rotation.x = legX - swing;
-  const vis = s > 0.15; ud.legL.visible = vis; ud.legR.visible = vis;
+  // Beine: sitzend Oberschenkel nach vorn, Unterschenkel hängen; Beschleuniger streckt sie; laufend schwingen sie
+  const bv = bar || 0, thigh = U.lerp(1.35 - 0.25 * bv, 0, s) + base, knee = (1 - s) * (-1.15 + 0.95 * bv);
+  ud.legL.rotation.x = thigh + swing; ud.legR.rotation.x = thigh - swing;
+  ud.kneeL.rotation.x = knee - s * 1.1 * Math.max(0, -swing); ud.kneeR.rotation.x = knee - s * 1.1 * Math.max(0, swing);
+  const vis = ud.seat || s > 0.15; ud.legL.visible = vis; ud.legR.visible = vis;
+  // Arme: Schulter → Hand am Bremsgriff (offen über dem Kopf an den Tragegurten, voll gebremst auf Hüfthöhe)
+  for (const sd of [-1, 1]) {
+    const b = U.clamp(sd < 0 ? bL || 0 : bR || 0, 0, 1);
+    _armIK(ud, ud.arms[sd], sd * 0.2, 0.55, 0, sd * U.lerp(0.29, 0.31, b), U.lerp(0.86, 0.24, b), U.lerp(0.02, 0.12, b), sd);
+  }
+}
+/* Zweigelenk-Arm: Oberarm und Unterarm je 0,3 m; der Ellbogen zeigt nach außen und hinten */
+function _armIK(ud, A, sx, sy, sz, hx, hy, hz, sd) {
+  const L1 = 0.3, L2 = 0.3;
+  let dx = hx - sx, dy = hy - sy, dz = hz - sz; const d = Math.hypot(dx, dy, dz) || 1;
+  const dc = U.clamp(d, 0.08, L1 + L2 - 0.005); dx /= d; dy /= d; dz /= d;
+  hx = sx + dx * dc; hy = sy + dy * dc; hz = sz + dz * dc;
+  const cosA = U.clamp((L1 * L1 + dc * dc - L2 * L2) / (2 * L1 * dc), -1, 1), sinA = Math.sqrt(1 - cosA * cosA);
+  let px = sd, py = -0.25, pz = 0.55; const pd = px * dx + py * dy + pz * dz;
+  px -= pd * dx; py -= pd * dy; pz -= pd * dz; const pl = Math.hypot(px, py, pz) || 1; px /= pl; py /= pl; pz /= pl;
+  const ex = sx + dx * L1 * cosA + px * L1 * sinA, ey = sy + dy * L1 * cosA + py * L1 * sinA, ez = sz + dz * L1 * cosA + pz * L1 * sinA;
+  const v = ud._v;
+  A.a.position.set(sx, sy, sz); v.set(ex - sx, ey - sy, ez - sz).normalize(); A.a.quaternion.setFromUnitVectors(ud._down, v);
+  A.b.position.set(ex, ey, ez); v.set(hx - ex, hy - ey, hz - ez).normalize(); A.b.quaternion.setFromUnitVectors(ud._down, v);
+  A.hand[0] = hx; A.hand[1] = hy; A.hand[2] = hz;
 }
 
-/* Füße über der Aufhängung: sitzend 0,32 m (Sitzsack), stehend 0,95 m */
+/* Füße über der Aufhängung: sitzend 0,32 m, stehend 0,95 m */
 const STAND_H = 0.95, SIT_H = 0.32;
 
 class Pilot {
@@ -4402,9 +4666,21 @@ class Pilot {
     this.mods = { lift: 1, turb: 1, land: 1, run: 1, angel: false, ws: 1, spiral: 0.35, bar: 1 };
     this.lapse = 1;                             // Zeitraffer-Faktor für die sanftere Lenkung (Game._step)
     this.model = scene ? buildGliderModel(wing, { design, harness }) : null; if (scene) scene.add(this.model);
-    const w = wing, sTrim = w.vTrim / w.glide;
-    this.k = (sTrim - w.sMin) / Math.pow(w.vTrim - w.vMinSink, 2);
+    this._df = {};                              // Zustand fürs Verformen der Kappe (wiederverwendet)
+    this.setWing(wing);
     this.reset(0, 1000, 0, 0, 'fly');
+  }
+  /* Schirmwerte (auch im Flug, Pause → Ausrüstung): Polare neu berechnen */
+  setWing(w) { this.wing = w; const sTrim = w.vTrim / w.glide; this.k = (sTrim - w.sMin) / Math.pow(w.vTrim - w.vMinSink, 2); }
+  /* Aussehen im Flug wechseln (Design, Gurtzeug): Modell neu bauen, Lage übernehmen */
+  setLook(design, harness) {
+    if (!this.scene) return;
+    const old = this.model; this.model = buildGliderModel(this.wing, { design, harness }); this.scene.add(this.model);
+    if (old) {
+      this.model.userData.rig.rotation.copy(old.userData.rig.rotation); this.model.userData.canopy.scale.copy(old.userData.canopy.scale);
+      this.scene.remove(old); disposeTree(old);
+    }
+    this._pose(0, { brakeL: this.brakeL, brakeR: this.brakeR, barV: 0, ears: false });
   }
   get vStall() { return this.wing.vMinSink - 2.3; }
   reset(x, y, z, heading, phase) {
@@ -4415,11 +4691,12 @@ class Pilot {
     this.vz = 0; this.gs = this.v; this.lift = 0; this.turb = 0; this.thermal = null; this.ridge = 0;
     this.stall = null; this.stallT = 0; this.spin = null; this.spinT = 0;
     this.spiralT = 0; this.inSpiral = false; this.spiralDur = 0;
-    this.collapse = null; this.collapseCool = 4; this.gust = 0; this.surge = 0;
+    this.collapse = null; this.collapseCool = 4; this.threat = null; this.gust = 0; this.surge = 0;
     this.flareT = 0; this.pitchVis = 0; this.earsT = 0;
     this.inCloud = false; this.touchdown = null; this.crashed = null;
     this.agl = this.y - this.gnd(x, z);
-    this.stats = { collapses: 0, stalls: 0, spins: 0, maxClimb: 0, maxAlt: this.y, dist: 0 };
+    this.stats = { collapses: 0, caught: 0, stalls: 0, spins: 0, maxClimb: 0, maxAlt: this.y, dist: 0 };
+    this.earsVis = 0; this.layVis = this.phase === 'fly' ? 0 : 1; this.deflVis = this.layVis;   // Kappe am Boden: flach und schlaff
     this.brakeL = 0; this.brakeR = 0;
     // Sitzen und Stehen: nach dem Start von Hand muss man sich ins Gurtzeug setzen (nach unten wischen)
     this.seated = this.phase === 'fly'; this.needSit = false; this.unseatedT = 0;
@@ -4441,12 +4718,21 @@ class Pilot {
 
   _collapse(side, sev, ev) {
     if (this.collapse || this.stall || this.spin) return;
-    this.collapse = { side, sev, t: 1.4 + 1.3 * sev, yaw: 0 };
-    this.bank += side * U.rad(30) * sev;
+    this.threat = null;
+    this.collapse = { side, sev, t: 1.4 + 1.3 * sev, t0: 1.4 + 1.3 * sev, yaw: 0 };
+    this.bank += side * U.rad(21) * sev;                      // zur eingeklappten Seite (sanfter als früher: 30°)
     this.collapseCool = 6; this.stats.collapses++;
     ev.push('collapse');
   }
   hitCollapse(side) { const ev = []; this.collapseCool = 0; this._collapse(side, 1, ev); return ev.length > 0; }
+  /* Ein Klapper kündigt sich an: die Flügelspitze wird weich und flattert. Wer in dieser Zeit auf dieser Seite kurz
+     kräftig anbremst (ab 50 %, 0,12 s genügen), fängt ihn ab; halbes Anbremsen macht ihn kleiner. Gutmütige Schirme
+     warnen länger (EN-A rund 1,2 s, CCC 0,9 s), starke Klapper kürzer. */
+  _threat(side, sev, ev) {
+    const T = U.clamp(0.75 + 0.3 * this.wing.stability, 0.85, 1.35) * (1.15 - 0.3 * sev);
+    this.threat = { side, sev, t: 0, T, hold: 0, best: 0 };
+    ev.push('threat');
+  }
 
   update(dt, inp) {
     const ev = [];
@@ -4638,7 +4924,7 @@ class Pilot {
     if (earsW) maxBank *= 0.55;
     let bankT = U.clamp(cmd * maxBank, -U.rad(80), U.rad(80));
     if (this.turb > 0.05) bankT += this.gust * this.turb * 0.09;
-    if (this.collapse) bankT += this.collapse.side * U.rad(26) * this.collapse.sev;
+    if (this.collapse) bankT += this.collapse.side * U.rad(19) * this.collapse.sev;
     if (this.stall) bankT = Math.sin(this.stall.t * 2.3) * 0.35;
     if (this.spin) bankT = this.spin.side * U.rad(22);
     let rollRate = 2.4 * w.agility / Math.sqrt(lapse);
@@ -4653,20 +4939,35 @@ class Pilot {
       this.spiralDur += dt;
       if (ab < U.rad(40) || this.stall || this.spin) { this.inSpiral = false; this.spiralT = 0; if (this.spiralDur > 3) ev.push('spiralDone'); }
     }
-    // ---- Klapper durch Turbulenz (leicht angebremst fliegen schützt – aktives Fliegen)
+    // ---- Klapper durch Turbulenz. Er kündigt sich an (threat): kurz kräftig auf der Seite anbremsen fängt ihn ab.
+    //      Leicht angebremst zu fliegen schützt ohnehin (aktives Fliegen); ist die Seite schon angebremst, hält sie.
     if (this.turb > 0.05 && !this.stall && !this.spin) {
       this.collapseCool -= dt;
-      if (!this.collapse && this.collapseCool <= 0) {
+      if (!this.collapse && !this.threat && this.collapseCool <= 0) {
         // dicht am Boden (Start, Landeanflug) fliegt man aktiv: dort klappt nichts mehr ein
-        const p = this.turb * 0.04 / w.stability * (1 + bar * 1.8 * this.mods.bar) * (1 - U.clamp(sym, 0, 0.5)) * U.smoothstep(15, 60, this.agl) * dt;
-        if (this.rand() < p) this._collapse(this.rand() < 0.5 ? -1 : 1, 0.55 + 0.45 * this.rand(), ev);
+        const p = this.turb * 0.03 / w.stability * (1 + bar * 1.8 * this.mods.bar) * (1 - U.clamp(sym, 0, 0.5)) * U.smoothstep(15, 60, this.agl) * dt;
+        if (this.rand() < p) {
+          const side = this.rand() < 0.5 ? -1 : 1, sev = 0.55 + 0.45 * this.rand();
+          if ((side < 0 ? bL : bR) < 0.45) this._threat(side, sev, ev); else this.collapseCool = 2;
+        }
+      }
+    }
+    if (this.threat) {
+      const T = this.threat, own = T.side < 0 ? bL : bR;
+      T.t += dt; T.best = Math.max(T.best, own);
+      T.hold = own >= 0.5 ? T.hold + dt : Math.max(0, T.hold - dt * 0.5);
+      if (this.stall || this.spin || this.collapse) this.threat = null;
+      else if (T.hold >= 0.12) { this.threat = null; this.collapseCool = 5; this.stats.caught++; ev.push('caught'); }
+      else if (T.t >= T.T) {
+        const pf = U.clamp((T.best - 0.15) / 0.35, 0, 1);            // halb angebremst: kleinerer Klapper
+        this._collapse(T.side, Math.max(0.3, T.sev * (1 - 0.55 * pf)), ev);
       }
     }
     if (this.collapse) {
       const c = this.collapse, counter = c.side < 0 ? bR : bL;   // Bremse auf der offenen Seite
       const good = U.smoothstep(0.1, 0.45, counter) * (1 - U.smoothstep(0.75, 1.0, counter));
       c.t -= dt * (0.6 + 1.7 * good);
-      c.yaw = c.side * 0.85 * c.sev * (1 - 0.85 * U.clamp(counter * 1.6, 0, 1));
+      c.yaw = c.side * 0.6 * c.sev * (1 - 0.85 * U.clamp(counter * 1.6, 0, 1));
       if (c.t <= 0) { this.collapse = null; ev.push('recovered'); }
     }
     // ---- Kurs
@@ -4738,6 +5039,12 @@ class Pilot {
     this.y = this.gnd(this.x, this.z);
   }
 
+  /* Kappe hinter dem Piloten auf den Boden legen: Rig so weit nach hinten kippen, dass die Hinterkante auf dem
+     Gelände 7,5 m hinter ihm liegt (am Hang steiler, in der Ebene fast waagrecht) */
+  _layRx() {
+    const f = this.forward(), dh = this.gnd(this.x - f.x * 7.5, this.z - f.z * 7.5) - this.gnd(this.x, this.z);
+    return Math.acos(U.clamp((dh - 0.85) / 7.69, -0.9, 0.9)) - 0.253;
+  }
   /* Modell an den Flugzustand anpassen */
   _pose(dt, inp) {
     const m = this.model; if (!m) return;
@@ -4758,7 +5065,8 @@ class Pilot {
     const swing = Math.sin(this.stride) * amp + (this.flying && !this.airRunT ? Math.sin(performance.now() / 700) * 0.06 : 0);
     const lean = ph === 'inflate' ? 0.22 : -0.28 * U.clamp(runV / 5, 0, 1);
     const lying = ph === 'crashed';
-    poseBody(ud, lying ? 1 : this.standB, lying ? 0 : swing, lean, this.flying ? 0.28 * this.standB : 0);
+    const rest = ph === 'landed' || lying;                    // nach der Landung hängen die Arme locker
+    poseBody(ud, lying ? 1 : this.standB, lying ? 0 : swing, lean, this.flying ? 0.28 * this.standB : 0, rest ? 0.8 : this.brakeL, rest ? 0.8 : this.brakeR, this.flying && this.seated ? inp.barV || 0 : 0);
     ud.body.rotation.x += ((lying ? 1.45 : 0) - ud.body.rotation.x) * Math.min(1, dt * 4);
     const offY = lying ? 0.5 : U.lerp(SIT_H, STAND_H, this.standB) + (ph === 'run' ? 0.06 * Math.abs(Math.cos(this.stride)) : 0);   // Laufen federt
     m.position.set(this.x, this.y + offY, this.z);
@@ -4769,22 +5077,33 @@ class Pilot {
     if (ph !== 'fly') pT = 0;
     this.pitchVis += (pT - this.pitchVis) * Math.min(1, dt * 4);
     m.rotation.x = this.pitchVis;
-    // Kappe: am Boden ausgelegt, beim Aufziehen steigend, im Stall nach hinten gefallen
-    let rigX = 0, rigZ = 0, rate = 4;
-    if (ph === 'ready') { rigX = 1.42; rate = M.fell ? 2.5 : 20; }
-    else if (this.launching) { rigX = -U.rad(M.pitch) * 0.957; rigZ = -U.rad(M.roll); rate = 16; }
-    else if (ph === 'launch') { rigX = 1.42 * (1 - U.smoothstep(0, 1.5, this.launchT)); rate = 10; }
-    else if (ph === 'landed' || lying) { rigX = 1.2; rate = 1.5; }
+    // Kappe: am Boden flach und schlaff ausgelegt (lay: um die Hinterkante flach gelegt), beim Aufziehen steigt sie
+    // und füllt sich, im Stall fällt sie nach hinten, nach der Landung sinkt sie hinter dem Piloten zusammen
+    let rigX = 0, rigZ = 0, rate = 4, lay = 0, defl = 0;
+    if (ph === 'ready') { rigX = this._layRx(); lay = 1; defl = 1; rate = M.fell ? 2.5 : 20; }
+    else if (this.launching) {
+      rigX = -U.rad(M.pitch) * 0.957; rigZ = -U.rad(M.roll); rate = 16;
+      if (ph === 'inflate') { lay = 1 - U.smoothstep(0, 0.7, M.t); defl = 1 - U.smoothstep(0.1, 1.0, M.t); }
+    }
+    else if (ph === 'launch') { rigX = 1.42 * (1 - U.smoothstep(0, 1.5, this.launchT)); lay = 1 - U.smoothstep(0, 0.6, this.launchT); defl = 1 - U.smoothstep(0, 1.0, this.launchT); rate = 10; }
+    else if (ph === 'landed' || lying) { rigX = this._layRx(); lay = 1; defl = 1; rate = 1.5; }
     else if (this.stall) rigX = 0.6 + 0.12 * Math.sin(this.stall.t * 5);
-    ud.rig.rotation.x += (rigX - ud.rig.rotation.x) * Math.min(1, dt * rate);
-    ud.rig.rotation.z += (rigZ - ud.rig.rotation.z) * Math.min(1, dt * rate);
+    const kr = Math.min(1, dt * rate);
+    ud.rig.rotation.x += (rigX - ud.rig.rotation.x) * kr;
+    ud.rig.rotation.z += (rigZ - ud.rig.rotation.z) * kr;
+    this.layVis += (lay - this.layVis) * kr; this.deflVis += (defl - this.deflVis) * Math.min(1, dt * (defl > this.deflVis ? rate * 0.6 : 3));
+    const al = this.layVis * 1.5, tz = ud.teZ;
+    ud.canopy.rotation.x = -al; ud.canopy.position.set(0, RIG - tz * Math.sin(al), tz - tz * Math.cos(al));
     const sx = this.stall ? 0.72 : 1;
     ud.canopy.scale.x += (sx - ud.canopy.scale.x) * Math.min(1, dt * 5);
-    const c = this.collapse;
-    ud.deform({
-      bL: this.brakeL, bR: this.brakeR, ears: ph === 'fly' && inp.ears,
-      collapseSide: c ? c.side : 0, collapseAmt: c ? Math.min(1, c.sev * Math.min(1, c.t / 0.8)) : 0,
-    });
+    this.earsVis += ((ph === 'fly' && inp.ears ? 1 : 0) - this.earsVis) * Math.min(1, dt * 5);
+    const c = this.collapse, T = this.threat, D = this._df;
+    D.bL = this.brakeL; D.bR = this.brakeR; D.ears = this.earsVis; D.flat = this.layVis; D.deflate = this.deflVis;
+    D.stall = this.stall ? U.clamp(this.stall.t / 0.6, 0, 1) : 0;
+    D.collapseSide = c ? c.side : 0; D.collapseSev = c ? c.sev : 0.8;
+    D.collapseAmt = c ? (0.6 + 0.4 * c.sev) * Math.min(1, (c.t0 - c.t) / 0.25 + 0.3) * Math.min(1, c.t / 0.8) : 0;
+    D.threatSide = T ? T.side : 0; D.threatAmt = T ? (0.55 + 0.45 * Math.sin(T.t * 38)) * U.smoothstep(0, 0.15, T.t) : 0;
+    ud.deform(D);
   }
 }
 
@@ -5481,6 +5800,8 @@ class Game {
   /* ---------------- Aufbau einer Welt ---------------- */
   _buildWorld(map, seed, siteSeed, q, hints) {
     this.scene = new THREE.Scene();
+    // Kameraposition für das Licht der Lambert- und Phong-Materialien (Schattenfeld, Wolkenschatten; siehe atmo.js)
+    this.scene.onBeforeRender = (r, s, cam) => ATMO.u.atmoCam.value.setFromMatrixPosition(cam.matrixWorld);
     this.camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 1.5, q.vis * 1.2 + 8000);
     this._initRenderer(q);
     // Schattenfelder brauchen Texturen mit halben Gleitkommazahlen (WebGL 2, jedes aktuelle iPhone)
@@ -5543,9 +5864,8 @@ class Game {
     if (this.mode === 'daily') { const d = this.dailyPlan(cfg.unlockedMaps); mapId = d.mapId; seed = siteSeed = d.seed; mission = d.mission; }
     this.mission = mission;
     // Schirm mit Werkstatt-Verbesserungen, Trimmer, Perks und Gurtzeug (cfg.tune, cfg.perks, cfg.harness aus dem Spielstand)
-    const perks = this.perks = (cfg.perks || []).slice(), harness = this.harness = HARNESS_BY_ID[cfg.harness] || HARNESSES[0];
-    const map = MAP_BY_ID[mapId], wing = tunedWing(WING_BY_ID[cfg.wingId], cfg.tune, perks, harness);
-    this.map = map; this.wingDef = wing; this.softSteer = cfg.softSteer !== false;
+    const map = MAP_BY_ID[mapId], wing = this._gear(cfg), harness = this.harness;
+    this.map = map; this.softSteer = cfg.softSteer !== false;
     const hints = cfg.hints !== false && !(mission && mission.thermalHint === false);
     const world = this._buildWorld(map, seed, siteSeed, q, hints);
 
@@ -5555,20 +5875,13 @@ class Game {
 
     const L = world.launch;
     const airAGL = (mission && mission.startAGL) || (L.airOnly ? 300 : 0);
-    const look = { look: harness.look, color: cfg.harnessColor != null ? cfg.harnessColor : harness.color, acc: harness.acc };
-    this.pilot = new Pilot(wing, world, this.scene, cfg.designDef || DESIGN_BY_ID[cfg.design] || null, look);
-    const has = (id) => perks.indexOf(id) >= 0, H = harness;
-    Object.assign(this.pilot.mods, {
-      lift: has('thermik') ? 1.15 : 1, turb: (has('ruhig') ? 0.65 : 1) * (H.turb || 1), land: (has('landung') ? 1.35 : 1) * (H.land || 1),
-      run: (has('anlauf') ? 1.25 : 1) * (H.id === 'leicht' ? 1.2 : 1), angel: has('engel'), ws: H.ws || 1,
-      spiral: H.id === 'akro' ? 0.7 : 0.35, bar: H.id === 'liege' ? 0.6 : 1,
-    });
-    this.cloudMax = H.id === 'expedition' ? 12 : 7;                 // Wärmeschutz: länger in der Wolke
+    this.pilot = new Pilot(wing, world, this.scene, this._look.design, this._look.harness);
+    this._mods(this.pilot);
     if (airAGL) this.pilot.reset(L.x, L.h + airAGL, L.z, L.heading, 'fly');
     else this.pilot.reset(L.x, L.h, L.z, L.heading, 'ready');
     if (this.pilot.phase === 'ready' && !cfg.autoLaunch) {
       const C = this.pilot.manualCfg = this._launchCfg(mission);
-      if (H.id === 'leicht') { C.over += 10; C.back += 10; }        // Wendegurtzeug: Aufziehen verzeiht mehr
+      if (harness.id === 'leicht') { C.over += 10; C.back += 10; }  // Wendegurtzeug: Aufziehen verzeiht mehr
     }
     this.speedup = 1;
     world.seedThermals(L.x, L.z, L.heading);
@@ -5581,7 +5894,7 @@ class Game {
     this.cloudT = 0; this.wave = 0; this.waveT = 0; this.frontDist = null; this.flashT = 8;
     this.camShake = 0; this.camBob = 0; this.over = false; this.paused = false; this.result = null; this.endT = 0;
     this.tpIndex = 0; this.tpCount = 0; this.startPos = { x: L.x, z: L.z }; this.navTarget = null;
-    this.maneuvers = {}; this.flags = { recovered: 0, spinRecovered: 0, eagleMiss: 0, stormEscaped: false, angel: false }; this.sniff = null; this.sniffT = 0; this.sniffBeep = 0;
+    this.maneuvers = {}; this.flags = { recovered: 0, caught: 0, spinRecovered: 0, eagleMiss: 0, stormEscaped: false, angel: false }; this.sniff = null; this.sniffT = 0; this.sniffBeep = 0;
     this.extraCoins = 0; this.questDay = cfg.questDay;                                              // Münzen aus dem Flug (Akro-Gurtzeug: Manöverbonus)
     this.photoFocus = null; this.tut = { step: 0, t: 0 }; this.timeScale = 1; this.bellT = 3;
     this.ais = []; this.storms = []; this.eagle = null; this.race = null;
@@ -5612,6 +5925,37 @@ class Game {
     this.ui.onRunStarted(this);
     this.raf = requestAnimationFrame((ts) => this.loop(ts));
   }
+  /* Schirm mit Werkstatt, Trimmer, Perks und Gurtzeug; dazu das Aussehen (Design, Form und Farbe des Gurtzeugs) */
+  _gear(cfg) {
+    const perks = this.perks = (cfg.perks || []).slice(), H = this.harness = HARNESS_BY_ID[cfg.harness] || HARNESSES[0];
+    this.wingDef = tunedWing(WING_BY_ID[cfg.wingId], cfg.tune, perks, H);
+    this.cloudMax = H.id === 'expedition' ? 12 : 7;                 // Wärmeschutz: länger in der Wolke
+    this._look = { design: cfg.designDef || DESIGN_BY_ID[cfg.design] || null, harness: { look: H.look, color: cfg.harnessColor != null ? cfg.harnessColor : H.color, acc: H.acc } };
+    this._gearKey = JSON.stringify([cfg.tune || null, perks, H.id, cfg.harnessColor == null ? null : cfg.harnessColor, cfg.designDef || cfg.design || null]);
+    return this.wingDef;
+  }
+  /* Perks und Gurtzeug in die Flugphysik: Thermik, Turbulenz, Landetoleranz, Anlauf, Schutzengel, Gewichtsverlagerung,
+     Ausleiten der Spirale, Klapper am Beschleuniger */
+  _mods(p) {
+    const has = (id) => this.perks.indexOf(id) >= 0, H = this.harness;
+    Object.assign(p.mods, {
+      lift: has('thermik') ? 1.15 : 1, turb: (has('ruhig') ? 0.65 : 1) * (H.turb || 1), land: (has('landung') ? 1.35 : 1) * (H.land || 1),
+      run: (has('anlauf') ? 1.25 : 1) * (H.id === 'leicht' ? 1.2 : 1), angel: has('engel'), ws: H.ws || 1,
+      spiral: H.id === 'akro' ? 0.7 : 0.35, bar: H.id === 'liege' ? 0.6 : 1,
+    });
+  }
+  /* Ausrüstung im laufenden Flug wechseln (Pause → Ausrüstung): Werkstatt, Trimmer, Perks, Gurtzeug und Design gelten
+     sofort, der Schirmtyp bleibt. Das Modell wird nur neu gebaut, wenn sich das Aussehen ändert. true = etwas geändert */
+  applyGear(o) {
+    const p = this.pilot, c = this.cfg; if (!p || !c || this.over || this.mode === 'attract') return false;
+    const key0 = this._gearKey, look0 = JSON.stringify(this._look);
+    const c2 = Object.assign({}, c, { tune: o.tune, perks: o.perks, harness: o.harness, harnessColor: o.harnessColor, designDef: o.designDef });
+    const w = this._gear(c2);
+    if (this._gearKey === key0) return false;
+    this.cfg = c2; p.setWing(w); this._mods(p);
+    if (JSON.stringify(this._look) !== look0) p.setLook(this._look.design, this._look.harness);
+    return true;
+  }
   /* Automatischer Startlauf (Knopf „Starten“, Eingabetaste, Tests). Beim Start von Hand nur mit auto = true. */
   launch(auto) {
     const p = this.pilot; if (!p || p.phase !== 'ready') return;
@@ -5638,7 +5982,7 @@ class Game {
     const p = this.pilot;
     if (!p || !p.flying || this.over) return 'air';
     if (p.agl < 80) return 'low';
-    if (p.collapse || p.stall || p.spin) return 'wing';
+    if (p.collapse || p.stall || p.spin || p.threat) return 'wing';
     if (p.inCloud) return 'cloud';
     if (this.stormEta != null && this.stormEta < 45) return 'storm';
     return null;
@@ -5685,9 +6029,11 @@ class Game {
     }
     this._dynRes(rawDt);
     dt *= this.timeScale;
-    // Physik in Unterschritten; im Zeitraffer entsprechend mehr Schritte pro Bild
-    const sim = dt * (this.speedup || 1), n = Math.max(dt > 0.034 ? 2 : 1, Math.ceil(sim / 0.03));
-    for (let i = 0; i < n && !this.over; i++) this._step(sim / n);
+    // Physik in Unterschritten; im Zeitraffer entsprechend mehr Schritte pro Bild. Schaltet er sich ab (Klapper droht,
+    // Bodennähe …), endet das Bild sofort – sonst liefe die Reaktionszeit im Zeitraffer davon.
+    const k0 = this.speedup || 1, sim0 = dt * k0, n = Math.max(dt > 0.034 ? 2 : 1, Math.ceil(sim0 / 0.03));
+    let sim = 0;
+    for (let i = 0; i < n && !this.over; i++) { this._step(sim0 / n); sim += sim0 / n; if ((this.speedup || 1) !== k0) break; }
     if (this.over) return;
     const p = this.pilot;
     this.world.update(sim, this.camera, p.x, p.y, p.z);
@@ -5798,7 +6144,7 @@ class GliderShadow {
     const geo = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
     this.canopy = new THREE.Mesh(geo, mat()); this.body = new THREE.Mesh(geo, mat());
     for (const m of [this.canopy, this.body]) { m.renderOrder = 2; m.frustumCulled = false; m.visible = false; scene.add(m); }
-    this._q = new THREE.Vector3(); this._n = new THREE.Vector3(); this._qa = new THREE.Quaternion(); this._qb = new THREE.Quaternion(); this._up = new THREE.Vector3(0, 1, 0);
+    this._q = new THREE.Vector3(); this._n = new THREE.Vector3(); this._qa = new THREE.Quaternion(); this._qb = new THREE.Quaternion(); this._up = new THREE.Vector3(0, 1, 0); this._c = new THREE.Vector3();
   }
   /* Auftreffpunkt entlang der Sonne auf der gezeichneten Fläche */
   _hit(W, x, y, z, s) {
@@ -5820,10 +6166,13 @@ class GliderShadow {
     if (!p || !W || s.y < 0.08) { this.canopy.visible = this.body.visible = false; return; }
     const h = p.y - W.groundAt(p.x, p.z), alpha = 0.5 * (1 - U.smoothstep(25, 320, h)) * U.smoothstep(0.08, 0.3, s.y);
     if (alpha < 0.01) { this.canopy.visible = this.body.visible = false; return; }
-    // Kappe: RIG über dem Piloten, mit Querlage seitlich versetzt
-    const up = RIG * Math.cos(p.bank || 0), side = RIG * Math.sin(p.bank || 0), rx = Math.cos(p.heading), rz = Math.sin(p.heading);
-    let q = this._hit(W, p.x + rx * side, p.y + up, p.z + rz * side, s);
-    this._place(this.canopy, W, q, h + up, p.heading, 10.6 * Math.max(0.35, Math.cos(p.bank || 0)), 3.1, alpha);
+    // Kappe: wo sie wirklich ist (über dem Piloten, mit Querlage seitlich versetzt, beim Start hinter ihm);
+    // liegt sie ausgelegt am Boden, wirft sie keinen eigenen Schatten
+    const ud = p.model && p.model.userData, c = this._c;
+    if (ud) ud.canopy.getWorldPosition(c);
+    else { const rx = Math.cos(p.heading), rz = Math.sin(p.heading), sd = RIG * Math.sin(p.bank || 0); c.set(p.x + rx * sd, p.y + RIG * Math.cos(p.bank || 0), p.z + rz * sd); }
+    let q = this._hit(W, c.x, c.y, c.z, s);
+    this._place(this.canopy, W, q, h + c.y - p.y, p.heading, 10.6 * Math.max(0.35, Math.cos(p.bank || 0)), 3.1, alpha * (1 - (p.layVis || 0)));
     q = this._hit(W, p.x, p.y + 0.3, p.z, s);
     this._place(this.body, W, q, h, p.heading, 1.1, 1.6, alpha * 0.9);
   }
@@ -5942,6 +6291,7 @@ const GameRules = {
     this.clock += dt;
     this._advanceTime(dt);
     this.input.brakeDelay = p.flying && !p.seated && p.needSit ? 0.18 : 0;   // Wisch nach unten soll nicht bremsen
+    this.input.lockOk = p.flying;                                             // Raste nur in der Luft
     // Bremsen folgen dem Daumen in echter Zeit; im Zeitraffer lenkt der Schirm sanfter (Pilot.lapse)
     const k = this.speedup > 1 ? this.speedup : 1;
     this.input.update(dt / k);
@@ -6024,7 +6374,16 @@ const GameRules = {
       case 'sit': au.chime(); ui.toast('Sitzt! Guten Flug'); break;
       case 'sitAuto': ui.toast('Ins Gurtzeug gerutscht'); break;
       case 'angel': this.flags.angel = true; ui.warn('SCHUTZENGEL!', 1.6); break;
-      case 'collapse': au.collapse(); this.camShake = 1; ui.warn('KLAPPER!', 1.6);
+      case 'threat': {                                   // Vorwarnung: die Spitze flattert – auf dieser Seite kurz kräftig bremsen
+        const left = p.threat && p.threat.side < 0;
+        au.flutter(); this.camShake = Math.max(this.camShake, 0.35);
+        ui.warn('KLAPPER DROHT – ' + (left ? 'LINKS' : 'RECHTS') + ' BREMSEN!', 1.3);
+        if (ui._ghostOwner !== 'tut' && ui._ghostOwner !== 'coach') ui.ghost(left ? 'L' : 'R', 'Kurz kräftig ziehen!', 'klapper');
+        ui.hintOnce('threat', 'Eine Flügelspitze flattert: Auf dieser Seite kurz kräftig anbremsen (über die Hälfte), dann hält der Schirm.', 4);
+        break;
+      }
+      case 'caught': this.flags.caught++; ui.warn('', 0); ui.toast('Klapper abgefangen!'); au.chime(); if (ui._ghostOwner === 'klapper') ui.ghost(null); break;
+      case 'collapse': au.collapse(); this.camShake = 1; ui.warn('KLAPPER!', 1.6); if (ui._ghostOwner === 'klapper') ui.ghost(null);
         ui.hint((p.collapse && p.collapse.side < 0 ? 'Rechte' : 'Linke') + ' Bremse etwa halb ziehen – auf der offenen Seite gegensteuern', 3.5); break;
       case 'recovered': ui.warn('', 0); this.flags.recovered++; this.maneuvers.collapse = true; ui.toast('Schirm wieder offen'); break;
       case 'stall': au.collapse(); this.camShake = 0.8; ui.warn('STRÖMUNGSABRISS!', 1.8); ui.hint('Beide Bremsen loslassen!', 3); break;
@@ -6303,7 +6662,7 @@ const GameRules = {
       mapId: this.map.id, wingId: this.wingDef.id, perks: this.perks.slice(), harness: this.harness.id,
       quests: this._questResult(), questDay: this.questDay, questT: m && m.bonus && this.quests[0] ? this.quests[0].doneT : null, extraCoins: this.extraCoins,
       time: this.t, dist: p.stats.dist, maxDist: this.maxDist, maxAlt: p.stats.maxAlt, maxClimb: p.stats.maxClimb,
-      climbTotal: this.climbTotal, bestClimbRun: this.bestClimbRun, collapses: p.stats.collapses, recovered: this.flags.recovered,
+      climbTotal: this.climbTotal, bestClimbRun: this.bestClimbRun, collapses: p.stats.collapses, recovered: this.flags.recovered, caught: this.flags.caught,
       spinRecovered: this.flags.spinRecovered, eagleMiss: this.flags.eagleMiss, stormEscaped: this.flags.stormEscaped,
       landDist, landQ, impact: p.touchdown ? p.touchdown.impact : null, thermals: this.doneThermals.size,
       race: this.race ? { place: this.race.place, total: this.race.total, finish: this.race.finish.slice() } : null,
@@ -6773,6 +7132,7 @@ class UI {
     this.save = this.load();
     this.game = null; this.audio = null; this.input = null;
     this.screens = {}; this.cur = null; this.pickMode = 'xc';
+    this.nav = []; this.page = null;                 // Seitenstapel für „Zurück“ (go, back)
     this.hintsShown = {}; this.lastHud = 0; this._cloud = false;
   }
 
@@ -6786,7 +7146,7 @@ class UI {
       tune: {}, perks: { own: {}, on: [], slots: 2 }, custom: { pat: 'mitte', c: [0x2fb7d6, 0xf6f6f2, 0xffc93c], nose: false },
       // Gurtzeug und seine Farbe je Gurtzeug; Auftragsbrett des Tages; Bonus-Level { id: { stars, best } }
       harness: 'schule', harnessCol: {}, quests: { day: 0, list: [], swaps: 0, chest: false }, bonus: {},
-      set: { tiltWS: false, sens: 1.0, invert: false, muted: false, vario: true, quality: 'mid', hints: true, unlockAll: false, launch: 'manual', softSteer: true, hud: HUD_DEFAULT(), brake: { len: BRAKE_LEN.def, size: 'm' } },
+      set: { tiltWS: false, sens: 1.0, invert: false, muted: false, vario: true, quality: 'mid', hints: true, unlockAll: false, launch: 'manual', softSteer: true, hud: HUD_DEFAULT(), brake: { len: BRAKE_LEN.def, size: 'm', lock: true } },
     };
     let s = null;
     try { s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { s = null; }
@@ -6808,10 +7168,11 @@ class UI {
     if (!Array.isArray(out.quests.list)) out.quests.list = [];
     const h0 = HUD_DEFAULT(), h = (s.set && s.set.hud) || {};
     out.set.hud = Object.assign(h0, h, { show: Object.assign(h0.show, h.show || {}), pos: Object.assign(h0.pos, h.pos || {}) });
-    // Bremsleinen (seit Fassung 4): der alte Regler „Bremsweg“ teilte den Weg (höher = kürzer) – in Pixel umrechnen
+    // Bremsleinen (seit Fassung 4): der alte Regler „Bremsweg“ teilte den Weg (höher = kürzer) – in Pixel umrechnen.
+    // Raste (seit Fassung 4.1): standardmäßig an
     const b = s.set && s.set.brake;
-    out.set.brake = b ? { len: U.clamp(+b.len || BRAKE_LEN.def, BRAKE_LEN.min, BRAKE_LEN.max), size: BRAKE_SIZES[b.size] ? b.size : 'm' }
-      : { len: Math.round(U.clamp(169 / (out.set.sens || 1), BRAKE_LEN.min, BRAKE_LEN.max) / 5) * 5, size: 'm' };
+    out.set.brake = b ? { len: U.clamp(+b.len || BRAKE_LEN.def, BRAKE_LEN.min, BRAKE_LEN.max), size: BRAKE_SIZES[b.size] ? b.size : 'm', lock: b.lock !== false }
+      : { len: Math.round(U.clamp(169 / (out.set.sens || 1), BRAKE_LEN.min, BRAKE_LEN.max) / 5) * 5, size: 'm', lock: true };
     return out;
   }
   store() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(this.save)); } catch (e) { /* privat oder voll */ } }
@@ -6852,7 +7213,7 @@ class UI {
     root.appendChild(el('canvas', { id: 'c' }));
     root.appendChild(el('div', { id: 'fx' }, [el('div', { id: 'speedFx' }), el('div', { id: 'cloudFx' }), el('div', { id: 'flashFx' }), el('div', { id: 'dangerFx' })]));
     root.appendChild(this._buildHud());
-    for (const s of ['L', 'R']) root.appendChild(el('div', { class: 'thumb', id: 'thumb' + s, hidden: 'hidden' }, [el('div', { class: 'guide' }), el('div', { class: 'end' }), el('div', { class: 'ring' }), el('div', { class: 'cord' }), el('div', { class: 'knob' })]));
+    for (const s of ['L', 'R']) root.appendChild(el('div', { class: 'thumb', id: 'thumb' + s, hidden: 'hidden' }, [el('div', { class: 'guide' }), el('div', { class: 'zone' }), el('div', { class: 'end' }), el('div', { class: 'ring' }), el('div', { class: 'cord' }), el('div', { class: 'knob' })]));
     for (const s of ['L', 'R']) root.appendChild(el('div', { class: 'gthumb', id: 'ghost' + s, 'aria-hidden': 'true' }, [el('div', { class: 'gring' }), el('div', { class: 'gtrack' }), el('div', { class: 'gknob' }), el('div', { class: 'glbl', id: 'ghost' + s + 'T', text: '' })]));
     root.appendChild(el('div', { class: 'ghostc', id: 'ghostC', 'aria-hidden': 'true' }, [el('div', { class: 'gdot a' }), el('div', { class: 'gdot b' }), el('div', { class: 'glbl', id: 'ghostCT', text: '' })]));
     this.editBar = el('div', { id: 'hudEdit', class: 'hpanel', hidden: 'hidden' }, [
@@ -6928,10 +7289,11 @@ class UI {
           html: icon('<path d="M8.5 17.5 16 10 23.5 17.5"/><path d="M8.5 25 16 17.5 23.5 25"/>') }),
       ]),
       // Bremsbalken links und rechts
-      el('div', { id: 'hudBottom' }, [
-        el('div', { class: 'rail', id: 'railL' }, [el('div', { class: 'track' }, [el('div', { class: 'fill', id: 'railLF' }), el('div', { class: 'grip', id: 'railLG' })]), el('div', { class: 'rlbl', id: 'railLT', text: 'L' })]),
-        el('div', { class: 'rail', id: 'railR' }, [el('div', { class: 'track' }, [el('div', { class: 'fill', id: 'railRF' }), el('div', { class: 'grip', id: 'railRG' })]), el('div', { class: 'rlbl', id: 'railRT', text: 'R' })]),
-      ]),
+      el('div', { id: 'hudBottom' }, ['L', 'R'].map(s => el('div', { class: 'rail', id: 'rail' + s }, [
+        el('div', { class: 'track' }, [el('div', { class: 'zone' }), el('div', { class: 'fill', id: 'rail' + s + 'F' }), el('div', { class: 'grip', id: 'rail' + s + 'G' })]),
+        el('div', { class: 'rlock', 'aria-hidden': 'true', html: '<svg viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7.5" rx="1.6"/><path d="M5.2 7V5.2a2.8 2.8 0 0 1 5.6 0V7"/></svg>' }),
+        el('div', { class: 'rlbl', id: 'rail' + s + 'T', text: s }),
+      ]))),
     ]);
     this.hud = hud;
     // Verschieben im Bearbeiten-Modus, Zeitraffer im Flug
@@ -7048,21 +7410,53 @@ class UI {
     const s = this.screens[name]; if (s) s.scrollTop = 0;
     this.closeBtn.hidden = !name || name === 'title' || name === 'loading';
   }
-  /* X oben rechts und Escape: dasselbe wie „Zurück“ der offenen Seite, in der Pause weiterfliegen */
+  /* Navigation als Stapel: go() legt eine Seite obenauf, back() („Zurück“, X, Escape) führt genau dorthin zurück,
+     woher man kam – beliebig tief (Hangar → Laden → Werkstatt → Zurück → Laden → Zurück → Hangar → Zurück → …).
+     Wurzeln sind Titel, Pause, Ergebnis und Ladebildschirm: dort beginnt der Stapel neu. draw() baut die Seite auf,
+     beim Zurückkommen mit dem aktuellen Stand (Münzen, Käufe) und an derselben Scroll-Stelle. */
+  go(name, draw, extra) {
+    if (this.page) { this.page.scroll = this.screens[this.page.name] ? this.screens[this.page.name].scrollTop : 0; this.nav.push(this.page); }
+    this._open(Object.assign({ name, draw }, extra));
+  }
+  /* Seite ersetzen, ohne einen Rückweg anzulegen (Reiter der Ausrüstung) */
+  swap(name, draw, extra) { this._open(Object.assign({ name, draw }, extra)); }
+  /* Neuer Stapel: base = Seiten darunter (für „Zurück“), dann die Seite selbst */
+  newStack(name, draw, base) { this.nav = base || []; this.page = null; this._open({ name, draw }); }
+  _open(pg) {
+    this.page = pg; if (pg.draw) pg.draw();
+    this.show(pg.name);
+    if (pg.scroll) this.screens[pg.name].scrollTop = pg.scroll;
+  }
+  /* Eine Ebene zurück. Ganz unten: in der Pause weiterfliegen, sonst ins Hauptmenü */
+  back() {
+    const pg = this.nav.pop();
+    if (pg) { this._open(pg); return; }
+    const name = this.page ? this.page.name : this.cur;
+    if (name === 'pause') this.resume();
+    else if (name !== 'title') { this.game.stop(); this.toTitle(); }
+  }
+  /* Offene Seite neu aufbauen und zeigen (nach dem Verschieben der Anzeigen) */
+  redraw() { if (this.page) this._open(this.page); else this.toTitle(); }
+  /* X oben rechts und Escape: eine Ebene zurück, in der Pause weiterfliegen */
   closeScreen() {
     const name = this.cur; if (!name || name === 'title' || name === 'loading') return;
-    if (name === 'hudedit') { this.click(); this.endHudEdit(); return; }
-    if (name === 'pause') { this.click(); this.resume(); return; }
-    const b = this.screens[name].querySelector('.btn.back');
-    if (b) b.click(); else { this.click(); this.toTitle(); }
+    this.click();
+    if (name === 'hudedit') { this.endHudEdit(); return; }
+    this.back();
   }
-  showGame() { this.scrWrap.hidden = true; for (const k in this.screens) this.screens[k].hidden = true; this.cur = null; this.hud.hidden = false; }
-  toTitle() {
-    this.hud.hidden = true;
-    this.renderTitle(); this.show('title');
-    if (this.save.set.quality !== 'low') this.game.startAttract(this.save.map === 'voralpen' || !this.mapUnlocked(MAP_BY_ID[this.save.map]) ? 'voralpen' : this.save.map, this.save.set.quality);
-    else this.game.stop();
+  showGame() { this.scrWrap.hidden = true; for (const k in this.screens) this.screens[k].hidden = true; this.cur = null; this.page = null; this.nav = []; this.hud.hidden = false; }
+  titlePage() { return { name: 'title', draw: () => { this.renderTitle(); this._attract(); } }; }
+  toTitle() { this.hud.hidden = true; this.nav = []; this.page = null; this._open(this.titlePage()); }
+  /* Titelszene: läuft sie schon (gleiches Gebiet, gleiche Qualität), bleibt sie – sonst neu aufbauen */
+  _attract() {
+    const q = this.save.set.quality, g = this.game;
+    if (q === 'low') { g.stop(); this._attractKey = null; return; }
+    const map = this.save.map === 'voralpen' || !this.mapUnlocked(MAP_BY_ID[this.save.map]) ? 'voralpen' : this.save.map, key = map + ':' + q;
+    if (g.running && g.mode === 'attract' && this._attractKey === key) return;
+    this._attractKey = key; g.startAttract(map, q);
   }
+  /* Ein Flug ist pausiert (Pause → Ausrüstung: Änderungen gelten beim Weiterfliegen) */
+  get flightPaused() { const g = this.game; return !!(g && g.running && g.paused && !g.over && g.mode !== 'attract' && g.pilot); }
   applySettings() {
     const set = this.save.set;
     this.input.tiltWS = set.tiltWS; this.input.sensitivity = set.sens; this.input.invert = set.invert;
@@ -7079,21 +7473,22 @@ class UI {
     cfg = Object.assign({}, cfg, { quality: this.save.set.quality, hints: this.save.set.hints, unlockedMaps: this.unlockedMaps(), design: this.currentDesign().id, designDef: this.currentDesign(),
       tune: this.tuneOf(cfg.wingId), perks: this.activePerks(), harness: H.id, harnessColor: this.harnessColor(H), softSteer: this.save.set.softSteer !== false,
       quests: this.openQuests(), questDay: this.save.quests.day, autoLaunch: this.save.set.launch === 'auto' });
-    this.screens.loading.innerHTML = '';
     const mapName = cfg.mode === 'daily' ? 'Tagesaufgabe' : MAP_BY_ID[cfg.mapId].name;
-    this.screens.loading.appendChild(el('div', { class: 'panel loading' }, [
-      el('div', { class: 'eyebrow', text: mapName }), el('h2', { text: 'Startvorbereitung' }),
-      el('p', { text: 'Schirm auslegen, Leinen sortieren, Gelände aufbauen …' }),
-      el('div', { class: 'spinner' }),
-    ]));
-    this.show('loading');
+    this.newStack('loading', () => {
+      this.screens.loading.innerHTML = '';
+      this.screens.loading.appendChild(el('div', { class: 'panel loading' }, [
+        el('div', { class: 'eyebrow', text: mapName }), el('h2', { text: 'Startvorbereitung' }),
+        el('p', { text: 'Schirm auslegen, Leinen sortieren, Gelände aufbauen …' }),
+        el('div', { class: 'spinner' }),
+      ]));
+    });
     this.hintsShown = {};
     setTimeout(() => {
       try { this.game.start(cfg); }
       catch (err) {
         console.error(err);
         this.screens.loading.innerHTML = '';
-        this.screens.loading.appendChild(el('div', { class: 'panel' }, [el('h2', { text: 'Start fehlgeschlagen' }), el('p', { text: String(err && err.message || err) }), el('button', { class: 'btn', onclick: () => this.toTitle() }, [el('span', { text: 'Zurück zum Menü' })])]));
+        this.screens.loading.appendChild(el('div', { class: 'panel' }, [el('h2', { text: 'Start fehlgeschlagen' }), el('p', { text: String(err && err.message || err) }), el('button', { class: 'btn back', onclick: () => this.toTitle() }, [el('span', { text: 'Zurück zum Menü' })])]));
       }
     }, 60);
   }
@@ -7111,13 +7506,20 @@ class UI {
     this.hud.hidden = true;
     for (const s of ['L', 'R']) this.$('thumb' + s).hidden = true;
     this.ghost(null);
-    this.renderResult(r); this.show('result');
+    this.newStack('result', () => this.renderResult(r));
   }
   pause() {
     const g = this.game; if (!g.running || g.over || g.mode === 'attract') return;
-    g.setPaused(true); this.input.releaseAll(); this.renderPause(); this.show('pause');
+    g.setPaused(true); this.input.releaseAll(true); this.newStack('pause', () => this.renderPause());
   }
-  resume() { this.showGame(); this.audio.init(); this.game.setPaused(false); this.game.lastTs = 0; }
+  resume() { this._gearToFlight(); this.showGame(); this.audio.init(); this.game.setPaused(false); this.game.lastTs = 0; }
+  /* Pause → Ausrüstung: Werkstatt, Trimmer, Perks, Gurtzeug und Design gelten beim Weiterfliegen sofort
+     (ein anderer Schirm erst ab „Neu starten“) */
+  _gearToFlight() {
+    const g = this.game; if (!g.running || g.over || g.mode === 'attract' || !g.pilot || !g.cfg) return;
+    const H = this.currentHarness();
+    if (g.applyGear({ tune: this.tuneOf(g.cfg.wingId), perks: this.activePerks(), harness: H.id, harnessColor: this.harnessColor(H), designDef: this.currentDesign() })) this.toast('Neue Ausrüstung angelegt');
+  }
 
   /* ---------- Einblendungen ---------- */
   toast(txt) { const t = this.$('toast'); t.textContent = txt; t.classList.toggle('menu', !!this.cur); t.classList.remove('show'); void t.offsetWidth; t.classList.add('show'); clearTimeout(this._tt); this._tt = setTimeout(() => t.classList.remove('show'), 2000); }
@@ -7145,20 +7547,29 @@ class UI {
   /* Bremsleinen: Länge an die Eingabe, Größe als CSS-Variable --bs (Griffe, Leinen, Ring am Daumen) */
   applyBrake() {
     const B = this.save.set.brake;
-    this.input.brakeLen = B.len;
+    this.input.brakeLen = B.len; this.input.lockOn = B.lock !== false;
     document.documentElement.style.setProperty('--bs', String(BRAKE_SIZES[B.size] || 1));
+    if (this.hud) this.hud.classList.toggle('nolock', B.lock === false);
   }
-  /* Daumen sichtbar machen: Ring am Aufsetzpunkt, Leine bis zum Daumen, gestrichelt die ganze Leine bis 100 % */
+  /* Daumen sichtbar machen: Ring am Aufsetzpunkt, Leine bis zum Daumen, gestrichelt die ganze Leine bis 100 %,
+     darüber die Raste (letztes Stück vor 100 %: dort loslassen = Bremse bleibt gezogen) */
   onThumb(side, p, amount) {
     const t = this.$('thumb' + side); if (!t) return;
     if (!p || this.cur) { t.hidden = true; return; }
     t.hidden = false;
-    const range = this.input.rangeFor(p), dy = Math.min(p.y - p.y0, range);
+    const range = this.input.rangeFor(p), dy = Math.min(p.y - p.y0, range), lock = this.input.lockOn && this.input.lockOk;
     t.style.left = p.x0 + 'px'; t.style.top = p.y0 + 'px';
     t.querySelector('.guide').style.height = range + 'px'; t.querySelector('.end').style.top = range + 'px';
+    const z = t.querySelector('.zone'); z.hidden = !lock; if (lock) { z.style.top = (range * BRAKE_LOCK) + 'px'; z.style.height = (range * (1 - BRAKE_LOCK)) + 'px'; }
     t.querySelector('.cord').style.height = Math.max(0, dy) + 'px';
     t.querySelector('.knob').style.transform = `translate(-50%, ${Math.max(0, dy)}px)`;
     t.classList.toggle('deep', amount > 0.85);
+    t.classList.toggle('latch', lock && amount >= BRAKE_LOCK);
+  }
+  /* Raste: Klacken beim Einrasten, beim ersten Mal ein Hinweis, wie man sie löst */
+  onLock(side, st) {
+    this.audio.latch(st === 'lock');
+    if (st === 'lock' && this.game && this.game.running && !this.game.over) this.hintOnce('lock', 'Bremse eingerastet – sie bleibt gezogen. Lösen: Daumen auflegen und nach oben schieben.', 4.5);
   }
 
   renderObjectives(g) {
@@ -7217,12 +7628,14 @@ class UI {
     // Foto
     if (g.photoFocus) { this._hid('photoRing', false); this._css('photoArc', 'strokeDashoffset', String(Math.round(170 * (1 - g.photoFocus.f)))); this._txt('photoName', g.photoFocus.lm.name); }
     else this._hid('photoRing', true);
-    // Bremsgriffe
+    // Bremsgriffe; eingerastet mit Schloss, bei drohendem Klapper blinkt die bedrohte Seite
     for (const s of ['L', 'R']) {
       const b = s === 'L' ? inp.brakeL : inp.brakeR, pc = Math.round(b * 100);
       this._css('rail' + s + 'F', 'height', pc + '%'); this._css('rail' + s + 'G', 'top', pc + '%');
       this._txt('rail' + s + 'T', b > 0.04 ? pc + ' %' : s);
       this._tog('rail' + s, 'deep', b > 0.85);
+      this._tog('rail' + s, 'locked', inp.lock[s] > 0);
+      this._tog('rail' + s, 'threat', !!(p.threat && (p.threat.side < 0) === (s === 'L')));
     }
     this._tog('btnEars', 'held', !!inp.ears);
     this._tog('btnBar', 'held', !!inp.bar);
@@ -7234,7 +7647,7 @@ class UI {
     this._launchCoach(g);
     // Effekte
     this._css('speedFx', 'opacity', (U.clamp((p.v - p.wing.vTrim) / 4, 0, 1) * 0.9).toFixed(2));
-    const danger = (p.collapse || p.stall || p.spin) ? 0.8 : (p.inSpiral ? 0.45 : 0);
+    const danger = (p.collapse || p.stall || p.spin) ? 0.8 : (p.inSpiral || p.threat ? 0.45 : 0);
     this._css('dangerFx', 'opacity', String(danger));
     if (p.flying && p.agl < 45 && p.vz < -2 && U.dist2(p.x, p.z, W.landing.x, W.landing.z) > 200) this.warn('BODEN!', 0.4);
     if (p.flying && p.agl < 2.4 && p.agl > 0.3 && p.vz < -0.4 && Math.min(inp.brakeL, inp.brakeR) < 0.5 && g.t > 8) this.warn('ABFANGEN!', 0.5);
@@ -7313,7 +7726,8 @@ const HUD_PARTS = [['map', 'Karte'], ['instr', 'Höhe & Fahrt'], ['vario', 'Stei
 const GEAR_TABS = [['wings', 'Schirme'], ['harness', 'Gurtzeug'], ['tune', 'Werkstatt'], ['perks', 'Perks'], ['designer', 'Design']];
 
 const UIScreens = {
-  _back(to, label) { return el('button', { class: 'btn ghost back', onclick: () => { this.click(); to(); } }, [el('span', { text: label || '← Zurück' })]); },
+  /* „Zurück“: eine Ebene zurück (Stapel in UI.go/back); ganz unten siehe UI.back (Pause: weiterfliegen, sonst Hauptmenü) */
+  _back(label) { return el('button', { class: 'btn ghost back', onclick: () => { this.click(); this.back(); } }, [el('span', { text: label || '← Zurück' })]); },
 
   /* ---------------- Titel ---------------- */
   renderTitle() {
@@ -7326,7 +7740,7 @@ const UIScreens = {
       el('h1', { html: 'Auf<span>wind</span>' }),
       el('div', { class: 'tag', text: 'Gleitschirm-Simulator' }),
     ]));
-    const openShop = () => { this.click(); this.renderShop(() => this.toTitle()); this.show('shop'); };
+    const openShop = () => { this.click(); this.go('shop', () => this.renderShop()); };
     // Schnellstart: die nächste offene Mission direkt ins Briefing, die Liste daneben
     const ni = this.nextMission(), nm = ni != null ? MISSIONS[ni] : null;
     const Q = this.questBoard(), qDone = Q.list.filter(q => q.done).length;
@@ -7336,34 +7750,34 @@ const UIScreens = {
           el('div', { class: 'lvl' }, [cur.name, this.testMode ? el('span', { class: 'testchip', text: 'Testmodus' }) : null]),
           el('div', { class: 'xpnum', text: (next ? U.fmtInt(sv.xp) + ' / ' + U.fmtInt(next.xp) + ' XP' : U.fmtInt(sv.xp) + ' XP') + ' · ' + sv.flights + ' Flüge' }),
         ]),
-        el('button', { class: 'coinchip', 'aria-label': U.fmtInt(sv.coins) + ' Münzen, zum Laden', html: COIN + U.fmtInt(sv.coins), onclick: openShop }),
+        el('button', { class: 'coinchip', 'data-nav': 'shop', 'aria-label': U.fmtInt(sv.coins) + ' Münzen, zum Laden', html: COIN + U.fmtInt(sv.coins), onclick: openShop }),
       ]),
       el('div', { class: 'xpbar' }, [el('div', { style: `width:${(pct * 100).toFixed(1)}%` })]),
       el('div', { class: 'modes' }, [
         el('div', { class: 'moderow go' }, [
-          el('button', { class: 'mode primary', id: 'tNext', onclick: () => { this.click(); if (nm) { this.renderBrief(nm); this.show('brief'); } else this.openMissions(); } }, [
+          el('button', { class: 'mode primary', id: 'tNext', 'data-nav': nm ? 'brief' : 'missions', onclick: () => { this.click(); if (nm) this.go('brief', () => this.renderBrief(nm)); else this.openMissions(); } }, [
             el('b', { text: nm ? 'Weiter: ' + nm.name : 'Missionen' }),
             el('small', { text: done + ' von ' + MISSIONS.length + ' Missionen' + (nm ? ' · ' + String(ni + 1).padStart(2, '0') + ' ' + MAP_BY_ID[nm.map].name : ' · alle geschafft') }),
           ]),
-          el('button', { class: 'mode listm', id: 'tMissions', onclick: () => { this.click(); this.openMissions(); } }, [el('b', { text: 'Liste' }), el('small', { text: 'Missionen' })]),
+          el('button', { class: 'mode listm', id: 'tMissions', 'data-nav': 'missions', onclick: () => { this.click(); this.openMissions(); } }, [el('b', { text: 'Liste' }), el('small', { text: 'Missionen' })]),
         ]),
-        el('button', { class: 'mode daily', onclick: () => { this.click(); this.renderBrief(this.game.dailyPlan(this.unlockedMaps()).mission); this.show('brief'); } }, [el('b', { text: 'Tagesaufgabe' }), el('small', { text: dailyDone ? 'Heute geschafft ' + '★'.repeat(sv.daily.stars) : 'Jeden Tag eine neue Strecke' })]),
-        el('button', { class: 'mode questm', id: 'tQuests', onclick: () => { this.click(); this.renderQuests(); this.show('quests'); } }, [el('b', { text: 'Aufträge' }), el('small', { text: qDone + ' von 3 heute · Bonus-Level' })]),
-        el('button', { class: 'mode', onclick: () => { this.click(); this.pickMode = 'xc'; this.renderSetup(); this.show('setup'); } }, [el('b', { text: 'Streckenflug' }), el('small', { text: 'Frei fliegen, Kilometer sammeln' })]),
-        el('button', { class: 'mode', onclick: () => { this.click(); this.pickMode = 'endless'; this.renderSetup(); this.show('setup'); } }, [el('b', { text: 'Endlosflug' }), el('small', { text: 'Gewitterfront im Nacken' })]),
+        el('button', { class: 'mode daily', id: 'tDaily', 'data-nav': 'brief', onclick: () => { this.click(); const dm = this.game.dailyPlan(this.unlockedMaps()).mission; this.go('brief', () => this.renderBrief(dm)); } }, [el('b', { text: 'Tagesaufgabe' }), el('small', { text: dailyDone ? 'Heute geschafft ' + '★'.repeat(sv.daily.stars) : 'Jeden Tag eine neue Strecke' })]),
+        el('button', { class: 'mode questm', id: 'tQuests', 'data-nav': 'quests', onclick: () => { this.click(); this.go('quests', () => this.renderQuests()); } }, [el('b', { text: 'Aufträge' }), el('small', { text: qDone + ' von 3 heute · Bonus-Level' })]),
+        el('button', { class: 'mode', id: 'tXC', 'data-nav': 'setup', onclick: () => { this.click(); this.go('setup', () => { this.pickMode = 'xc'; this.renderSetup(); }); } }, [el('b', { text: 'Streckenflug' }), el('small', { text: 'Frei fliegen, Kilometer sammeln' })]),
+        el('button', { class: 'mode', id: 'tEndless', 'data-nav': 'setup', onclick: () => { this.click(); this.go('setup', () => { this.pickMode = 'endless'; this.renderSetup(); }); } }, [el('b', { text: 'Endlosflug' }), el('small', { text: 'Gewitterfront im Nacken' })]),
         el('div', { class: 'moderow' }, [
-          el('button', { class: 'mode chalm', onclick: () => { this.click(); this.renderChallenges(); this.show('challenges'); } }, [
+          el('button', { class: 'mode chalm', id: 'tChal', 'data-nav': 'challenges', onclick: () => { this.click(); this.go('challenges', () => this.renderChallenges()); } }, [
             el('b', { text: 'Herausforderungen' }),
             el('small', { text: this.chalDone() + ' von ' + CHALLENGES.length * 3 + ' Stufen geschafft' }),
           ]),
-          el('button', { class: 'mode shopm', onclick: openShop }, [el('b', { text: 'Laden' }), el('small', { html: U.fmtInt(sv.coins) + COIN })]),
+          el('button', { class: 'mode shopm', id: 'tShop', 'data-nav': 'shop', onclick: openShop }, [el('b', { text: 'Laden' }), el('small', { html: U.fmtInt(sv.coins) + COIN })]),
         ]),
       ]),
       el('div', { class: 'links' }, [
-        el('button', { id: 'tHangar', onclick: () => { this.click(); this.openGear('wings', () => this.toTitle()); } }, [el('span', { text: 'Hangar' })]),
-        el('button', { onclick: () => { this.click(); this.renderStats(); this.show('stats'); } }, [el('span', { text: 'Logbuch' })]),
-        el('button', { onclick: () => { this.click(); this.renderHelp(); this.show('help'); } }, [el('span', { text: 'Flugschule' })]),
-        el('button', { onclick: () => { this.click(); this.renderSettings(); this.show('settings'); } }, [el('span', { text: 'Optionen' })]),
+        el('button', { id: 'tHangar', 'data-nav': 'wings', onclick: () => { this.click(); this.openGear('wings'); } }, [el('span', { text: 'Hangar' })]),
+        el('button', { id: 'tStats', 'data-nav': 'stats', onclick: () => { this.click(); this.go('stats', () => this.renderStats()); } }, [el('span', { text: 'Logbuch' })]),
+        el('button', { id: 'tHelp', 'data-nav': 'help', onclick: () => { this.click(); this.go('help', () => this.renderHelp()); } }, [el('span', { text: 'Flugschule' })]),
+        el('button', { id: 'tSettings', 'data-nav': 'settings', onclick: () => { this.click(); this.go('settings', () => this.renderSettings()); } }, [el('span', { text: 'Optionen' })]),
       ]),
     ]));
   },
@@ -7373,9 +7787,9 @@ const UIScreens = {
     for (let i = 0; i < MISSIONS.length; i++) if (this.missionUnlocked(i) && !this.save.missions[MISSIONS[i].id]) return i;
     return null;
   },
-  /* Missionsliste öffnen und die nächste offene Mission in die Mitte rollen */
+  /* Missionsliste öffnen und die nächste offene Mission in die Mitte rollen (beim Zurückkommen bleibt die Stelle) */
   openMissions() {
-    this.renderMissions(); this.show('missions');
+    this.go('missions', () => this.renderMissions());
     const i = this.nextMission(), r = i != null && document.getElementById('mrow_' + MISSIONS[i].id);
     if (r && r.scrollIntoView) r.scrollIntoView({ block: 'center' });
   },
@@ -7399,7 +7813,7 @@ const UIScreens = {
       const tags = [];
       if (m.race) tags.push('Rennen'); if (m.events && m.events.eagle) tags.push('Adler'); if (m.events && m.events.storm) tags.push('Gewitter');
       if (m.objectives.some(o => o.type === 'photo')) tags.push('Foto'); if (m.startAGL) tags.push('Luftstart');
-      list.appendChild(el('button', { class: 'mrow' + (unlocked ? '' : ' locked') + (stars ? ' done' : ''), id: 'mrow_' + m.id, onclick: () => { if (!unlocked) { this.toast('Erst die vorherige Mission bestehen'); return; } this.click(); this.renderBrief(m); this.show('brief'); } }, [
+      list.appendChild(el('button', { class: 'mrow' + (unlocked ? '' : ' locked') + (stars ? ' done' : ''), id: 'mrow_' + m.id, 'data-nav': unlocked ? 'brief' : null, onclick: () => { if (!unlocked) { this.toast('Erst die vorherige Mission bestehen'); return; } this.click(); this.go('brief', () => this.renderBrief(m)); } }, [
         el('span', { class: 'mno', text: String(i + 1).padStart(2, '0') }),
         el('span', { class: 'mbody' }, [el('span', { class: 'mname', text: m.name }), el('span', { class: 'mtags', text: tags.join(' · ') })]),
         el('span', { class: 'stars', html: unlocked ? starStr(stars) : '<span class="lock">gesperrt</span>' }),
@@ -7408,7 +7822,7 @@ const UIScreens = {
     s.appendChild(el('div', { class: 'panel wide' }, [
       el('div', { class: 'eyebrow', text: 'Kampagne' }), el('h2', { text: 'Missionen' }),
       el('p', { text: 'Vom ersten Gleitflug bis zum FAI-Dreieck. Jede Mission bringt Erfahrung, die neue Schirme und Fluggebiete freischaltet.' }),
-      list, this._back(() => this.toTitle()),
+      list, this._back(),
     ]));
   },
 
@@ -7447,7 +7861,7 @@ const UIScreens = {
       starHint.length ? el('p', { class: 'small', text: starHint.join(' · ') }) : null,
       here.length ? el('div', { class: 'unlock quest-here', html: 'Aufträge hier nebenbei: <b>' + here.join('</b> · <b>') + '</b>' }) : null,
       el('div', { class: 'eyebrow', text: 'Schirm · ' + startTxt }),
-      this._wingCard(wing, { compact: true, onclick: fixed ? null : () => { this.click(); this.openGear('wings', () => { this.renderBrief(m); this.show('brief'); }, m); } }),
+      this._wingCard(wing, { compact: true, nav: fixed ? null : 'wings', onclick: fixed ? null : () => { this.click(); this.openGear('wings', { mission: m }); } }),
       fixed ? el('p', { class: 'small', text: 'Diese Mission fliegst du mit einem vorgegebenen Schirm.' }) : null,
       el('p', { class: 'small', text: 'Gurtzeug: ' + H.name + ' (' + H.special + ')' + (perks.length ? ' · Perks: ' + perks.map(id => PERK_BY_ID[id].name).join(', ') : '') }),
       el('button', { class: 'btn primary', id: 'btnGo', onclick: () => {
@@ -7455,7 +7869,7 @@ const UIScreens = {
         if (m.daily) this.startRun({ mode: 'daily', wingId: wing.id });
         else this.startRun({ mode: bonus ? 'bonus' : 'mission', missionId: m.id, mapId: m.map, wingId: wing.id });
       } }, [el('span', { text: 'Los geht’s' }), el('span', { class: 'meta', text: startTxt })]),
-      this._back(() => { if (m.daily) this.toTitle(); else if (bonus) { this.renderQuests(); this.show('quests'); } else this.openMissions(); }),
+      this._back(),
     ]));
   },
 
@@ -7463,7 +7877,7 @@ const UIScreens = {
   _wingCard(w, o) {
     o = o || {};
     const unlocked = this.wingUnlocked(w);
-    return el('div', { class: 'wcard' + (unlocked ? '' : ' locked') + (o.sel ? ' sel' : '') + (o.onclick ? ' tap' : ''), role: o.onclick ? 'button' : null, tabindex: o.onclick ? '0' : null, onclick: o.onclick || null }, [
+    return el('div', { class: 'wcard' + (unlocked ? '' : ' locked') + (o.sel ? ' sel' : '') + (o.onclick ? ' tap' : ''), role: o.onclick ? 'button' : null, tabindex: o.onclick ? '0' : null, 'data-nav': o.nav || null, onclick: o.onclick || null }, [
       el('div', { class: 'sw', html: wingSvg(w, this.currentDesign()) }),
       el('div', { class: 'wbody' }, [
         el('div', { class: 'whead' }, [el('span', { class: 'nm', text: w.name }), el('span', { class: 'cls', text: w.cls })]),
@@ -7475,44 +7889,68 @@ const UIScreens = {
     ]);
   },
   /* ---------------- Ausrüstung: Schirme, Gurtzeug, Werkstatt, Perks, Design ----------------
-     Die Reiter oben wechseln zwischen den Seiten, „Zurück“ und X führen dorthin, woher man kam (exit).
-     mission: aus dem Briefing geöffnet – einen Schirm antippen wählt ihn für diese Mission. */
-  openGear(tab, exit, mission) {
-    if (exit) { this._gearExit = exit; this._gearMission = mission || null; }
-    const m = this._gearMission;
-    if (tab === 'wings') this.renderWings(m);
+     openGear legt die Ausrüstung auf den Stapel. Die Reiter oben wechseln die Seite, ohne einen Rückweg anzulegen:
+     „Zurück“ und X führen dorthin, woher man in die Ausrüstung kam – auch über den Laden und wieder zurück.
+     ctx.mission: aus dem Briefing geöffnet – einen Schirm antippen wählt ihn für diese Mission.
+     Aus der Pause (flightPaused) gelten Werkstatt, Perks, Gurtzeug und Design beim Weiterfliegen. */
+  openGear(tab, ctx) { const c = Object.assign({ mission: null }, ctx); this.go(tab, () => this._drawGear(tab, c), { gear: c }); },
+  gearTab(tab) { const c = (this.page && this.page.gear) || { mission: null }; this.swap(tab, () => this._drawGear(tab, c), { gear: c }); },
+  _drawGear(tab, c) {
+    this._gear = c;
+    if (tab === 'wings') this.renderWings(c.mission);
     else if (tab === 'harness') this.renderHarness();
-    else if (tab === 'tune') this.renderTune(m && !m.wing ? this.briefWing : this.save.wing);
+    else if (tab === 'tune') this.renderTune(c.tuneWing || this._gearWing(c));
     else if (tab === 'perks') this.renderPerks();
     else this.renderDesigner();
-    this.show(tab);
+  },
+  /* Schirm, für den die Werkstatt aufgeht: im Briefing der gewählte, in der Pause der geflogene, sonst der eigene */
+  _gearWing(c) {
+    if (c && c.mission && !c.mission.wing) return this.briefWing;
+    if (this.flightPaused && this.game.cfg) return this.game.cfg.wingId;
+    return this.save.wing;
   },
   _gearTabs(active) {
     return el('div', { class: 'geartabs', role: 'tablist', 'aria-label': 'Ausrüstung' }, GEAR_TABS.map(([k, t]) => el('button', {
       class: k === active ? 'on' : '', role: 'tab', id: 'gt_' + k, 'aria-selected': String(k === active), text: t,
-      onclick: () => { if (k === active) return; this.click(); this.openGear(k); } })));
+      onclick: () => { if (k === active) return; this.click(); this.gearTab(k); } })));
   },
-  _gearBack() { return this._back(() => (this._gearExit || (() => this.toTitle()))()); },
+  _gearBack() { return this._back(); },
+  /* Hinweis in der Ausrüstung, wenn sie aus der Pause geöffnet ist */
+  _pauseNote() {
+    if (!this.flightPaused) return null;
+    return el('div', { class: 'unlock quest-here', html: 'Flug pausiert: Werkstatt, Trimmer, Perks, Gurtzeug und Design gelten <b>beim Weiterfliegen</b>. Ein anderer Schirm gilt ab „Neu starten“.' });
+  },
+  /* Pause → Ausrüstung → anderer Schirm: gilt ab „Neu starten“ (in der Luft bleibt der Schirm) */
+  _pauseWing(w) {
+    const g = this.game, m = g.mission;
+    if (m && m.wing) { this.toast('Diese Mission fliegst du mit dem ' + WING_BY_ID[m.wing].name); return; }
+    if (this.lastCfg) this.lastCfg.wingId = w.id;
+    if (m) { this.briefWing = w.id; this.briefFor = m.id; }
+    this.toast(w.id === g.cfg.wingId ? 'Diesen Schirm fliegst du gerade' : w.name + ' gilt ab „Neu starten“');
+  },
 
   renderWings(mission) {
     const s = this.screens.wings; s.innerHTML = '';
-    const cards = el('div', { class: 'cards' });
-    const selId = mission ? this.briefWing : this.save.wing, backHere = () => this.openGear('wings');
+    const cards = el('div', { class: 'cards' }), paused = !mission && this.flightPaused;
+    const selId = mission ? this.briefWing : (paused && this.lastCfg ? this.lastCfg.wingId : this.save.wing);
     for (const w of WINGS) {
       const unlocked = this.wingUnlocked(w);
       cards.appendChild(this._wingCard(w, { sel: w.id === selId, onclick: () => {
         if (!unlocked) { this.toast('Gesperrt: ' + U.fmtInt(w.unlockXP) + ' XP nötig – oder im Laden kaufen'); return; }
         this.click();
-        if (mission) { this.briefWing = w.id; this.renderBrief(mission); this.show('brief'); }
-        else { this.save.wing = w.id; this.store(); this.renderWings(null); }
+        if (mission) { this.briefWing = w.id; this.back(); return; }              // gewählt: zurück ins Briefing
+        this.save.wing = w.id; this.store();
+        if (paused) this._pauseWing(w);
+        this._keepScroll(s, () => this.renderWings(null));
       } }));
     }
     s.appendChild(el('div', { class: 'panel wide' }, [
       el('div', { class: 'eyebrow', text: mission ? 'Schirm für ' + mission.name : 'Ausrüstung' }), el('h2', { text: 'Hangar' }),
       this._gearTabs('wings'),
+      this._pauseNote(),
       el('p', { text: 'Je höher die Klasse, desto besser Gleiten und Tempo – und desto nervöser der Schirm in Turbulenz. Der Tandem zählt jede Wertung 1,5-fach. Grün in den Balken: was Werkstatt, Perks und Gurtzeug dazugeben.' }),
       cards,
-      el('button', { class: 'btn', id: 'hgShop', onclick: () => { this.click(); this.renderShop(backHere); this.show('shop'); } }, [
+      el('button', { class: 'btn', id: 'hgShop', 'data-nav': 'shop', onclick: () => { this.click(); this.go('shop', () => this.renderShop()); } }, [
         el('span', { text: 'Laden · Designs und Schirme' }), el('span', { class: 'meta', html: COIN + U.fmtInt(this.save.coins) }),
       ]),
       this._gearBack(),
@@ -7541,9 +7979,9 @@ const UIScreens = {
       el('div', { class: 'eyebrow', text: 'Fluggebiet' }), maps,
       here.length ? el('div', { class: 'unlock quest-here', html: 'Aufträge in ' + map.name + ': <b>' + here.join('</b> · <b>') + '</b>' }) : null,
       el('div', { class: 'eyebrow', text: 'Schirm' }),
-      this._wingCard(wing, { compact: true, onclick: () => { this.click(); this.openGear('wings', () => { this.renderSetup(); this.show('setup'); }); } }),
+      this._wingCard(wing, { compact: true, nav: 'wings', onclick: () => { this.click(); this.openGear('wings'); } }),
       el('button', { class: 'btn primary', onclick: () => { this.click(); this.startRun({ mode, mapId: this.save.map, wingId: this.save.wing }); } }, [el('span', { text: 'Abheben' }), el('span', { class: 'meta', text: map.name })]),
-      this._back(() => this.toTitle()),
+      this._back(),
     ]));
   },
 
@@ -7553,7 +7991,6 @@ const UIScreens = {
     const set = this.save.set;
     const seg = (id, opts, val, cb) => el('div', { class: 'seg', role: 'group', id }, opts.map(o => el('button', { class: o[0] === val ? 'on' : '', text: o[1], onclick: () => { this.click(); cb(o[0]); } })));
     const row = (label, sub, ctrl) => el('div', { class: 'setting' }, [el('div', {}, [el('div', { class: 'sl', text: label }), sub ? el('small', { text: sub }) : null]), ctrl]);
-    const back = () => { if (this._fromPause) { this._fromPause = false; this.renderPause(); this.show('pause'); } else this.toTitle(); };
     s.appendChild(el('div', { class: 'panel' }, [
       el('div', { class: 'eyebrow', text: 'Optionen' }), el('h2', { text: 'Einstellungen' }),
       el('div', { class: 'eyebrow', text: 'Steuerung' }),
@@ -7565,6 +8002,8 @@ const UIScreens = {
         el('div', {}, [el('div', { class: 'sl', text: 'Größe der Leinen' }), el('small', { text: 'Griffe, Leinen und Ring am Daumen auf dem Bildschirm.' })]),
         seg('setBrakeSz', [['s', 'Klein'], ['m', 'Normal'], ['l', 'Groß'], ['xl', 'Riesig']], set.brake.size, (v) => { set.brake.size = v; this.applyBrake(); this.store(); this.renderSettings(); }),
       ]),
+      row('Raste unten', 'Im letzten Stück vor 100 % rastet die Bremse ein: loslassen, und sie bleibt gezogen – etwa für einen Strömungsabriss ohne Finger. Lösen: Daumen auflegen und nach oben schieben.',
+        seg('setLock', [[true, 'An'], [false, 'Aus']], set.brake.lock !== false, (v) => { set.brake.lock = v; this.applyBrake(); this.store(); this.renderSettings(); })),
       this._brakeTest(),
       row('Gewichtsverlagerung', 'Handy kippen verlagert dein Gewicht und hilft beim Kurven.', seg('setTilt', [[true, 'An'], [false, 'Aus']], set.tiltWS, async (v) => {
         if (v && !this.input.tiltAvailable) {
@@ -7598,7 +8037,7 @@ const UIScreens = {
         })),
       ]),
       row('Anordnen', 'Anzeigen mit dem Finger an ihren Platz ziehen.', el('div', { class: 'btnpair' }, [
-        el('button', { class: 'minibtn', id: 'setMove', text: 'Verschieben', onclick: () => { this.click(); const fp = this._fromPause; this.editHud(() => { this._fromPause = fp; this.renderSettings(); this.show('settings'); }); } }),
+        el('button', { class: 'minibtn', id: 'setMove', text: 'Verschieben', onclick: () => { this.click(); this.editHud(() => this.redraw()); } }),
         el('button', { class: 'minibtn', text: 'Zurücksetzen', onclick: () => { this.click(); set.hud = HUD_DEFAULT(); this.store(); this.applyHudLayout(); this.renderSettings(); this.toast('Cockpit wie am Anfang'); } }),
       ])),
       el('div', { class: 'eyebrow', text: 'Ton und Hilfen' }),
@@ -7612,39 +8051,52 @@ const UIScreens = {
       el('p', { class: 'small', id: 'buildInfo', text: 'Spielversion: ' + (window.AUFWIND_BUILD || 'Entwicklungsfassung') }),
       el('p', { class: 'small', text: 'Kartendaten ' + Object.values(GELAENDE).map(g => g.name).join(', ') + ' – ' + Object.values(GELAENDE)[0].src }),
       typeof LUFTBILD !== 'undefined' ? el('p', { class: 'small', text: 'Luftbilder: ' + Object.keys(LUFTBILD).map(k => (GELAENDE[k] ? GELAENDE[k].name : k) + ': ' + LUFTBILD[k].quelle).join(' – ') }) : null,
-      this._back(back),
+      this._back(),
     ]));
   },
 
-  /* Probierfeld für die Bremsleinen: Daumen auflegen und ziehen, die Leine zeigt Länge und Bremsstärke */
+  /* Probierfeld für die Bremsleinen: Daumen auflegen und ziehen, die Leine zeigt Länge und Bremsstärke.
+     Mit Raste: in der Raste loslassen lässt die Leine gezogen, der nächste Daumen greift sie dort. */
   _brakeTest() {
     const box = el('div', { class: 'brakeTest', id: 'brakeTest' }, [
       el('span', { class: 'bt-hint', text: 'Hier ausprobieren: Daumen auflegen und nach unten ziehen' }),
-      el('div', { class: 'thumb bt', id: 'brakeTestT', hidden: 'hidden' }, [el('div', { class: 'guide' }), el('div', { class: 'end' }), el('div', { class: 'ring' }), el('div', { class: 'cord' }), el('div', { class: 'knob' }), el('b', { class: 'bt-pc', text: '0 %' })]),
+      el('div', { class: 'thumb bt', id: 'brakeTestT', hidden: 'hidden' }, [el('div', { class: 'guide' }), el('div', { class: 'zone' }), el('div', { class: 'end' }), el('div', { class: 'ring' }), el('div', { class: 'cord' }), el('div', { class: 'knob' }), el('b', { class: 'bt-pc', text: '0 %' })]),
     ]);
     let p = null;
     const move = (e) => { if (!p) return; p.y = e.clientY; if (p.y < p.y0) p.y0 = p.y; this._brakeTestDraw(); };
     box.addEventListener('pointerdown', (e) => {
-      const r = box.getBoundingClientRect(); p = this._bt = { x0: e.clientX - r.left, y0: e.clientY, y: e.clientY, top: r.top };
+      const r = box.getBoundingClientRect(), L = this._btLock;
+      // eingerastet: der Daumen greift die Leine dort, wo sie steht
+      p = this._bt = L ? { x0: L.x0, y0: e.clientY - L.a * this.save.set.brake.len, y: e.clientY, top: r.top } : { x0: e.clientX - r.left, y0: e.clientY, y: e.clientY, top: r.top };
+      this._btLock = null;
       try { box.setPointerCapture(e.pointerId); } catch (_) {}
       this._brakeTestDraw(); e.preventDefault();
     });
     box.addEventListener('pointermove', move);
-    const end = () => { p = this._bt = null; this._brakeTestDraw(); };
+    const end = () => {
+      const len = this.save.set.brake.len, a = p ? U.clamp(p.y - p.y0, 0, len) / len : 0;
+      if (p && this.save.set.brake.lock !== false && a >= BRAKE_LOCK) { this._btLock = { a, x0: p.x0, y0: p.y0, top: p.top }; this.audio.latch(true); }
+      p = this._bt = null; this._brakeTestDraw();
+    };
     box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
     box.style.height = Math.min(420, this.save.set.brake.len + 90) + 'px';
+    this._btLock = null;
     return box;
   },
   _brakeTestDraw() {
     const t = this.$('brakeTestT'); if (!t) return;
     t.parentNode.style.height = Math.min(420, this.save.set.brake.len + 90) + 'px';     // Platz für die ganze Leine
-    const p = this._bt; if (!p) { t.hidden = true; return; }
-    const len = this.save.set.brake.len, dy = U.clamp(p.y - p.y0, 0, len), a = dy / len;
+    const L = this._btLock, p = this._bt || (L ? { x0: L.x0, y0: L.y0, y: L.y0 + L.a * this.save.set.brake.len, top: L.top } : null);
+    if (!p) { t.hidden = true; return; }
+    const len = this.save.set.brake.len, dy = U.clamp(p.y - p.y0, 0, len), a = dy / len, lockOn = this.save.set.brake.lock !== false;
     t.hidden = false; t.style.left = p.x0 + 'px'; t.style.top = (p.y0 - p.top) + 'px';
     t.querySelector('.guide').style.height = len + 'px'; t.querySelector('.end').style.top = len + 'px';
+    const z = t.querySelector('.zone'); z.hidden = !lockOn; z.style.top = (len * BRAKE_LOCK) + 'px'; z.style.height = (len * (1 - BRAKE_LOCK)) + 'px';
     t.querySelector('.cord').style.height = dy + 'px'; t.querySelector('.knob').style.transform = `translate(-50%, ${dy}px)`;
-    const pc = t.querySelector('.bt-pc'); pc.textContent = Math.round(a * 100) + ' %'; pc.style.transform = `translate(${Math.round(20 * (BRAKE_SIZES[this.save.set.brake.size] || 1))}px, ${dy - 8}px)`;
-    t.classList.toggle('deep', a > 0.85);
+    const pc = t.querySelector('.bt-pc');
+    pc.textContent = Math.round(a * 100) + ' %' + (L ? ' · eingerastet – zum Lösen auflegen und hochschieben' : (lockOn && a >= BRAKE_LOCK ? ' · Raste' : ''));
+    pc.style.transform = `translate(${Math.round(20 * (BRAKE_SIZES[this.save.set.brake.size] || 1))}px, ${dy - 8}px)`;
+    t.classList.toggle('deep', a > 0.85); t.classList.toggle('latch', lockOn && a >= BRAKE_LOCK);
   },
 
   /* ---------------- Logbuch ---------------- */
@@ -7675,7 +8127,7 @@ const UIScreens = {
         try { localStorage.removeItem(SAVE_KEY); localStorage.removeItem('aufwind.save.v2'); } catch (e) { /* egal */ }
         this.save = this.load(); this.applySettings(); this.toTitle();
       } }, [el('span', { text: 'Fortschritt löschen' })]),
-      this._back(() => this.toTitle()),
+      this._back(),
     ]));
   },
 
@@ -7698,7 +8150,9 @@ const UIScreens = {
       el('p', { html: '<b>Zwei Bremsen.</b> Die linke Bildschirmhälfte ist die linke Bremse, die rechte Hälfte die rechte. Daumen auflegen und nach unten ziehen – je weiter, desto mehr Bremse. Eine Bremse ziehen fliegt eine Kurve zu dieser Seite, beide zusammen machen den Schirm langsamer und senken das Sinken.' }),
       el('p', { html: '<b>Kurbeln.</b> In der Thermik eine Bremse etwa halb halten, dann kreist der Schirm gleichmäßig. Wird das Piepen schwächer, bist du aus dem Kern – Kurve kurz öffnen und wieder eindrehen. Auf der Karte siehst du die Bärte und deine grüne Steigspur.' }),
       el('p', { html: '<b>Die Karte.</b> Oben links, in Flugrichtung gedreht. Der blaue Keil am Rand zeigt, woher der Wind kommt, das weiße X ist der Landeplatz. Der Bogen links am Rand ist ein Vario: grün nach oben heißt Steigen. Antippen wechselt den Zoom.' }),
-      el('p', { html: '<b>Gefahren.</b> Beide Bremsen lange voll gezogen reißt die Strömung ab: sofort loslassen. Eine Bremse tief bei langsamer Fahrt bringt dich ins Trudeln: ebenfalls loslassen. Klappt eine Seite ein, zieh die Bremse auf der offenen Seite etwa halb. Leicht angebremst zu fliegen hält den Schirm in Turbulenz stabil.' }),
+      el('p', { html: '<b>Klapper abfangen.</b> In Turbulenz kündigt sich ein Klapper an: Eine Flügelspitze flattert, es raschelt, und der Bremsbalken dieser Seite blinkt rot. Jetzt auf dieser Seite kurz kräftig anbremsen (über die Hälfte) – dann hält der Schirm. Wer zu spät oder nur halb bremst, bekommt einen kleineren Klapper. Klappt eine Seite doch ein, zieh die Bremse auf der offenen Seite etwa halb. Leicht angebremst zu fliegen hält den Schirm ohnehin ruhiger.' }),
+      el('p', { html: '<b>Gefahren.</b> Beide Bremsen lange voll gezogen reißt die Strömung ab: loslassen, am besten gleichmäßig. Eine Bremse tief bei langsamer Fahrt bringt dich ins Trudeln: ebenfalls loslassen.' }),
+      el('p', { html: '<b>Raste.</b> Das letzte Stück vor 100 % ist eine Raste (schraffiert). Lässt du dort los, bleibt die Bremse gezogen – beide eingerastet halten einen Strömungsabriss, eine allein fliegt eine enge Kurve. Zum Lösen den Daumen auf die Seite legen: Er greift die Bremse unten, nach oben schieben lässt sie nach. Abschalten unter Optionen → Raste unten.' }),
       el('p', { html: '<b>Steilspirale und Ohren.</b> Eine Bremse tief und über 55° Querlage halten ergibt eine Spirale mit mehr als 10 m/s Sinken. Der Ohren-Knopf unten in der Mitte (gehalten) faltet die Flügelenden ein und bringt gut 2 m/s mehr Sinken – der sichere Weg nach unten. Rechts daneben sitzt der Beschleuniger.' }),
       el('p', { html: '<b>Zeitraffer.</b> Unten neben dem Beschleuniger: 1×, 3×, 6×, 10× oder 20× (Stufen in Optionen → Cockpit wählbar). Er geht in jeder Mission ab 80 m über Grund und schaltet sich bei Gefahr und in Bodennähe von selbst zurück. Die Lenkung wird dabei sanfter: kleine Daumenbewegungen wirken schwächer, volle Bremse bleibt voll (Optionen → Lenkung im Zeitraffer).' }),
       el('p', { html: '<b>Aufträge.</b> Auf dem Auftragsbrett stehen jeden Tag drei kleine Aufträge, jeder in einem Fluggebiet: Post oder Proviant abwerfen (tief über das Ziel, unter 150 m über Grund), Luftballons einsammeln, durch Ringe fliegen, einen vermissten Wanderer finden oder einen Flugwert schaffen. Fliegst du dort – Streckenflug, Mission, Tagesaufgabe oder Endlosflug –, stehen die Ziele in der Welt und auf der Karte. Alle drei an einem Tag bringen eine Tagesprämie.' }),
@@ -7708,7 +8162,7 @@ const UIScreens = {
       el('p', { html: '<b>Wolken sind tabu.</b> Unter der Basis saugt es weiter hoch. Wer in die Wolke fliegt, verliert die Sicht und den Flug.' }),
       el('div', { class: 'eyebrow', text: 'Am Rechner' }),
       el('p', { html: '<kbd>←</kbd> <kbd>→</kbd> linke und rechte Bremse · <kbd>↓</kbd> beide · <kbd>Umschalt</kbd> voll durchziehen · <kbd>↑</kbd> oder <kbd>Leertaste</kbd> Beschleuniger · <kbd>E</kbd> Ohren · <kbd>U</kbd> aufziehen, <kbd>J</kbd> Schritt, <kbd>H</kbd> hinsetzen · <kbd>Enter</kbd> automatisch starten · <kbd>P</kbd> Pause' }),
-      this._back(() => this.toTitle()),
+      this._back(),
     ]));
   },
 
@@ -7731,18 +8185,19 @@ const UIScreens = {
         el('button', { class: 'btn', onclick: () => { this.click(); this.startRun(this.lastCfg); } }, [el('span', { text: 'Neu starten' })]),
         el('button', { class: 'btn', id: 'btnQuit', onclick: () => { this.click(); this.game.stop(); this.toTitle(); } }, [el('span', { text: 'Hauptmenü' })]),
       ]),
+      el('button', { class: 'btn', id: 'btnGear', 'data-nav': 'wings', onclick: () => { this.click(); this.openGear('wings'); } }, [el('span', { text: 'Ausrüstung' }), el('span', { class: 'meta', text: 'Schirm, Werkstatt, Perks, Gurtzeug' })]),
       el('div', { class: 'row' }, [
-        el('button', { class: 'btn', onclick: () => { this.click(); this._fromPause = true; this.renderSettings(); this.show('settings'); } }, [el('span', { text: 'Einstellungen' })]),
-        el('button', { class: 'btn', onclick: () => { this.click(); this.editHud(() => { this.renderPause(); this.show('pause'); }); } }, [el('span', { text: 'Cockpit' })]),
+        el('button', { class: 'btn', id: 'btnPauseSet', 'data-nav': 'settings', onclick: () => { this.click(); this.go('settings', () => this.renderSettings()); } }, [el('span', { text: 'Einstellungen' })]),
+        el('button', { class: 'btn', id: 'btnPauseHud', onclick: () => { this.click(); this.editHud(() => this.redraw()); } }, [el('span', { text: 'Cockpit' })]),
       ]),
-      el('p', { class: 'small', text: 'Hauptmenü bricht den Flug ab, er wird nicht gewertet.' }),
+      el('p', { class: 'small', text: 'Ausrüstung gilt beim Weiterfliegen. Hauptmenü bricht den Flug ab, er wird nicht gewertet.' }),
     ]));
   },
 
   /* ---------------- Ergebnis ---------------- */
   renderResult(r) {
     const s = this.screens.result; s.innerHTML = '';
-    const good = r.success, gained = this._applyResult(r);
+    const good = r.success, gained = r._gained || (r._gained = this._applyResult(r));   // nur einmal gutschreiben
     let head, sub = r.msg;
     const ml = r.mode === 'mission' || r.mode === 'daily' || r.mode === 'bonus';
     if (ml) head = good ? 'Geschafft' : 'Nicht geschafft';
@@ -7760,6 +8215,7 @@ const UIScreens = {
       el('div', {}, [el('div', { class: 'k', text: 'Höhengewinn' }), el('div', { class: 'v', text: U.fmtInt(r.climbTotal) + ' m' })]),
       el('div', {}, [el('div', { class: 'k', text: r.kind === 'landed' ? 'Landung' : 'Klapper' }), el('div', { class: 'v', text: r.kind === 'landed' ? U.fmtInt(r.landDist) + ' m vom X' : String(r.collapses) })]),
     ]);
+    const caughtTxt = r.caught ? r.caught + ' Klapper abgefangen' + (r.collapses ? ', ' + r.collapses + ' eingeklappt' : ', keiner eingeklappt') : null;
     const parts = [
       el('div', { class: 'result ' + (good ? 'good' : 'bad') }, [
         el('div', { class: 'eyebrow', text: (r.missionName ? r.missionName + ' · ' : '') + MAP_BY_ID[r.mapId].name + ' · ' + WING_BY_ID[r.wingId].name }),
@@ -7770,6 +8226,7 @@ const UIScreens = {
       el('div', { class: 'chartbox' }, [el('div', { class: 'ctitle', text: 'Barogramm' }), baro, el('div', { class: 'ctip', id: 'baroTip', hidden: 'hidden' })]),
       el('div', { class: 'chartbox' }, [el('div', { class: 'ctitle', text: 'Flugspur' }), trk, el('div', { class: 'legend' }, [el('span', { class: 'lg climb', text: 'Steigen' }), el('span', { class: 'lg glide', text: 'Gleiten' }), el('span', { class: 'lg sink', text: 'starkes Sinken' })])]),
       grid,
+      caughtTxt ? el('p', { class: 'small', id: 'resCaught', text: caughtTxt }) : null,
       el('div', { class: 'gain' }, [el('b', { text: '+' + U.fmtInt(gained.xp) + ' XP' }), el('b', { class: 'gcoins', html: '+' + U.fmtInt(gained.coins) + COIN }), el('span', { text: LEVELS[this.level()].name })]),
     ];
     for (const t of gained.extra) parts.push(el('div', { class: 'unlock quest-new', html: t }));
@@ -7778,19 +8235,21 @@ const UIScreens = {
     for (const u of gained.unlocks) parts.push(el('div', { class: 'unlock', html: u }));
     parts.push(el('div', { class: 'row' }, [
       el('button', { class: 'btn primary', onclick: () => { this.click(); this.startRun(this.lastCfg); } }, [el('span', { text: 'Nochmal' })]),
-      el('button', { class: 'btn', onclick: () => {
+      el('button', { class: 'btn', id: 'btnResNext', onclick: () => {
+        // Neuer Stapel mit dem Titel darunter: „Zurück“ führt von dort über die Liste ins Hauptmenü
         this.click();
-        if (r.mode === 'mission') {
-          const i = MISSIONS.findIndex(x => x.id === r.missionId);
-          if (good && i + 1 < MISSIONS.length && this.missionUnlocked(i + 1)) { this.renderBrief(MISSIONS[i + 1]); this.show('brief'); return; }
-          this.renderMissions(); this.show('missions');
-        } else if (r.mode === 'daily') this.toTitle();
-        else if (r.mode === 'bonus') { this.renderQuests(); this.show('quests'); }
-        else { this.renderSetup(); this.show('setup'); }
+        const T = this.titlePage(), mode = r.mode;
+        if (mode === 'mission') {
+          const i = MISSIONS.findIndex(x => x.id === r.missionId), L = { name: 'missions', draw: () => this.renderMissions() };
+          if (good && i + 1 < MISSIONS.length && this.missionUnlocked(i + 1)) { const nm = MISSIONS[i + 1]; this.newStack('brief', () => this.renderBrief(nm), [T, L]); return; }
+          this.newStack('missions', () => this.renderMissions(), [T]);
+        } else if (mode === 'daily') this.toTitle();
+        else if (mode === 'bonus') this.newStack('quests', () => this.renderQuests(), [T]);
+        else this.newStack('setup', () => { this.pickMode = mode; this.renderSetup(); }, [T]);
       } }, [el('span', { text: r.mode === 'mission' && good ? 'Nächste Mission' : 'Auswahl' })]),
     ]));
-    parts.push(this._back(() => { this.game.stop(); this.toTitle(); }, 'Hauptmenü'));
-    s.appendChild(el('div', { class: 'panel' }, parts));
+    parts.push(this._back('Hauptmenü'));
+    s.appendChild(el('div', { class: 'panel' }, parts.filter(Boolean)));
     requestAnimationFrame(() => { this.drawBarogram(baro, r); this.drawTrack(trk, r); });
   },
 
@@ -7994,7 +8453,7 @@ const UIProgress = {
       v = Math.round(v * 10) / 10;
       const o = sv.chal.b[id]; if (o == null || (low ? v < o : v > o)) sv.chal.b[id] = v;
     };
-    add('ohren', ch.ohren); add('kreise', ch.kreise); add('spirale', ch.spirale); add('klapper', r.recovered);
+    add('ohren', ch.ohren); add('kreise', ch.kreise); add('spirale', ch.spirale); add('klapper', r.recovered); add('abfangen', r.caught);
     add('butter', r.landQ === 'perfekt' ? 1 : 0); add('baerte', r.thermals); add('kuehe', ch.kuehe); add('fotos', ch.fotos);
     add('adler', r.eagleMiss); add('rennen', r.race && r.race.place === 1 && r.success ? 1 : 0); add('tage', firstDaily ? 1 : 0); add('auftraege', quests || 0);
     best('acht', ch.acht, true); if (r.kind === 'landed') best('punkt', r.landDist, true);
@@ -8030,7 +8489,7 @@ const UIProgress = {
     const R = g.chRun, p = g.pilot;
     switch (id) {
       case 'acht': return R.acht; case 'ohren': return R.ohren; case 'kreise': return R.kreise; case 'spirale': return R.spirale;
-      case 'kuehe': return R.kuehe; case 'fotos': return R.fotos; case 'klapper': return g.flags.recovered; case 'adler': return g.flags.eagleMiss;
+      case 'kuehe': return R.kuehe; case 'fotos': return R.fotos; case 'klapper': return g.flags.recovered; case 'abfangen': return g.flags.caught; case 'adler': return g.flags.eagleMiss;
       case 'baerte': return g.doneThermals.size; case 'hm': return g.climbTotal; case 'hoch': return p.stats.maxAlt;
       case 'km': return p.stats.dist / 1000; case 'weit': return g.maxDist / 1000; case 'dauer': return g.t / 60; case 'zeit': return g.t / 3600;
       case 'endlos': return g.mode === 'endless' ? g.score : null;
@@ -8047,7 +8506,7 @@ const UIProgress = {
       el('div', { class: 'eyebrow', text: 'Über alle Flüge' }), el('h2', { text: 'Herausforderungen' }),
       el('div', { class: 'chsum' }, [
         el('div', {}, [el('b', { class: 'num', text: this.chalDone() + ' / ' + total }), el('span', { text: ' Stufen' })]),
-        el('button', { class: 'coinchip', html: COIN + U.fmtInt(sv.coins), 'aria-label': 'Zum Laden', onclick: () => { this.click(); this.renderShop(() => { this.renderChallenges(); this.show('challenges'); }); this.show('shop'); } }),
+        el('button', { class: 'coinchip', id: 'chShop', 'data-nav': 'shop', html: COIN + U.fmtInt(sv.coins), 'aria-label': 'Zum Laden', onclick: () => { this.click(); this.go('shop', () => this.renderShop()); } }),
       ]),
       el('p', { class: 'small', text: 'Jede Stufe bringt Münzen und Erfahrung – Bronze 30 Münzen und 15 XP, Silber 80 und 40, Gold 200 und 100. Münzen gibst du im Laden aus.' }),
     ];
@@ -8057,7 +8516,7 @@ const UIProgress = {
       if (c.cat !== cat) { cat = c.cat; parts.push(el('div', { class: 'eyebrow', text: cat })); }
       parts.push(this._chalRow(c));
     }
-    parts.push(this._back(() => this.toTitle()));
+    parts.push(this._back());
     s.appendChild(el('div', { class: 'panel wide' }, parts));
   },
   _chalRow(c) {
@@ -8079,16 +8538,16 @@ const UIProgress = {
     ]);
   },
 
-  /* ---------------- Laden ---------------- */
-  renderShop(back) {
-    if (back) this._shopBack = back;
+  /* ---------------- Laden ----------------
+     Werkstatt, Perks, Gurtzeug und Design öffnen die Ausrüstung obenauf: „Zurück“ führt wieder in den Laden. */
+  renderShop() {
     const s = this.screens.shop, sv = this.save, wing = WING_BY_ID[sv.wing] || WINGS[0]; s.innerHTML = '';
-    const cur = this.currentDesign(), backShop = () => { this.renderShop(); this.show('shop'); }, gear = (tab) => { this.click(); this.openGear(tab, backShop); };
+    const cur = this.currentDesign(), gear = (tab) => { this.click(); this.openGear(tab); }, rer = () => this._keepScroll(s, () => this.renderShop());
     const designs = el('div', { class: 'dgrid' });
     designs.appendChild(el('div', { class: 'dcard' + (cur.id === 'eigen' ? ' sel' : '') }, [
       el('div', { class: 'sw', html: wingSvg(wing, this.customDesign()) }),
       el('div', { class: 'dn', text: 'Eigenes Design' }), el('div', { class: 'dd', text: 'Muster und Farben selbst zusammenstellen.' }),
-      el('button', { class: 'buy own', id: 'shopDesigner', text: cur.id === 'eigen' ? 'Bearbeiten' : 'Gestalten', onclick: () => gear('designer') }),
+      el('button', { class: 'buy own', id: 'shopDesigner', 'data-nav': 'designer', text: cur.id === 'eigen' ? 'Bearbeiten' : 'Gestalten', onclick: () => gear('designer') }),
     ]));
     for (const d of DESIGNS) {
       const have = this.designAvailable(d), active = cur.id === d.id;
@@ -8096,8 +8555,8 @@ const UIProgress = {
         el('div', { class: 'sw', html: wingSvg(wing, d) }),
         el('div', { class: 'dn', text: d.name }), el('div', { class: 'dd', text: d.desc }),
         active ? el('span', { class: 'buy on', text: 'Aktiv' })
-          : have ? el('button', { class: 'buy own', text: 'Wählen', onclick: () => { this.click(); sv.design = d.id; this.store(); this.renderShop(); } })
-            : this._buyBtn(d.price, () => { sv.owned.designs[d.id] = 1; sv.design = d.id; }),
+          : have ? el('button', { class: 'buy own', text: 'Wählen', onclick: () => { this.click(); sv.design = d.id; this.store(); rer(); } })
+            : this._buyBtn(d.price, () => { sv.owned.designs[d.id] = 1; sv.design = d.id; }, rer),
       ]));
     }
     const lockedWings = WINGS.filter(w => !this.wingUnlocked(w)), lockedMaps = MAPS.filter(m => !this.mapUnlocked(m));
@@ -8109,26 +8568,25 @@ const UIProgress = {
       this.testMode ? el('div', { class: 'unlock', text: 'Testmodus ist an: Schirme, Gebiete und Designs sind schon alle frei.' }) : null,
       el('div', { class: 'eyebrow', text: 'Ausrüstung verbessern' }),
       el('div', { class: 'trio' }, [
-        el('button', { class: 'mode', id: 'shopTune', onclick: () => gear('tune') }, [el('b', { text: 'Werkstatt' }), el('small', { text: 'Tuning, Trimmer' })]),
-        el('button', { class: 'mode', id: 'shopPerks', onclick: () => gear('perks') }, [el('b', { text: 'Perks' }), el('small', { text: this.activePerks().length + ' von ' + this.perkSlots() + ' aktiv' })]),
-        el('button', { class: 'mode', id: 'shopHarness', onclick: () => gear('harness') }, [el('b', { text: 'Gurtzeug' }), el('small', { text: this.currentHarness().name })]),
+        el('button', { class: 'mode', id: 'shopTune', 'data-nav': 'tune', onclick: () => gear('tune') }, [el('b', { text: 'Werkstatt' }), el('small', { text: 'Tuning, Trimmer' })]),
+        el('button', { class: 'mode', id: 'shopPerks', 'data-nav': 'perks', onclick: () => gear('perks') }, [el('b', { text: 'Perks' }), el('small', { text: this.activePerks().length + ' von ' + this.perkSlots() + ' aktiv' })]),
+        el('button', { class: 'mode', id: 'shopHarness', 'data-nav': 'harness', onclick: () => gear('harness') }, [el('b', { text: 'Gurtzeug' }), el('small', { text: this.currentHarness().name })]),
       ]),
       el('div', { class: 'eyebrow', text: 'Kappen-Designs · für jeden Schirm' }), designs,
       el('div', { class: 'eyebrow', text: 'Schirme früher freischalten' }),
-      lockedWings.length ? el('div', { class: 'cards' }, lockedWings.map(w => item(el('span', { class: 'sw small', html: wingSvg(w, cur) }), w.name + ' · ' + w.cls, 'Sonst ab ' + U.fmtInt(w.unlockXP) + ' XP', this._buyBtn(w.price, () => { sv.owned.wings[w.id] = 1; }))))
+      lockedWings.length ? el('div', { class: 'cards' }, lockedWings.map(w => item(el('span', { class: 'sw small', html: wingSvg(w, cur) }), w.name + ' · ' + w.cls, 'Sonst ab ' + U.fmtInt(w.unlockXP) + ' XP', this._buyBtn(w.price, () => { sv.owned.wings[w.id] = 1; }, rer))))
         : el('p', { class: 'small', text: 'Alle Schirme sind frei.' }),
       el('div', { class: 'eyebrow', text: 'Fluggebiete früher freischalten' }),
-      lockedMaps.length ? el('div', { class: 'cards' }, lockedMaps.map(m => item(el('span', { class: 'swatch', style: `--rc:${U.hex(m.palette.grass)};--rs:${U.hex(m.sky.top)}` }), m.name + ' · ' + m.region, 'Sonst ab ' + U.fmtInt(m.unlockXP) + ' XP', this._buyBtn(m.price, () => { sv.owned.maps[m.id] = 1; }))))
+      lockedMaps.length ? el('div', { class: 'cards' }, lockedMaps.map(m => item(el('span', { class: 'swatch', style: `--rc:${U.hex(m.palette.grass)};--rs:${U.hex(m.sky.top)}` }), m.name + ' · ' + m.region, 'Sonst ab ' + U.fmtInt(m.unlockXP) + ' XP', this._buyBtn(m.price, () => { sv.owned.maps[m.id] = 1; }, rer))))
         : el('p', { class: 'small', text: 'Alle Fluggebiete sind frei.' }),
-      this._back(() => (this._shopBack || (() => this.toTitle()))()),
+      this._back(),
     ]));
   },
   /* Seite neu aufbauen, ohne dass sie nach oben springt */
   _keepScroll(s, fn) { const st = s.scrollTop; fn(); s.scrollTop = st; },
 
   /* ---------------- Werkstatt: Verbesserungen und Trimmer je Schirm ---------------- */
-  renderTune(wingId, back) {
-    if (back) { this._gearExit = back; this._gearMission = null; }
+  renderTune(wingId) {
     const sv = this.save, s = this.screens.tune, open = WINGS.filter(w => this.wingUnlocked(w));
     let base = WING_BY_ID[wingId] || WING_BY_ID[sv.wing] || WINGS[0];
     if (!this.wingUnlocked(base)) base = open[0];
@@ -8151,7 +8609,8 @@ const UIProgress = {
     s.appendChild(el('div', { class: 'panel wide' }, [
       el('div', { class: 'eyebrow', text: 'Werkstatt' }), el('h2', { text: base.name + ' · ' + base.cls }),
       this._gearTabs('tune'),
-      open.length > 1 ? el('div', { class: 'chipset', id: 'tuneWings' }, open.map(w => el('button', { class: w.id === base.id ? 'on' : '', text: w.name, onclick: () => { this.click(); this._keepScroll(s, () => this.renderTune(w.id)); } }))) : null,
+      this._pauseNote(),
+      open.length > 1 ? el('div', { class: 'chipset', id: 'tuneWings' }, open.map(w => el('button', { class: w.id === base.id ? 'on' : '', text: w.name, onclick: () => { this.click(); if (this._gear) this._gear.tuneWing = w.id; this._keepScroll(s, () => this.renderTune(w.id)); } }))) : null,
       el('div', { class: 'tunetop' }, [el('div', { class: 'sw big', html: wingSvg(base, this.currentDesign()) }), this._wingBars(base, tw)]),
       el('div', { class: 'statgrid four tunestats' }, [
         line('Gleitzahl', base.glide, tw.glide, true, '', 1), line('Sinken', base.sMin, tw.sMin, false, ' m/s', 2),
@@ -8180,8 +8639,7 @@ const UIProgress = {
   },
 
   /* ---------------- Perks: bis zu drei Vorteile für jeden Flug ---------------- */
-  renderPerks(back) {
-    if (back) { this._gearExit = back; this._gearMission = null; }
+  renderPerks() {
     const sv = this.save, P = sv.perks, s = this.screens.perks, slots = this.perkSlots(), on = this.activePerks();
     const rer = () => this._keepScroll(s, () => this.renderPerks());
     const takeOff = (id) => { this.click(); P.on = on.filter(x => x !== id); this.store(); rer(); };
@@ -8206,6 +8664,7 @@ const UIProgress = {
     s.appendChild(el('div', { class: 'panel wide' }, [
       el('div', { class: 'eyebrow', text: 'Ausrüstung' }), el('h2', { text: 'Perks' }),
       this._gearTabs('perks'),
+      this._pauseNote(),
       el('p', { text: 'Perks gelten für jeden Flug und jeden Schirm. Zwei trägst du gleichzeitig, ein dritter Platz lässt sich kaufen. Tippe einen belegten Platz an, um den Perk abzulegen.' }),
       el('div', { class: 'pslots' }, slotEls),
       el('div', { class: 'chsum' }, [el('div', {}, [el('span', { text: 'Dein Guthaben' })]), el('span', { class: 'coinchip big', html: COIN + U.fmtInt(sv.coins) })]),
@@ -8216,8 +8675,7 @@ const UIProgress = {
   },
 
   /* ---------------- Design-Werkstatt: eigenes Muster und eigene Farben ---------------- */
-  renderDesigner(back) {
-    if (back) { this._gearExit = back; this._gearMission = null; }
+  renderDesigner() {
     const sv = this.save, C = sv.custom, s = this.screens.designer, wing = WING_BY_ID[sv.wing] || WINGS[0];
     const d = this.customDesign(), active = sv.design === 'eigen', rer = () => this._keepScroll(s, () => this.renderDesigner());
     const pats = DESIGN_PATTERNS.map(p => {
@@ -8238,6 +8696,7 @@ const UIProgress = {
     s.appendChild(el('div', { class: 'panel wide' }, [
       el('div', { class: 'eyebrow', text: 'Design-Werkstatt' }), el('h2', { text: 'Eigenes Design' }),
       this._gearTabs('designer'),
+      this._pauseNote(),
       el('div', { class: 'dprev' }, [el('div', { class: 'sw huge', html: wingSvg(wing, d) }), el('div', { class: 'small', text: active ? 'Ist aktiv – so fliegst du.' : 'Vorschau am ' + wing.name + '. Gilt für jeden Schirm.' })]),
       el('div', { class: 'eyebrow', text: 'Muster' }), el('div', { class: 'patgrid' }, pats),
       el('div', { class: 'eyebrow', text: 'Farbe 1 · Grundfarbe' }), swatches(0),
@@ -8254,8 +8713,7 @@ const UIProgress = {
   },
 
   /* ---------------- Gurtzeug: sechs Modelle mit Werten, Spezialfunktion und eigener Farbe ---------------- */
-  renderHarness(back) {
-    if (back) { this._gearExit = back; this._gearMission = null; }
+  renderHarness() {
     const sv = this.save, s = this.screens.harness, cur = this.currentHarness(), rer = () => this._keepScroll(s, () => this.renderHarness());
     const wing = WING_BY_ID[sv.wing] || WINGS[0], col = this.harnessColor(cur);
     const cards = HARNESSES.map(h => {
@@ -8281,6 +8739,7 @@ const UIProgress = {
     s.appendChild(el('div', { class: 'panel wide' }, [
       el('div', { class: 'eyebrow', text: 'Ausrüstung' }), el('h2', { text: 'Gurtzeug' }),
       this._gearTabs('harness'),
+      this._pauseNote(),
       el('p', { text: 'Das Gurtzeug gilt für jeden Schirm. Es verändert die Flugwerte ein wenig und bringt je eine Spezialfunktion mit.' }),
       el('div', { class: 'tunetop' }, [el('div', { class: 'sw big hpic', html: harnessSvg(cur, col) }), el('div', { class: 'wbody' }, [
         el('div', { class: 'small', text: 'Mit dem ' + wing.name + ' (Werkstatt, Perks und Gurtzeug):' }), this._wingBars(wing, this.tunedWingOf(wing))])]),
@@ -8351,9 +8810,9 @@ const UIProgress = {
     });
     const bonus = BONUS.map(b => {
       const map = MAP_BY_ID[b.map], ok = this.mapUnlocked(map), st = sv.bonus[b.id] || {};
-      return el('button', { class: 'mrow bonusrow' + (ok ? '' : ' locked') + (st.stars ? ' done' : ''), id: 'bonus_' + b.id, onclick: () => {
+      return el('button', { class: 'mrow bonusrow' + (ok ? '' : ' locked') + (st.stars ? ' done' : ''), id: 'bonus_' + b.id, 'data-nav': ok ? 'brief' : null, onclick: () => {
         if (!ok) { this.toast('Erst das Gebiet ' + map.name + ' freischalten'); return; }
-        this.click(); this.renderBrief(b); this.show('brief');
+        this.click(); this.go('brief', () => this.renderBrief(b));
       } }, [
         el('span', { class: 'mno qicon', html: QUEST_ICON[b.quest.kind] }),
         el('span', { class: 'mbody' }, [el('span', { class: 'mname', text: b.name }), el('span', { class: 'mtags', text: map.name + ' · ' + questText(b.quest) + (st.best != null ? ' · Bestzeit ' + U.fmtTime(st.best) : '') })]),
@@ -8374,7 +8833,7 @@ const UIProgress = {
       el('div', { class: 'eyebrow', text: 'Bonus-Level · ' + bStars + ' von ' + BONUS.length * 3 + ' Sternen' }),
       el('p', { class: 'small', text: 'Kurze Flüge mit Stoppuhr: Die Zeit bis zum letzten Ziel gibt die Sterne, jeder neue Stern bringt eine Sternprämie.' }),
       el('div', { class: 'mlist' }, bonus),
-      this._back(() => this.toTitle()),
+      this._back(),
     ]));
   },
 
@@ -8391,7 +8850,7 @@ const UIProgress = {
         clearTimeout(b._t); b._t = setTimeout(() => { b.classList.remove('arm'); b.innerHTML = label; }, 3000);
         return;
       }
-      clearTimeout(b._t); sv.coins -= price; onBuy(); this.store(); this.audio.chime(); (after || (() => this.renderShop()))();
+      clearTimeout(b._t); sv.coins -= price; onBuy(); this.store(); this.audio.chime(); (after || (() => this._keepScroll(this.screens.shop, () => this.renderShop())))();
     });
     return b;
   },
@@ -8415,6 +8874,7 @@ Object.assign(UI.prototype, UIProgress);
 
   input.bindSurface(document.getElementById('c'));
   input.onThumb = (side, p, a) => ui.onThumb(side, p, a);
+  input.onLock = (side, st) => ui.onLock(side, st);
   input.bindHoldButton(document.getElementById('btnEars'), 'ears');
   input.bindHoldButton(document.getElementById('btnBar'), 'bar');
   const pauseBtn = document.getElementById('btnPause');
