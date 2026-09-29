@@ -119,8 +119,8 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
    Neutral dunkel und durchsichtig, damit der Flug im Vordergrund bleibt.
    --ha: Deckkraft der Hintergründe (0 = nur Schrift), --hs: Größe. */
 #hud { position: absolute; inset: 0; pointer-events: none; z-index: 10; --ha: 0.3; --hs: 1; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85), 0 0 10px rgba(0, 0, 0, 0.35); }
-.hudw { position: absolute; transform: scale(var(--hs)); }
-.hudw.custom { right: auto !important; bottom: auto !important; transform: scale(var(--hs)) !important; transform-origin: top left !important; }
+.hudw { position: absolute; transform: scale(var(--k, var(--hs))); }
+.hudw.custom { right: auto !important; bottom: auto !important; transform: scale(var(--k, var(--hs))) !important; transform-origin: top left !important; }
 .hpanel { background: rgba(6, 10, 16, var(--ha)); border: 1px solid rgba(255, 255, 255, calc(var(--ha) * 0.35)); border-radius: 11px; }
 #wMap { left: calc(10px + var(--sl)); top: calc(10px + var(--st)); width: 118px; transform-origin: top left; pointer-events: auto; }
 #minimap { display: block; width: 118px; height: 118px; border-radius: 50%; background: rgba(6, 10, 16, calc(var(--ha) + 0.2)); opacity: calc(0.6 + var(--ha)); cursor: pointer; }
@@ -133,7 +133,7 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 .ival i { font-style: normal; font-size: 11px; color: var(--ink-2); }
 .ival small { grid-column: span 2; font-size: 10.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ival.vario.up b { color: var(--climb); } .ival.vario.down b { color: var(--sink); }
-#wTask { right: calc(10px + var(--sr)); top: calc(10px + var(--st) + 58px * var(--hs)); width: min(300px, calc(100vw - 150px - var(--sl) - var(--sr))); transform-origin: top right; }
+#wTask { right: calc(10px + var(--sr)); top: calc(10px + var(--st) + 58px * var(--k-instr, var(--hs))); width: min(300px, calc(100vw - 150px - var(--sl) - var(--sr))); transform-origin: top right; }
 #taskBar { padding: 5px 9px 6px; }
 #taskBar .row1, #taskBar .row2 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 #taskBar .ttl { font-family: var(--font-d); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sun); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -149,14 +149,29 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 .chip.bad { color: #fff; background: rgba(255, 106, 92, 0.85); }
 .chip.good { color: #06220f; background: rgba(124, 252, 154, 0.9); text-shadow: none; }
 .chip.quest { color: var(--ink); background: rgba(6, 10, 16, calc(var(--ha) + 0.25)); box-shadow: inset 0 0 0 1px rgba(255, 111, 174, 0.7); }
+.chip.star { color: var(--sun); background: rgba(6, 10, 16, calc(var(--ha) + 0.25)); box-shadow: inset 0 0 0 1px rgba(255, 194, 75, 0.6); font-variant-numeric: tabular-nums; }
+.chip.therm { color: var(--ink); background: rgba(6, 10, 16, calc(var(--ha) + 0.25)); box-shadow: inset 0 0 0 1px rgba(124, 252, 154, 0.7); }
+.chip.therm.ok { color: #06220f; background: rgba(124, 252, 154, 0.9); text-shadow: none; box-shadow: none; }
+.starbox { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255, 194, 75, 0.35); background: rgba(255, 194, 75, 0.06); }
+.starbox .eyebrow { margin: 0 0 2px; }
+.starbox .srow { display: grid; grid-template-columns: 44px 1fr; gap: 6px; font-size: 13.5px; line-height: 1.3; }
+.starbox .ss { color: var(--sun); letter-spacing: 0.05em; }
+.starbox .small { margin: 4px 0 0; }
+.startip { color: var(--sun-2); }
+.keepbox { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 /* Unten in einer Reihe: Ohren, Beschleuniger, Zeitraffer (zusammen rund 262 px, mittig) */
 #wTime { left: calc(50% - 12px * var(--hs)); bottom: calc(14px + 9px * var(--hs) + var(--sb)); transform-origin: bottom left; display: flex; align-items: center; gap: 1px; padding: 3px; border-radius: 999px; pointer-events: auto; touch-action: none; }
 .tstop { font-family: var(--font-d); font-size: 11.5px; font-weight: 700; color: var(--ink); min-width: 27px; height: 28px; padding: 0 3px; border-radius: 999px; }
 .tstop.on { background: var(--sun); color: var(--sun-ink); text-shadow: none; }
-#wBtns { left: calc(50% - 136px * var(--hs)); bottom: calc(14px + var(--sb)); transform-origin: bottom left; display: flex; gap: 10px; align-items: center; pointer-events: auto; }
-#hud.tOff #wBtns { left: 50%; transform: translateX(-50%) scale(var(--hs)); transform-origin: bottom center; }
+/* Ohren und Beschleuniger: zwei eigene Anzeigen (einzeln verschiebbar und groß), links neben dem Zeitraffer.
+   --k-bar = Maßstab des Beschleunigers, damit die Ohren daneben bleiben, wenn er größer wird */
+#wBar, #wEars { bottom: calc(14px + var(--sb)); transform-origin: bottom right; pointer-events: auto; }
+#wBar { right: calc(50% + 22px * var(--hs)); }
+#wEars { right: calc(50% + 32px * var(--hs) + 52px * var(--k-bar, 1)); }
+#hud.tOff #wBar { right: calc(50% - 57px * var(--hs)); }
+#hud.tOff #wEars { right: calc(50% - 47px * var(--hs) + 52px * var(--k-bar, 1)); }
 /* Pause oben links unter der Karte */
-#wPause { left: calc(10px + var(--sl)); top: calc(10px + var(--st) + 142px * var(--hs)); transform-origin: top left; pointer-events: auto; }
+#wPause { left: calc(10px + var(--sl)); top: calc(10px + var(--st) + 142px * var(--k-map, var(--hs))); transform-origin: top left; pointer-events: auto; }
 #wPause .hbtn { width: 40px; height: 40px; }
 .hbtn { width: 52px; height: 52px; border-radius: 15px; display: grid; place-items: center; background: rgba(6, 10, 16, calc(var(--ha) + 0.15)); border: 1px solid rgba(255, 255, 255, calc(var(--ha) * 0.35 + 0.1)); touch-action: none; }
 .hbtn svg { width: 30px; height: 30px; fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7)); }
@@ -232,6 +247,14 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 #hud.editing .hudw { pointer-events: auto; cursor: move; touch-action: none; outline: 2px dashed rgba(255, 194, 75, 0.95); outline-offset: 4px; border-radius: 12px; }
 #hud.editing .hudw * { pointer-events: none; }
 #hud.editing .hudw.drag { outline-style: solid; }
+#hud.editing .hudw.sel { outline-color: var(--wind); }
+#hudEdit .szedit { display: flex; align-items: center; gap: 8px; }
+#hudEdit .szedit span { flex: 1; color: var(--ink); font-weight: 700; }
+#hudEdit .szedit b { font-size: 14px; min-width: 48px; text-align: center; color: var(--ink); }
+#hudEdit .szedit .minibtn { min-width: 40px; font-size: 16px; padding: 6px 10px; }
+.szlist { display: flex; flex-direction: column; gap: 6px; }
+.szrow { display: grid; grid-template-columns: 112px 1fr 48px; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); }
+.szrow b { color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
 #hudEdit { position: absolute; left: 50%; top: 61%; transform: translate(-50%, -50%); z-index: 15; width: min(320px, 86vw); padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; text-align: center; background: rgba(11, 31, 58, 0.9); border: 1px solid rgba(255, 194, 75, 0.45); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45); }
 #hudEdit b { font-family: var(--font-d); font-size: 17px; color: var(--sun); } #hudEdit span { font-size: 13px; color: var(--ink-2); }
 /* Gesten beim Start: nach oben wischen, tippen, nach unten wischen */
@@ -310,6 +333,7 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 .links { display: flex; justify-content: space-between; gap: 4px; }
 .links button { flex: 1; font-size: 12.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); padding: 10px 4px; border-radius: 10px; }
 .links button:active { background: var(--night-2); }
+.verline { text-align: center; font-size: 10.5px; line-height: 1.35; letter-spacing: 0.03em; color: var(--ink-2); opacity: 0.75; margin-top: -4px; }
 
 /* Missionsliste */
 .mlist { display: flex; flex-direction: column; gap: 6px; }
@@ -426,6 +450,11 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 .pslot .pfx, .pcard .pfx { font-family: var(--font-d); font-weight: 700; color: var(--sun); font-variant-numeric: tabular-nums; }
 .pslots > * { min-width: 0; }
 .pslot .buy { margin-top: auto; font-size: 10.5px; padding: 6px 7px; min-height: 30px; letter-spacing: 0.02em; white-space: normal; text-align: center; }
+button.pslot:not(.on) .pn.free { color: var(--wind); font-weight: 700; }
+.pslot.pick { border: 1px solid var(--wind); box-shadow: 0 0 0 2px rgba(95, 178, 240, 0.25); }
+.ppick { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px; border-radius: 12px; border: 1px solid var(--line); background: rgba(18, 41, 74, 0.5); }
+.ppick .sl { font-size: 12.5px; color: var(--ink-2); margin-right: 2px; }
+.slotbuy { padding: 8px 10px; border-radius: 12px; border: 1px solid var(--line); }
 .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .pcard { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 11px 12px; border-radius: 13px; background: var(--night-2); border: 1px solid var(--line); }
 .pcard .pfx { font-size: 26px; line-height: 1; letter-spacing: -0.01em; }
@@ -560,7 +589,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 /* ---------------- Querformat am Handy ---------------- */
 @media (orientation: landscape) and (max-height: 540px) {
   #wMap { width: 104px; } #minimap { width: 104px; height: 104px; }
-  #wPause { top: calc(8px + var(--st) + 126px * var(--hs)); }
+  #wPause { top: calc(8px + var(--st) + 126px * var(--k-map, var(--hs))); }
   .rail .track { height: calc(90px * var(--bs)); }
   #launchPanel { bottom: calc(78px + var(--sb)); }
   .gthumb { top: 30%; } .gthumb .gtrack { height: 100px; } .gthumb .glbl { top: 118px; }
@@ -594,7 +623,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = '28.09.2026, 19:47 · 91d7bdf';
+window.AUFWIND_BUILD = {"v": "4.2.27", "t": "01:37 30.09.2026", "c": "2628f53"};
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -990,7 +1019,7 @@ const MAPS = [
   { id: 'dolomiten', name: 'Dolomiten', region: 'Südtirol', unlockXP: 400, price: 90, seed: 2202,
     desc: 'Scharfe Zacken, brachiale Thermik, Basis über 3000 m. Aber Vorsicht im Lee der Felstürme – und vor dem Adler.',
     water: null, base: 3200, snowLine: 2650, treeLine: 2100, rockSlope: [0.62, 1.0],
-    thermals: { sMin: 2.0, sMax: 5.0, rMin: 80, rMax: 160, density: 0.38, lifeMin: 320, lifeMax: 670 },
+    thermals: { sMin: 2.0, sMax: 5.0, rMin: 100, rMax: 185, density: 0.4, lifeMin: 320, lifeMax: 670 },
     clouds: true, wind: { from: 300, speed: 4.2, gust: 1.5 }, lee: 1.3,
     sky: { top: 0x1f5fc4, horizon: 0xa9d0f2, fog: 0xb8d5ee }, sun: { az: 190, el: 60 },
     palette: { grass: 0x6fae4a, grassHi: 0x9bcf66, forest: 0x2f6b2e, rock: 0xb9aa96, snow: 0xffffff, sand: 0xcfc39c, water: 0x3d86c6, tree: 0x24552a },
@@ -1148,12 +1177,12 @@ const MISSIONS = [
     starTime: [900, 650] },
   // ---------------- Dolomiten
   { id: 'm07', name: 'Dolomiten-Taufe', map: 'dolomiten', reward: 200,
-    brief: 'Willkommen in der Königsklasse. Die Bärte ziehen hier mit bis zu 5 m/s, die Basis steht auf 3200 m. Kurbel 500 m am Stück und arbeite dich auf 3100 m hoch.',
-    objectives: [{ type: 'climbGain', value: 500, text: '500 m in einer Thermik gewinnen' }, { type: 'altitude', value: 3100, text: '3100 m erreichen' }, { type: 'land', text: 'Landen' }],
+    brief: 'Willkommen in der Königsklasse. Die Bärte ziehen hier mit bis zu 5 m/s, die Basis steht auf 3200 m. Kurbel 400 m am Stück und arbeite dich auf 3000 m hoch.',
+    objectives: [{ type: 'climbGain', value: 400, text: '400 m in einer Thermik gewinnen' }, { type: 'altitude', value: 3000, text: '3000 m erreichen' }, { type: 'land', text: 'Landen' }],
     starTime: [1000, 720] },
-  { id: 'm08', name: 'Geierflüsterer', map: 'dolomiten', reward: 220, thermalHint: false,
-    brief: 'Heute ohne Thermik-Hilfe. Die Gänsegeier wissen, wo es steigt: Steig in drei verschiedenen Bärten, in denen Vögel kreisen.',
-    objectives: [{ type: 'birdThermals', value: 3, text: 'In 3 Geier-Bärten steigen' }, { type: 'land', text: 'Landen' }],
+  { id: 'm08', name: 'Geierflüsterer', map: 'dolomiten', reward: 220, thermalHint: false, birds: 0.85, birdGain: 100,
+    brief: 'Heute ohne leuchtende Säulen. Die Gänsegeier wissen, wo es steigt: Steig in drei verschiedenen Bärten, in denen Vögel kreisen – je 100 m genügen. Die Zentrier-Hilfe am Kartenrand zeigt dir im Bart, wohin du eindrehen musst.',
+    objectives: [{ type: 'birdThermals', value: 3, text: 'In 3 Geier-Bärten je 100 m steigen' }, { type: 'land', text: 'Landen' }],
     starTime: [1100, 820] },
   { id: 'm09', name: 'Adlerhorst', map: 'dolomiten', reward: 260, events: { eagle: true },
     brief: 'Auf der Adlerspitze nistet ein Steinadler, und der mag keine Gleitschirme. Fotografiere das Gipfelkreuz. Wenn der Adler herabstößt, flieg sofort eine harte Kurve – er zielt dahin, wo du gerade hinfliegst.',
@@ -1483,7 +1512,7 @@ const QUESTS = [
   { id: 'jause', kind: 'drop', item: 'proviant', n: 1, high: true, name: 'Gipfeljause', text: 'Proviant zu den Bergsteigern bringen', coins: 90, xp: 60,
     desc: 'Oben am Berg sitzen hungrige Bergsteiger. Hol dir Höhe und wirf ihnen die Jause zu.' },
   { id: 'ballons', kind: 'collect', n: 6, name: 'Ballonjagd', text: '6 Luftballons einsammeln', coins: 80, xp: 50,
-    desc: 'Beim Dorffest sind die Luftballons davongeflogen. Flieg mitten hindurch – sie platzen an der Kappe.' },
+    desc: 'Beim Dorffest sind die Luftballons davongeflogen. Flieg mitten hindurch – sie platzen an der Kappe. Jeder Ballon bleibt gespeichert, du kannst in mehreren Flügen sammeln.' },
   { id: 'ringe', kind: 'rings', n: 6, name: 'Ringflug', text: 'Durch 6 Ringe fliegen', coins: 70, xp: 45,
     desc: 'Die Flugschule hat Ringe zwischen Startplatz und Landewiese gehängt. Immer durch den gelben.' },
   { id: 'bergwacht', kind: 'search', n: 1, name: 'Bergwacht', text: 'Vermissten Wanderer finden', coins: 110, xp: 70,
@@ -1513,7 +1542,7 @@ const BONUS = [
   { id: 'b01', name: 'Ringparcours', map: 'voralpen', reward: 90, coins: 30, quest: { kind: 'rings', n: 8 }, starTime: [330, 230],
     brief: 'Die Flugschule hat acht Ringe zwischen Startplatz und Landewiese gehängt. Flieg durch jeden – der nächste leuchtet gelb. Die Uhr stoppt am letzten Ring, dann sicher landen.' },
   { id: 'b02', name: 'Ballonjagd', map: 'voralpen', reward: 110, coins: 35, startAGL: 450, quest: { kind: 'collect', n: 6, r: 1000 }, starTime: [1200, 780],
-    brief: 'Beim Dorffest sind sechs Luftballons davongeflogen. Sie hängen über dem Tal, manche so hoch, dass du erst Thermik brauchst. Flieg mitten hindurch.' },
+    brief: 'Beim Dorffest sind sechs Luftballons davongeflogen. Sie hängen über dem Tal, manche so hoch, dass du erst Thermik brauchst. Flieg mitten hindurch – die Lichtsäulen zeigen, wo sie hängen, die Karte, wie viel höher oder tiefer. Eingesammelte Ballons bleiben gespeichert.' },
   { id: 'b03', name: 'Almpost', map: 'luesen', reward: 130, coins: 40, startAGL: 300, quest: { kind: 'drop', item: 'post', n: 3 }, starTime: [800, 540],
     brief: 'Drei Höfe am Lüsner Berg warten auf Post. Flieg jeweils tief darüber – unter 150 m über Grund –, dann schwebt das Päckchen am Fallschirm hinunter.' },
   { id: 'b04', name: 'Blumenregen', map: 'wasserkuppe', reward: 120, coins: 40, startAGL: 300, quest: { kind: 'drop', item: 'blumen', n: 2 }, starTime: [480, 320],
@@ -1523,7 +1552,7 @@ const BONUS = [
   { id: 'b06', name: 'Küstenslalom', map: 'kueste', reward: 140, coins: 45, quest: { kind: 'rings', n: 8 }, starTime: [520, 380],
     brief: 'Acht Ringe vom Babadağ hinunter Richtung Strand – gegen 22 km/h Seewind. Der Hang trägt dich, der Beschleuniger bringt dich voran: zwischen den Ringen zählt jede Sekunde.' },
   { id: 'b07', name: 'Wüstenballons', map: 'wueste', reward: 150, coins: 45, startAGL: 500, quest: { kind: 'collect', n: 6, high: true, r: 1100 }, starTime: [1300, 900],
-    brief: 'Sechs Ballons über der Namib, einige weit oben unter der Basis. Die Staubteufel zeigen dir die Bärte.' },
+    brief: 'Sechs Ballons über der Namib, einige weit oben unter der Basis. Die Staubteufel zeigen dir die Bärte. Eingesammelte Ballons bleiben gespeichert.' },
   { id: 'b08', name: 'Hüttentour', map: 'fjord', reward: 160, coins: 50, startAGL: 350, quest: { kind: 'drop', item: 'proviant', n: 2, high: true }, starTime: [480, 320],
     brief: 'Zwei Seilschaften warten oben über dem Fjord auf Proviant. Über dem Wasser gibt es keine Thermik – hol dir die Höhe am Hang.' },
   { id: 'b09', name: 'Kraterringe', map: 'vulkan', reward: 170, coins: 50, quest: { kind: 'rings', n: 8 }, starTime: [380, 270],
@@ -4025,7 +4054,7 @@ class World {
     const top = m.base + rng.range(-120, 80);
     const th = { id: Math.random().toString(36).slice(2), x, z, r, s, top, ground, age: o.age || 0, life: o.life || rng.range(T.lifeMin, T.lifeMax), birth: o.birth || 50, decay: 60, house: !!o.house,
       hint: this.hintPool.alloc(), cloud: -1, cloudPool: null, dust: -1, birds: null, crot: rng() * 6.28, csize: rng.range(0.8, 1.25) };
-    const wantBirds = o.birds != null ? o.birds : (s > T.sMin + (T.sMax - T.sMin) * 0.45 && rng() < 0.55);
+    const wantBirds = o.birds != null ? o.birds : this.birdShare != null ? rng() < this.birdShare : (s > T.sMin + (T.sMax - T.sMin) * 0.45 && rng() < 0.55);
     if (this.cloudPools) { th.cloudPool = this.cloudPools[Math.floor(rng() * this.cloudPools.length)]; th.cloud = th.cloudPool.alloc(); }
     if (this.dustPool) th.dust = this.dustPool.alloc();
     if (wantBirds) {
@@ -4693,6 +4722,7 @@ class Pilot {
     this.spiralT = 0; this.inSpiral = false; this.spiralDur = 0;
     this.collapse = null; this.collapseCool = 4; this.threat = null; this.gust = 0; this.surge = 0;
     this.flareT = 0; this.pitchVis = 0; this.earsT = 0;
+    this.pend = 0; this.pendV = 0; this.sitT = null;     // Pendeln unter dem Schirm (Abheben, Hinsetzen), Hinsetz-Bewegung
     this.inCloud = false; this.touchdown = null; this.crashed = null;
     this.agl = this.y - this.gnd(x, z);
     this.stats = { collapses: 0, caught: 0, stalls: 0, spins: 0, maxClimb: 0, maxAlt: this.y, dist: 0 };
@@ -4841,11 +4871,12 @@ class Pilot {
     if (M.air >= M.vT) {
       this.phase = 'fly'; this.graceT = 4.5; this.vz = 0.5; this.v = Math.max(M.air, w.vMinSink - 0.3);
       this.seated = false; this.needSit = true; this.unseatedT = 0; this.airRunT = 1.2;   // Beine laufen noch kurz in der Luft
+      this.pendV += 0.11;                                                         // er schwingt unter dem Schirm nach vorn
       ev.push('takeoff');
     } else if (M.dist > 75 || M.t > 12) this._launchFail('slow', ev);
   }
-  /* Idealer Abstand zwischen zwei Schritten: langsam anlaufen, dann immer schneller */
-  stepInterval() { return U.clamp(0.55 - 0.045 * this.man.runV, 0.22, 0.55); }
+  /* Idealer Abstand zwischen zwei Schritten: zügig anlaufen, dann immer schneller (seit Fassung 4.2 flotter) */
+  stepInterval() { return U.clamp(0.46 - 0.04 * this.man.runV, 0.2, 0.46); }
   _launchFail(kind, ev) {
     const M = this.man;
     this.failKind = kind; M.fails++; M.fell = true;
@@ -4863,8 +4894,8 @@ class Pilot {
     // ---- Ins Gurtzeug setzen: nach unten wischen (sonst nach 30 s von selbst)
     if (!this.seated) {
       this.unseatedT += dt;
-      if (inp.flickDown) { inp.flickDown = false; this.seated = true; ev.push('sit'); }
-      else if (this.unseatedT > (this.needSit ? 30 : 1.5)) { this.seated = true; if (this.needSit) ev.push('sitAuto'); }
+      if (inp.flickDown) { inp.flickDown = false; this.seated = true; this.sitT = 0; this.pendV -= 0.07; ev.push('sit'); }
+      else if (this.unseatedT > (this.needSit ? 30 : 1.5)) { this.seated = true; if (this.needSit) { this.sitT = 0; this.pendV -= 0.05; ev.push('sitAuto'); } }
     } else if (inp.flickDown) inp.flickDown = false;
     const hanging = this.needSit && !this.seated;              // Beine im Wind: mehr Widerstand
     // ---- Luftmasse
@@ -5051,11 +5082,19 @@ class Pilot {
     const ud = m.userData, ph = this.phase, M = this.man;
     // Beine: am Boden, vor dem Hinsetzen und kurz vor dem Aufsetzen draußen
     const legsOut = ph !== 'fly' || !this.seated || (this.agl < 9 && this.vz < 0.8);
-    this.standB += ((legsOut ? 1 : 0) - this.standB) * Math.min(1, dt * (legsOut ? 3.2 : 2.4));
+    if (this.sitT != null) {
+      // Hinsetzen: Knie kurz an die Brust, Oberkörper zurück, dann sitzt er (überschwingende Kurve, 0,75 s)
+      this.sitT += dt; const u = Math.min(1, this.sitT / 0.75), c1 = 2.2;
+      this.standB = 1 - (1 + (c1 + 1) * Math.pow(u - 1, 3) + c1 * Math.pow(u - 1, 2));
+      if (u >= 1) this.sitT = null;
+    } else this.standB += ((legsOut ? 1 : 0) - this.standB) * Math.min(1, dt * (legsOut ? 3.2 : 2.4));
     let runV = 0, amp = 0;
-    if (ph === 'run') {                                        // die Beine folgen den Tippern: ein Tipp, ein Schritt
-      runV = M.runV; amp = U.clamp(Math.max(runV, 2.6) / 4.5, 0, 0.8);
-      this.stride += (M.strideT - this.stride) * Math.min(1, dt * 14);
+    if (ph === 'run') {
+      // Die Beine laufen gleichmäßig im Takt (ein Schritt = ein Takt) auf den Fuß zu, den der letzte Tipp gesetzt hat;
+      // kommt der nächste Tipp spät, laufen sie langsam weiter statt stehen zu bleiben, zu schnell getippt holen sie auf
+      runV = M.runV; amp = U.clamp(0.5 + runV / 7, 0.5, 1.0);
+      const I = this.stepInterval(), need = M.strideT - this.stride, w = Math.PI / (0.85 * I);
+      this.stride += need > 0 ? Math.min(need, dt * w * (need > Math.PI ? 2 : 1)) : (runV > 1 && need > -0.6 ? dt * w * 0.25 : 0);
     } else {
       runV = ph === 'launch' ? this.v : (ph === 'landed' ? this.runOut : 0);
       if (this.airRunT > 0) { this.airRunT = Math.max(0, this.airRunT - dt); runV = Math.max(runV, 5 * this.airRunT); }
@@ -5063,12 +5102,16 @@ class Pilot {
       this.stride += runV * dt * 2.3;
     }
     const swing = Math.sin(this.stride) * amp + (this.flying && !this.airRunT ? Math.sin(performance.now() / 700) * 0.06 : 0);
-    const lean = ph === 'inflate' ? 0.22 : -0.28 * U.clamp(runV / 5, 0, 1);
+    const lean = ph === 'inflate' ? 0.22 : -(ph === 'run' ? 0.12 : 0) - 0.3 * U.clamp(runV / 5, 0, 1);    // beim Laufen weit nach vorn
     const lying = ph === 'crashed';
     const rest = ph === 'landed' || lying;                    // nach der Landung hängen die Arme locker
     poseBody(ud, lying ? 1 : this.standB, lying ? 0 : swing, lean, this.flying ? 0.28 * this.standB : 0, rest ? 0.8 : this.brakeL, rest ? 0.8 : this.brakeR, this.flying && this.seated ? inp.barV || 0 : 0);
     ud.body.rotation.x += ((lying ? 1.45 : 0) - ud.body.rotation.x) * Math.min(1, dt * 4);
-    const offY = lying ? 0.5 : U.lerp(SIT_H, STAND_H, this.standB) + (ph === 'run' ? 0.06 * Math.abs(Math.cos(this.stride)) : 0);   // Laufen federt
+    // Laufen: Schulter dreht gegen die Beine, Körper wiegt zum Standbein (in der Luft laufen die Beine kurz nach)
+    const rk = ph === 'run' || this.airRunT > 0 ? U.clamp(runV / 4, 0.35, 1) : 0;
+    ud.upper.rotation.y = -0.16 * Math.sin(this.stride) * rk * amp;
+    ud.body.rotation.z += (0.07 * Math.sin(this.stride) * rk - ud.body.rotation.z) * Math.min(1, dt * 10);
+    const offY = lying ? 0.5 : U.lerp(SIT_H, STAND_H, Math.min(1, this.standB)) + (ph === 'run' ? (0.05 + 0.012 * runV) * Math.abs(Math.cos(this.stride)) : 0);   // Laufen federt
     m.position.set(this.x, this.y + offY, this.z);
     m.rotation.y = -this.heading;
     m.rotation.z = -this.bank;
@@ -5076,13 +5119,16 @@ class Pilot {
     let pT = 0.14 * sym - 0.08 * (inp.barV || 0) - 0.4 * this.surge;
     if (ph !== 'fly') pT = 0;
     this.pitchVis += (pT - this.pitchVis) * Math.min(1, dt * 4);
-    m.rotation.x = this.pitchVis;
+    // Pendel unter dem Schirm (Eigenfrequenz √(g/RIG), gedämpft): angestoßen beim Abheben und Hinsetzen
+    if (dt > 0) { const h = Math.min(dt, 0.05); this.pendV += (-1.32 * this.pend - 0.75 * this.pendV) * h; this.pend = U.clamp(this.pend + this.pendV * h, -0.3, 0.3); }
+    if (!this.flying) { this.pend = 0; this.pendV = 0; }
+    m.rotation.x = this.pitchVis + this.pend;
     // Kappe: am Boden flach und schlaff ausgelegt (lay: um die Hinterkante flach gelegt), beim Aufziehen steigt sie
     // und füllt sich, im Stall fällt sie nach hinten, nach der Landung sinkt sie hinter dem Piloten zusammen
     let rigX = 0, rigZ = 0, rate = 4, lay = 0, defl = 0;
     if (ph === 'ready') { rigX = this._layRx(); lay = 1; defl = 1; rate = M.fell ? 2.5 : 20; }
     else if (this.launching) {
-      rigX = -U.rad(M.pitch) * 0.957; rigZ = -U.rad(M.roll); rate = 16;
+      rigX = -U.rad(M.pitch) * 0.957 + (ph === 'run' ? 0.018 * Math.sin(2 * this.stride) : 0); rigZ = -U.rad(M.roll); rate = 16;   // die Kappe pumpt bei jedem Schritt
       if (ph === 'inflate') { lay = 1 - U.smoothstep(0, 0.7, M.t); defl = 1 - U.smoothstep(0.1, 1.0, M.t); }
     }
     else if (ph === 'launch') { rigX = 1.42 * (1 - U.smoothstep(0, 1.5, this.launchT)); lay = 1 - U.smoothstep(0, 0.6, this.launchT); defl = 1 - U.smoothstep(0, 1.0, this.launchT); rate = 10; }
@@ -5670,7 +5716,11 @@ class Minimap {
       if (q.done) continue;
       if (q.kind === 'collect') for (const b of q.items) {
         if (b.got) continue; const s = toS(b.x, b.z); if (!inR(s)) continue;
-        ctx.fillStyle = '#ff6fae'; ctx.strokeStyle = '#0b1f3a'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(s[0], s[1], 3.3, 0, 6.28); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#ff6fae'; ctx.strokeStyle = '#0b1f3a'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(s[0], s[1] - 1, 4.3, 0, 6.28); ctx.fill(); ctx.stroke();
+        // Höhe gegenüber dem Piloten (grün = höher, gelb = tiefer), auf 10 m gerundet
+        const dh = Math.round((b.y - p.y) / 10) * 10, tx = (dh > 0 ? '+' : '') + dh;
+        ctx.font = '700 9px "Chakra Petch", system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineWidth = 2.6;
+        ctx.strokeText(tx, s[0] + 6, s[1] - 1); ctx.fillStyle = dh > 30 ? '#7cfc9a' : dh < -30 ? '#ffc24b' : '#e6eef8'; ctx.fillText(tx, s[0] + 6, s[1] - 1);
       } else if (q.kind === 'rings') q.items.forEach((r, i) => {
         if (i < q.got) return; const act = i === q.got, s = act ? clampS(toS(r.x, r.z), 7) : toS(r.x, r.z); if (!inR(s)) return;
         ctx.strokeStyle = act ? '#ffc24b' : 'rgba(230,238,248,0.55)'; ctx.lineWidth = act ? 2.4 : 1.2; ctx.beginPath(); ctx.arc(s[0], s[1], act ? 5 : 3, 0, 6.28); ctx.stroke();
@@ -5713,6 +5763,17 @@ class Minimap {
       ctx.stroke();
     }
     ctx.fillStyle = 'rgba(230,238,248,0.5)'; ctx.fillRect(-rad - 1, -0.5, 7, 1);
+    // Zentrier-Hilfe: Kern als grüner Kreis, am Rand ein Keil, der zu ihm zeigt (Kurs ist oben)
+    const as = g.assist;
+    if (as) {
+      const cs = toS(as.x, as.z);
+      if (inR(cs, 4)) { ctx.strokeStyle = '#7cfc9a'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(cs[0], cs[1], Math.max(3, as.r * 0.35 * k), 0, 6.28); ctx.stroke(); }
+      const a = as.rel - Math.PI / 2, r0 = rad - 1, L = as.q < 0.5 ? 15 : 11, wd = 0.2;
+      ctx.fillStyle = '#7cfc9a'; ctx.strokeStyle = '#0b1f3a'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(Math.cos(a) * r0, Math.sin(a) * r0);
+      ctx.lineTo(Math.cos(a - wd) * (r0 - L), Math.sin(a - wd) * (r0 - L)); ctx.lineTo(Math.cos(a + wd) * (r0 - L), Math.sin(a + wd) * (r0 - L));
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
     // Norden
     const nA = Math.atan2(-sh, -ch) ; // Bildschirmwinkel von Norden
     const nx = Math.cos(nA) * (rad - 9), ny = Math.sin(nA) * (rad - 9);
@@ -5866,8 +5927,10 @@ class Game {
     // Schirm mit Werkstatt-Verbesserungen, Trimmer, Perks und Gurtzeug (cfg.tune, cfg.perks, cfg.harness aus dem Spielstand)
     const map = MAP_BY_ID[mapId], wing = this._gear(cfg), harness = this.harness;
     this.map = map; this.softSteer = cfg.softSteer !== false;
+    this.centerHelp = cfg.center || 'tips'; this.assist = null; this.assistOpen = null; this.assistT = 0; this.assistBank = 0;   // Zentrier-Hilfe
     const hints = cfg.hints !== false && !(mission && mission.thermalHint === false);
     const world = this._buildWorld(map, seed, siteSeed, q, hints);
+    world.birdShare = mission && mission.birds != null ? mission.birds : null;     // Anteil der Bärte mit Vögeln (Geierflüsterer)
 
     this.hour = mission ? (mission.hour || 13) : (this.mode === 'daily' ? 12 : 10.5);
     this.timePerSec = fixed ? 0.0006 : 0.0095;
@@ -6088,11 +6151,11 @@ class Game {
       tp.set(p.x + Math.sin(this.orbitA) * 24, p.y + 7, p.z - Math.cos(this.orbitA) * 24);
       tl.set(p.x, p.y + 2, p.z); kp = 1.5; kl = 3;
     } else if (p.phase === 'run') {
-      // Anlauf: Kamera läuft dicht hinterher, federt bei jedem Schritt
-      const back = portrait ? 15 : 11;
-      tp.set(p.x - f.x * back + rx * 2, p.y + (portrait ? 4.2 : 3), p.z - f.z * back + rz * 2);
+      // Anlauf: Kamera läuft dicht und tief hinterher, bleibt mit dem Tempo etwas zurück, wiegt mit den Schritten
+      const rv = p.man.runV, back = (portrait ? 13 : 9.5) + rv * 0.45, sway = Math.sin(p.stride) * 0.22;
+      tp.set(p.x - f.x * back + rx * (2 + sway), p.y + (portrait ? 3.6 : 2.6) + rv * 0.12, p.z - f.z * back + rz * (2 + sway));
       tl.set(p.x + f.x * 20, p.y + (portrait ? 1.6 : 0.6), p.z + f.z * 20);
-      kp = 3.2; kl = 5;
+      kp = 3.6; kl = 5;
     } else if (p.phase === 'ready' || p.launching || (p.phase === 'launch' && p.launchT < 1.2)) {
       // Am Start: im Hochformat hinter dem Piloten über den ausgelegten Schirm ins Tal, quer von der Seite
       if (portrait) { tp.set(p.x - f.x * 21 + rx * 4, p.y + 9, p.z - f.z * 21 + rz * 4); tl.set(p.x + f.x * 22, p.y - 5, p.z + f.z * 22); }
@@ -6315,7 +6378,9 @@ const GameRules = {
       if (this.climbRun > this.bestClimbRun) this.bestClimbRun = this.climbRun;
       const g = (this.thermalGains.get(th.id) || 0) + p.vz * dt;
       this.thermalGains.set(th.id, g);
-      if (g >= 150 && !this.doneThermals.has(th.id)) { this.doneThermals.add(th.id); if (th.birds && th.birds.length) this.birdThermalsDone.add(th.id); }
+      if (g >= 150 && !this.doneThermals.has(th.id)) this.doneThermals.add(th.id);
+      // Geier-Bart: zählt schon nach birdGain Metern (Mission, Standard 150)
+      if (th.birds && th.birds.length && g >= ((this.mission && this.mission.birdGain) || 150)) this.birdThermalsDone.add(th.id);
     } else {
       this.noLiftT += dt;
       if (this.noLiftT > 6) { this.climbThermal = null; this.climbRun = 0; }
@@ -6338,6 +6403,7 @@ const GameRules = {
     this._photos(dt);
     this._sounds(dt);
     this._sniffer(dt);
+    this._centerAssist(dt);
     this._trackManeuvers();
     if (this.speedup > 1) { const why = this._speedBlock(); if (why) { this.speedup = 1; this.ui.toast('Zeitraffer aus – ' + SPEED_BLOCK[why][1]); } }
     this.chT += dt;
@@ -6371,7 +6437,7 @@ const GameRules = {
       case 'wingUp': au.chime(); ui.toast('Schirm steht!'); ui.beatStart(p.stepInterval()); break;
       case 'step': au.step(p.man.lastQ); ui.stepFeedback(p); this.camBob = 1; break;
       case 'launchFail': au.collapse(); ui.warn(LAUNCH_FAIL[p.failKind][0], 1.6); ui.hint(LAUNCH_FAIL[p.failKind][1], 4); break;
-      case 'sit': au.chime(); ui.toast('Sitzt! Guten Flug'); break;
+      case 'sit': au.chime(); au.whoosh(); ui.toast('Sitzt! Guten Flug'); this.camBob = 1; break;
       case 'sitAuto': ui.toast('Ins Gurtzeug gerutscht'); break;
       case 'angel': this.flags.angel = true; ui.warn('SCHUTZENGEL!', 1.6); break;
       case 'threat': {                                   // Vorwarnung: die Spitze flattert – auf dieser Seite kurz kräftig bremsen
@@ -6509,6 +6575,61 @@ const GameRules = {
 
   /* ---------------- Geräusche der Landschaft: Kuhglocken im Tiefflug ---------------- */
   /* Perk Bartschnüffler: nächster Bart im Umkreis von 250 m (nicht der, in dem man schon kreist) */
+  /* Zentrier-Hilfe (Optionen): im Bart oder in seinem Abwindring zeigt ein grüner Keil am Kartenrand zum Kern (assist.rel),
+     mit „Tipps“ sagt ein Chip, was zu tun ist. Kreisen: Mittelpunkt des Kreises M aus Fahrt und Querlage. Geradeausfliegen
+     verschiebt M in Flugrichtung – also aufmachen, wenn der Kurs von M zum Kern zeigt, für |M→Kern| Meter. Fünfmal je Sekunde. */
+  _centerAssist(dt) {
+    const mode = this.centerHelp;
+    if (!mode || mode === 'off' || this.over) { this.assist = null; return; }
+    this.assistT -= dt; if (this.assistT > 0) return; this.assistT = 0.2;
+    const p = this.pilot, W = this.world;
+    this.assistBank = this.assistBank * 0.5 + p.bank * 0.5;
+    if (!p.flying || p.agl < 25 || p.stall || p.spin || p.inSpiral || p.collapse) { this.assist = null; this.assistOpen = null; return; }
+    let th = p.thermal && p.lift > 0.3 ? p.thermal : null, cx = 0, cz = 0, d = Infinity;
+    if (th) { const c = W.thermalCenterAt(th, p.y); cx = c.x; cz = c.z; d = U.dist2(p.x, p.z, cx, cz); }
+    else for (const t of W.thermals) {
+      if (t.age < t.birth || p.y > t.top) continue;
+      const c = W.thermalCenterAt(t, p.y), td = U.dist2(p.x, p.z, c.x, c.z);
+      if (td < t.r * 1.6 && td < d) { d = td; th = t; cx = c.x; cz = c.z; }
+    }
+    if (!th) { this.assist = null; this.assistOpen = null; return; }
+    const rel = U.wrapAngle(U.bearing(p.x, p.z, cx, cz) - p.heading), bank = this.assistBank;
+    const circling = Math.abs(bank) > U.rad(12), side = bank >= 0 ? 1 : -1, v = Math.max(6, p.v);
+    const m10 = (x) => Math.round(x / 10) * 10, lr = (s) => (s >= 0 ? 'rechts' : 'links'), arrow = '↑↗→↘↓↙←↖'[((Math.round(rel / (Math.PI / 4)) % 8) + 8) % 8];
+    const O = this.assistOpen; let tip, ok = false;
+    if (O && !circling && this.t < O.until + 4) tip = this.t < O.until ? 'Geradeaus · noch ' + Math.ceil(O.until - this.t) + ' s' : 'Jetzt wieder ' + lr(O.side) + ' eindrehen · eng';
+    else if (O && circling && this.t < O.until) tip = 'Jetzt aufmachen · ' + Math.ceil(O.until - this.t) + ' s geradeaus';
+    else {
+      this.assistOpen = null;
+      if (!circling) {
+        // Einfliegen: liegt der Kern weit voraus, erst hinfliegen; sonst zu seiner Seite eindrehen, so eng wie er seitlich liegt
+        const fwd = d * Math.cos(rel), lat = d * Math.sin(rel);
+        if (d > 70 && Math.abs(rel) > 0.5) tip = 'Kern ' + arrow + ' ' + m10(d) + ' m · hindrehen';
+        else if (fwd > 35 && Math.abs(lat) < fwd) tip = 'Kern ' + m10(fwd) + ' m voraus · dann ' + lr(lat) + ' eindrehen';
+        else tip = 'Jetzt ' + lr(lat) + ' eindrehen · ' + (Math.abs(lat) < 30 ? 'eng' : Math.abs(lat) < 60 ? 'mittel' : 'weit');
+      } else if (d > th.r * 0.9) {
+        // außerhalb des Kerns gekreist: aufmachen, sobald er voraus liegt, und hinfliegen
+        tip = Math.abs(rel) < 0.5 ? 'Jetzt aufmachen · Kern ' + m10(d) + ' m voraus' : 'Kern ' + arrow + ' ' + m10(d) + ' m · aufmachen, wenn er vorn ist';
+      } else {
+        const R = v * v / (9.81 * Math.tan(Math.max(U.rad(8), Math.abs(bank))));
+        const mx = p.x + side * R * Math.cos(p.heading), mz = p.z + side * R * Math.sin(p.heading), e = U.dist2(mx, mz, cx, cz);
+        if (e < Math.max(15, th.r * 0.18)) {
+          if (R > Math.max(30, th.r * 0.4)) tip = 'Zentriert · stärker eindrehen';
+          else { tip = '✓ Zentriert · ' + U.fmtSigned(p.vz) + ' m/s'; ok = true; }
+        } else if (Math.abs(U.wrapAngle(U.bearing(mx, mz, cx, cz) - p.heading)) < U.rad(25)) {
+          const s = U.clamp(Math.round(e / v), 1, 8); this.assistOpen = { until: this.t + s, side };
+          tip = 'Jetzt aufmachen · ' + s + ' s geradeaus';
+        } else tip = 'Weiterkreisen · gleich aufmachen';
+      }
+    }
+    const A = this.assist || (this.assist = {});
+    A.rel = rel; A.d = d; A.q = d / th.r; A.r = th.r; A.x = cx; A.z = cz; A.ok = ok; A.tip = mode === 'tips' ? tip : null;
+  },
+  /* Zeit für die Sterne: im Bonus-Level bis zum letzten Ziel (samt gespeicherter Zeit früherer Versuche), sonst die Flugzeit */
+  starClock() {
+    const q = this.mission && this.mission.bonus && this.quests ? this.quests[0] : null;
+    return q ? (q.done ? q.doneT : (q.keepT || 0) + this.t) : this.t;
+  },
   _sniffer(dt) {
     if (this.perks.indexOf('schnueffler') < 0) return;
     this.sniffT = (this.sniffT || 0) - dt; if (this.sniffT > 0) return;
@@ -6689,7 +6810,9 @@ Object.assign(Game.prototype, GameRules);
 'use strict';
 
 /* Reichweiten in Metern: einsammeln, Ring, Abwurf (waagrecht, höchstens so hoch über dem Ziel), Wanderer finden, überkreisen */
-const QUEST_R = { balloon: 18, ring: 18, drop: 75, dropAGL: 150, find: 170, findAGL: 380, circle: 230, hold: 10 };
+const QUEST_R = { balloon: 24, ring: 18, drop: 75, dropAGL: 150, find: 170, findAGL: 380, circle: 230, hold: 10 };
+/* Ballons: fünf Farben, Mitte der Hülle BALLOON_CY über dem Knoten */
+const BALLOON_COLS = [0xe8453c, 0xffc93c, 0x3aa0ff, 0x5ee07a, 0xff4f9a], BALLOON_CY = 9.2;
 const QUEST_ITEM = {
   post: { marker: 0xffc24b, beam: 0xffc24b, done: 'Post zugestellt' },
   blumen: { marker: 0xff4f9a, beam: 0xff6fae, done: 'Blüten regnen' },
@@ -6726,11 +6849,14 @@ class QuestMarks {
     P.push([box(0.5 * s, 0.75 * s, 0.32 * s, x, y + 1.25 * s, z), jacket], [box(0.42 * s, 0.85 * s, 0.28 * s, x, y + 0.45 * s, z), 0x2b3140], [ico(0.2 * s, 1, 1, 1, x, y + 1.82 * s, z), 0xf1c9a5]);
   }
 
-  /* Ballons: fünf Farben, mitten hindurchfliegen */
+  /* Ballons: fünf Farben, 11 m groß, mitten hindurchfliegen. Ein Lichtschacht vom Boden zeigt von weitem, wo und wie
+     hoch sie hängen; aus der Ferne werden sie größer gezeichnet (update), damit man sie nicht übersieht. */
   addBalloon(b, i) {
-    if (!this._balloonGeo) this._balloonGeo = [0xe8453c, 0xffc93c, 0x3aa0ff, 0x5ee07a, 0xff4f9a].map(c => colGeo([
-      [new THREE.SphereGeometry(3, 10, 7).scale(1, 1.2, 1).translate(0, 5.6, 0), c], [_G.cone(0.5, 0.8, 5, 0, 1.9, 0), c], [_G.box(0.08, 1.9, 0.08, 0, 0.8, 0), 0xf2f2f2]]));
-    b.mesh = this._add(this._balloonGeo[i % 5], this.bright, b.x, b.y - 5.6, b.z);
+    if (!this._balloonGeo) this._balloonGeo = BALLOON_COLS.map(c => colGeo([
+      [new THREE.SphereGeometry(5.5, 12, 9).scale(1, 1.2, 1).translate(0, BALLOON_CY, 0), c], [_G.cone(0.8, 1.3, 6, 0, 2.3, 0), c], [_G.box(0.12, 2.6, 0.12, 0, 0.35, 0), 0xf2f2f2]]));
+    b.mesh = this._add(this._balloonGeo[i % 5], this.bright, b.x, b.y - BALLOON_CY, b.z);
+    const g = this.world.height(b.x, b.z);
+    b.beam = this._beam(BALLOON_COLS[i % 5], b.x, g, b.z, Math.max(10, b.y - g - 8)); b.beam.scale.x = b.beam.scale.z = 0.6;
     b.ph = i * 1.7; this.balloons.push(b);
   }
   /* Ringe: Reifen mit 15 m Radius, der nächste leuchtet gelb */
@@ -6812,11 +6938,15 @@ class QuestMarks {
     }
     this.conf.geometry.attributes.color.needsUpdate = true; this._confOn = true;
   }
-  popBalloon(b) { b.mesh.visible = false; this.burst(b.x, b.y, b.z, 36, [0xffc93c, 0xe8453c, 0x3aa0ff, 0xfbfbf8], 7, 0); }
+  popBalloon(b, quiet) { b.mesh.visible = false; if (b.beam) b.beam.visible = false; if (!quiet) this.burst(b.x, b.y, b.z, 36, [0xffc93c, 0xe8453c, 0x3aa0ff, 0xfbfbf8], 7, 0); }
 
   update(dt) {
     this.t += dt; const t = this.t, W = this.world;
-    for (const b of this.balloons) if (b.mesh.visible) { b.mesh.position.y = b.y - 5.6 + Math.sin(t * 0.9 + b.ph) * 1.2; b.mesh.rotation.y = Math.sin(t * 0.4 + b.ph) * 0.4; }
+    const cp = this.cam && this.cam.position;
+    for (const b of this.balloons) if (b.mesh.visible) {
+      const s = cp ? U.clamp(Math.hypot(cp.x - b.x, cp.y - b.y, cp.z - b.z) / 420, 1, 2.8) : 1;   // fern größer, die Mitte bleibt auf ihrer Höhe
+      b.mesh.scale.setScalar(s); b.mesh.position.y = b.y - BALLOON_CY * s + Math.sin(t * 0.9 + b.ph) * 1.2; b.mesh.rotation.y = Math.sin(t * 0.4 + b.ph) * 0.4;
+    }
     for (const s of this.spin) s.rotation.y = t * 1.3;
     // Rauch
     const m = this._m, q = this._q, sc = this._s, ps = this._p;
@@ -6864,13 +6994,14 @@ const GameQuests = {
   _setupQuests(cfg) {
     this.quests = []; this.qmarks = null;
     const m = this.mission, list = [];
-    if (this.mode === 'bonus' && m && m.quest) list.push({ def: Object.assign({ id: m.id, name: m.name, coins: 0, xp: 0 }, m.quest), seed: U.hash(m.id + ':auftrag'), bonus: true });
+    // keep: schon eingesammelte Ballons / zugestellte Päckchen aus früheren Flügen { got: [Index], t: Sekunden }
+    if (this.mode === 'bonus' && m && m.quest) list.push({ def: Object.assign({ id: m.id, name: m.name, coins: 0, xp: 0 }, m.quest), seed: U.hash(m.id + ':auftrag'), bonus: true, keep: cfg.bonusKeep });
     else if (!(m && (m.tutorial || m.race))) for (const q of cfg.quests || []) {
       const d = QUEST_BY_ID[q.id];
-      if (d && q.map === this.map.id && !q.done) list.push({ def: d, seed: q.seed, idx: q.idx });
+      if (d && q.map === this.map.id && !q.done) list.push({ def: d, seed: q.seed, idx: q.idx, keep: q.got ? { got: q.got, t: 0 } : null });
     }
     if (!list.length) return;
-    this.qmarks = new QuestMarks(this.scene, this.world);
+    this.qmarks = new QuestMarks(this.scene, this.world); this.qmarks.cam = this.camera;
     for (const o of list) { const q = this._makeQuest(o); if (q) this.quests.push(q); }
   },
 
@@ -6970,7 +7101,22 @@ const GameQuests = {
       }
     }
     if (d.kind !== 'goal') { q.n = items.length; if (!q.n) return null; }
+    // Gespeicherter Fortschritt: diese Ziele sind schon erledigt (die Zeit früherer Versuche zählt im Bonus-Level mit)
+    const keep = o.keep && Array.isArray(o.keep.got) ? o.keep : null;
+    if (keep && (d.kind === 'collect' || d.kind === 'drop')) {
+      for (const i of keep.got) {
+        const it = items[i]; if (!it || it.got) continue;
+        it.got = true; q.got++; if (d.kind === 'collect') M.popBalloon(it, true); else M.dropDone(it);
+      }
+      q.keepT = +keep.t || 0;
+    }
     return q;
+  },
+  /* Fortschritt sofort sichern (auch wenn der Flug danach abstürzt oder abgebrochen wird) */
+  _questKeep(q) {
+    if (!this.ui || !this.ui.questKeep || (q.kind !== 'collect' && q.kind !== 'drop')) return;
+    const got = []; q.items.forEach((it, i) => { if (it.got) got.push(i); });
+    this.ui.questKeep({ bonus: q.bonus, id: q.bonus ? this.mission.id : q.def.id, idx: q.idx, day: this.questDay, got, t: Math.round((q.keepT || 0) + this.t) });
   },
 
   /* Einmal je Physikschritt: Fortschritt aller Aufträge */
@@ -6982,8 +7128,8 @@ const GameQuests = {
       switch (q.kind) {
         case 'collect':
           for (const b of q.items) if (!b.got && Math.abs(p.y - b.y) < QUEST_R.balloon && U.dist2(p.x, p.z, b.x, b.z) < QUEST_R.balloon) {
-            b.got = true; q.got++; M.popBalloon(b); this.audio.pop();
-            if (q.got < q.n) ui.toast('Ballon ' + q.got + ' / ' + q.n);
+            b.got = true; q.got++; M.popBalloon(b); this.audio.pop(); this._questKeep(q);
+            if (q.got < q.n) ui.toast('Ballon ' + q.got + ' / ' + q.n + ' · gespeichert');
           }
           break;
         case 'rings': {
@@ -6996,7 +7142,7 @@ const GameQuests = {
         }
         case 'drop':
           for (const t of q.items) if (!t.got && p.y - t.y < QUEST_R.dropAGL && U.dist2(p.x, p.z, t.x, t.z) < QUEST_R.drop) {
-            t.got = true; q.got++; M.dropParcel(p, t, q.def.item); M.dropDone(t); this.audio.whoosh();
+            t.got = true; q.got++; M.dropParcel(p, t, q.def.item); M.dropDone(t); this.audio.whoosh(); this._questKeep(q);
             ui.toast((QUEST_ITEM[q.def.item] || QUEST_ITEM.post).done + (q.n > 1 ? ' · ' + q.got + ' / ' + q.n : ''));
           }
           break;
@@ -7014,7 +7160,7 @@ const GameQuests = {
         case 'goal': q.got = Math.min(q.n, this._questStat(q.def.stat)); break;
       }
       if (q.got >= q.n && q.got > 0) {
-        q.done = true; q.doneT = this.t; this.audio.fanfare();
+        q.done = true; q.doneT = (q.keepT || 0) + this.t; this.audio.fanfare();
         ui.toast(q.bonus ? '✓ ' + q.name + ' geschafft – jetzt landen' : '✓ Auftrag: ' + q.name);
       }
     }
@@ -7032,7 +7178,7 @@ const GameQuests = {
   /* Nächstes offenes Ziel für Karte und Cockpit (Linie auf der Karte, Entfernung oben rechts) */
   _questNav() {
     const p = this.pilot; let best = null, bd = Infinity;
-    const nav = this._qnav || (this._qnav = { x: 0, z: 0, name: '' });
+    const nav = this._qnav || (this._qnav = { x: 0, z: 0, y: null, name: '' });
     for (const q of this.quests || []) {
       if (q.done) continue;
       let cands = null;
@@ -7043,7 +7189,7 @@ const GameQuests = {
       for (const t of cands) {
         if (t.got) continue;
         const x = q.kind === 'search' && !t.found ? t.cx : t.x, z = q.kind === 'search' && !t.found ? t.cz : t.z, d = U.dist2(p.x, p.z, x, z);
-        if (d < bd) { bd = d; best = t; nav.x = x; nav.z = z; nav.name = q.kind === 'rings' ? 'Ring ' + (q.got + 1) : q.kind === 'collect' ? 'Ballon' : q.kind === 'search' ? (t.found ? 'Wanderer' : 'Suchgebiet') : 'Abwurf'; }
+        if (d < bd) { bd = d; best = t; nav.x = x; nav.z = z; nav.y = q.kind === 'rings' || q.kind === 'collect' ? t.y : null; nav.name = q.kind === 'rings' ? 'Ring ' + (q.got + 1) : q.kind === 'collect' ? 'Ballon' : q.kind === 'search' ? (t.found ? 'Wanderer' : 'Suchgebiet') : 'Abwurf'; }
       }
     }
     return best ? nav : null;
@@ -7124,7 +7270,10 @@ const BRAKE_SIZES = { s: 0.8, m: 1, l: 1.3, xl: 1.6 };
 const BRAKE_LEN = { min: 60, max: 320, def: 170 };
 const PX_PER_CM = 60.5;                   // iPhone: 390 Punkte auf rund 6,45 cm Bildschirmbreite
 function brakeCm(px) { return '≈ ' + U.fmtDec(px / PX_PER_CM) + ' cm'; }
-const HUD_DEFAULT = () => ({ a: 0.3, s: 'm', show: { map: true, instr: true, vario: false, task: true, time: true, rails: true }, pos: { p: {}, l: {} }, ts: [3, 6, 10, 20] });
+const HUD_DEFAULT = () => ({ a: 0.3, s: 'm', show: { map: true, instr: true, vario: false, task: true, time: true, rails: true }, pos: { p: {}, l: {} }, sz: {}, ts: [3, 6, 10, 20] });
+/* Größe je Anzeige (set.hud.sz, Faktor zur Gesamtgröße): Optionen → Cockpit und im Verschieben-Modus */
+const HUD_SIZE_PARTS = [['map', 'Karte'], ['instr', 'Höhe & Fahrt'], ['task', 'Aufgabe'], ['ears', 'Ohren-Knopf'], ['bar', 'Beschleuniger'], ['time', 'Zeitraffer'], ['pause', 'Pause-Knopf']];
+const HUD_SZ = { min: 0.6, max: 1.8 };
 function starStr(n, max = 3) { let s = ''; for (let i = 0; i < max; i++) s += i < n ? '★' : '<span class="off">★</span>'; return s; }
 
 class UI {
@@ -7146,7 +7295,7 @@ class UI {
       tune: {}, perks: { own: {}, on: [], slots: 2 }, custom: { pat: 'mitte', c: [0x2fb7d6, 0xf6f6f2, 0xffc93c], nose: false },
       // Gurtzeug und seine Farbe je Gurtzeug; Auftragsbrett des Tages; Bonus-Level { id: { stars, best } }
       harness: 'schule', harnessCol: {}, quests: { day: 0, list: [], swaps: 0, chest: false }, bonus: {},
-      set: { tiltWS: false, sens: 1.0, invert: false, muted: false, vario: true, quality: 'mid', hints: true, unlockAll: false, launch: 'manual', softSteer: true, hud: HUD_DEFAULT(), brake: { len: BRAKE_LEN.def, size: 'm', lock: true } },
+      set: { tiltWS: false, sens: 1.0, invert: false, muted: false, vario: true, quality: 'mid', hints: true, unlockAll: false, launch: 'manual', softSteer: true, center: 'tips', hud: HUD_DEFAULT(), brake: { len: BRAKE_LEN.def, size: 'm', lock: true } },
     };
     let s = null;
     try { s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { s = null; }
@@ -7167,7 +7316,13 @@ class UI {
     });
     if (!Array.isArray(out.quests.list)) out.quests.list = [];
     const h0 = HUD_DEFAULT(), h = (s.set && s.set.hud) || {};
-    out.set.hud = Object.assign(h0, h, { show: Object.assign(h0.show, h.show || {}), pos: Object.assign(h0.pos, h.pos || {}) });
+    out.set.hud = Object.assign(h0, h, { show: Object.assign(h0.show, h.show || {}), pos: Object.assign(h0.pos, h.pos || {}), sz: Object.assign(h0.sz, h.sz || {}) });
+    // Fassung 4.2: Ohren und Beschleuniger sind getrennte Anzeigen – die alte gemeinsame Position übernehmen
+    for (const o of ['p', 'l']) {
+      const P = out.set.hud.pos[o], b = P && P.btns; if (!b) continue;
+      const w = Math.max(1, o === 'p' ? Math.min(innerWidth, innerHeight) : Math.max(innerWidth, innerHeight));
+      P.ears = { x: b.x, y: b.y }; P.bar = { x: b.x + 62 / w, y: b.y }; delete P.btns;
+    }
     // Bremsleinen (seit Fassung 4): der alte Regler „Bremsweg“ teilte den Weg (höher = kürzer) – in Pixel umrechnen.
     // Raste (seit Fassung 4.1): standardmäßig an
     const b = s.set && s.set.brake;
@@ -7217,9 +7372,15 @@ class UI {
     for (const s of ['L', 'R']) root.appendChild(el('div', { class: 'gthumb', id: 'ghost' + s, 'aria-hidden': 'true' }, [el('div', { class: 'gring' }), el('div', { class: 'gtrack' }), el('div', { class: 'gknob' }), el('div', { class: 'glbl', id: 'ghost' + s + 'T', text: '' })]));
     root.appendChild(el('div', { class: 'ghostc', id: 'ghostC', 'aria-hidden': 'true' }, [el('div', { class: 'gdot a' }), el('div', { class: 'gdot b' }), el('div', { class: 'glbl', id: 'ghostCT', text: '' })]));
     this.editBar = el('div', { id: 'hudEdit', class: 'hpanel', hidden: 'hidden' }, [
-      el('b', { text: 'Anzeigen verschieben' }), el('span', { text: 'Mit dem Finger an ihren Platz ziehen. Hochformat und Querformat merken sich ihre Plätze getrennt.' }),
+      el('b', { text: 'Anzeigen verschieben' }), el('span', { text: 'Mit dem Finger an ihren Platz ziehen. Eine Anzeige antippen, dann mit − und + ihre Größe ändern. Hochformat und Querformat merken sich ihre Plätze getrennt.' }),
+      el('div', { class: 'szedit', id: 'hudSz', hidden: 'hidden' }, [
+        el('span', { id: 'hudSzL', text: '' }),
+        el('button', { class: 'minibtn', id: 'hudSzMinus', 'aria-label': 'Kleiner', text: '−', onclick: () => this._hudSize(-0.1) }),
+        el('b', { id: 'hudSzV', text: '' }),
+        el('button', { class: 'minibtn', id: 'hudSzPlus', 'aria-label': 'Größer', text: '+', onclick: () => this._hudSize(0.1) }),
+      ]),
       el('div', { class: 'row' }, [
-        el('button', { class: 'btn', onclick: () => { this.click(); const H = this.save.set.hud; H.pos = { p: {}, l: {} }; this.applyHudLayout(); this.store(); } }, [el('span', { text: 'Zurücksetzen' })]),
+        el('button', { class: 'btn', onclick: () => { this.click(); const H = this.save.set.hud; H.pos = { p: {}, l: {} }; H.sz = {}; this.applyHudLayout(); this.store(); this._hudSizeBar(); } }, [el('span', { text: 'Zurücksetzen' })]),
         el('button', { class: 'btn primary', onclick: () => { this.click(); this.endHudEdit(); } }, [el('span', { text: 'Fertig' })]),
       ]),
     ]);
@@ -7281,10 +7442,12 @@ class UI {
           el('div', { class: 'lbar run', id: 'lRun' }, [el('span', { text: 'Tempo' }), el('i', {}, [el('u', { id: 'lRunF' })]), el('span', { text: 'Abheben' })]),
         ]),
       ]),
-      // Knöpfe: Ohren anlegen, Beschleuniger
-      el('div', { class: 'hudw', id: 'wBtns', 'data-w': 'btns' }, [
+      // Knöpfe: Ohren anlegen und Beschleuniger – jeder für sich verschiebbar und in der Größe einstellbar
+      el('div', { class: 'hudw', id: 'wEars', 'data-w': 'ears' }, [
         el('button', { class: 'hbtn', id: 'btnEars', 'aria-label': 'Ohren anlegen (halten)', title: 'Ohren anlegen',
           html: icon('<path d="M9.5 14 Q16 7.5 22.5 14"/><path d="M9.5 14 7 20.5 M22.5 14 25 20.5"/><path d="M11 14.5 16 25 21 14.5"/><circle cx="16" cy="26" r="1.6" class="dot"/>') }),
+      ]),
+      el('div', { class: 'hudw', id: 'wBar', 'data-w': 'bar' }, [
         el('button', { class: 'hbtn', id: 'btnBar', 'aria-label': 'Beschleuniger (halten)', title: 'Beschleuniger',
           html: icon('<path d="M8.5 17.5 16 10 23.5 17.5"/><path d="M8.5 25 16 17.5 23.5 25"/>') }),
       ]),
@@ -7310,9 +7473,12 @@ class UI {
   applyHudLayout() {
     const H = this.save.set.hud, hud = this.hud; if (!hud) return;
     hud.style.setProperty('--ha', String(H.a));
-    hud.style.setProperty('--hs', String(HUD_SIZES[H.s] || 1));
+    const hs = HUD_SIZES[H.s] || 1, SZ = H.sz || {};
+    hud.style.setProperty('--hs', String(hs));
     const P = H.pos[innerWidth > innerHeight ? 'l' : 'p'] || {};
     for (const w of hud.querySelectorAll('.hudw')) {
+      const k = hs * U.clamp(+SZ[w.dataset.w] || 1, HUD_SZ.min, HUD_SZ.max);      // Größe je Anzeige
+      w.style.setProperty('--k', String(k)); hud.style.setProperty('--k-' + w.dataset.w, String(k));
       const pos = P[w.dataset.w];
       if (pos) {
         w.classList.add('custom');
@@ -7333,9 +7499,25 @@ class UI {
     for (const k of steps) tw.appendChild(el('button', { class: 'tstop' + (k === 1 ? ' on' : ''), id: 'ts' + k, 'data-k': String(k), text: k + '×', 'aria-label': 'Zeitraffer ' + k + '-fach' }));
     if (this._tg) for (const k in this._tg) if (k.startsWith('ts')) delete this._tg[k];
   }
+  /* Verschieben-Modus: angetippte Anzeige größer oder kleiner (in Zehnteln, 60–180 %) */
+  _hudSize(d) {
+    const w = this._selW; if (!w) return; this.click();
+    const H = this.save.set.hud, S = H.sz || (H.sz = {}), k = w.dataset.w;
+    S[k] = Math.round(U.clamp((S[k] || 1) + d, HUD_SZ.min, HUD_SZ.max) * 100) / 100;
+    this.applyHudLayout(); this.store(); this._hudSizeBar();
+  }
+  _hudSizeBar() {
+    const w = this._selW, row = this.$('hudSz'); if (!row) return;
+    row.hidden = !w; if (!w) return;
+    const k = w.dataset.w;
+    this.$('hudSzL').textContent = (HUD_SIZE_PARTS.find(x => x[0] === k) || [k, k])[1];
+    this.$('hudSzV').textContent = Math.round(((this.save.set.hud.sz || {})[k] || 1) * 100) + ' %';
+  }
   _dragStart(e, w) {
     if (!this.hud.classList.contains('editing')) return;
     e.preventDefault(); e.stopPropagation();
+    for (const x of this.hud.querySelectorAll('.hudw.sel')) x.classList.remove('sel');
+    w.classList.add('sel'); this._selW = w; this._hudSizeBar();
     const r = w.getBoundingClientRect(), sx = e.clientX, sy = e.clientY;
     w.classList.add('custom', 'drag'); w.style.left = r.left + 'px'; w.style.top = r.top + 'px';
     try { w.setPointerCapture(e.pointerId); } catch (_) { /* egal */ }
@@ -7363,6 +7545,7 @@ class UI {
     this.$('wTime').hidden = !this.save.set.hud.show.time; this.$('launchPanel').hidden = true; this.$('photoRing').hidden = true;
     this.hint(''); this.ghost(null);
     this.hud.hidden = false; this.hud.classList.add('editing');
+    this._selW = null; for (const x of this.hud.querySelectorAll('.hudw.sel')) x.classList.remove('sel'); this._hudSizeBar();
     this.editBar.hidden = false;
   }
   endHudEdit() {
@@ -7471,8 +7654,9 @@ class UI {
     this.lastCfg = cfg;
     const H = this.currentHarness();
     cfg = Object.assign({}, cfg, { quality: this.save.set.quality, hints: this.save.set.hints, unlockedMaps: this.unlockedMaps(), design: this.currentDesign().id, designDef: this.currentDesign(),
-      tune: this.tuneOf(cfg.wingId), perks: this.activePerks(), harness: H.id, harnessColor: this.harnessColor(H), softSteer: this.save.set.softSteer !== false,
-      quests: this.openQuests(), questDay: this.save.quests.day, autoLaunch: this.save.set.launch === 'auto' });
+      tune: this.tuneOf(cfg.wingId), perks: this.activePerks(), harness: H.id, harnessColor: this.harnessColor(H), softSteer: this.save.set.softSteer !== false, center: this.save.set.center || 'tips',
+      quests: this.openQuests(), questDay: this.save.quests.day, autoLaunch: this.save.set.launch === 'auto',
+      bonusKeep: cfg.mode === 'bonus' && this.save.bonus[cfg.missionId] ? this.save.bonus[cfg.missionId].keep || null : null });
     const mapName = cfg.mode === 'daily' ? 'Tagesaufgabe' : MAP_BY_ID[cfg.mapId].name;
     this.newStack('loading', () => {
       this.screens.loading.innerHTML = '';
@@ -7605,7 +7789,10 @@ class UI {
     let nav = '';
     const tp = W.turnpoints[g.tpIndex];
     if (tp && !tp.reached && g.mission) nav = (tp.goal ? 'Ziel' : 'WP ' + (g.tpIndex + 1)) + ' · ' + U.fmtKm(Math.max(0, U.dist2(p.x, p.z, tp.x, tp.z) - tp.r));
-    else if (g.navTarget) nav = (g.navTarget === W.landing ? 'Landeplatz' : (g.navTarget.name || 'Ziel')) + ' · ' + U.fmtKm(U.dist2(p.x, p.z, g.navTarget.x, g.navTarget.z));
+    else if (g.navTarget) {
+      nav = (g.navTarget === W.landing ? 'Landeplatz' : (g.navTarget.name || 'Ziel')) + ' · ' + U.fmtKm(U.dist2(p.x, p.z, g.navTarget.x, g.navTarget.z));
+      if (g.navTarget === g._qnav && g._qnav.y != null) { const dy = Math.round((g._qnav.y - p.y) / 10) * 10; nav += ' · ' + (dy > 0 ? '↑' : dy < 0 ? '↓' : '') + U.fmtInt(Math.abs(dy)) + ' m'; }   // Ballon/Ring höher oder tiefer
+    }
     this._txt('taskNav', nav);
     // Chips: Rennplatz, Gewitter, Front, Spirale
     const chips = [];
@@ -7615,9 +7802,16 @@ class UI {
       const rank = 1 + g.race.ais.filter(a => !a.out && prog2(a.tpIndex, a.x, a.z, a.finishT) > me).length;
       chips.push(['sun', 'Platz ' + (g.race.place || rank) + ' / ' + g.race.total]);
     }
+    // Sterne auf Zeit: Restzeit für ★★★, danach für ★★ (Bonus-Level bis zum letzten Ziel)
+    const sm = g.mission, q0 = sm && sm.bonus && g.quests ? g.quests[0] : null;
+    if (sm && sm.starTime && !sm.race && !(q0 && q0.done)) {
+      const st = g.starClock(), l3 = sm.starTime[1] - st, l2 = sm.starTime[0] - st;
+      if (l3 > 0) chips.push(['star', '★★★ ' + U.fmtTime(l3)]); else if (l2 > 0) chips.push(['star', '★★ ' + U.fmtTime(l2)]);
+    }
     if (g.stormEta != null) chips.push([g.stormEta < 60 ? 'bad' : '', g.stormEta > 0 ? 'Böen in ' + U.fmtTime(g.stormEta) : 'Böen da!']);
     if (g.mode === 'endless' && g.frontDist != null) chips.push([g.frontDist < 800 ? 'bad' : '', 'Front ' + U.fmtKm(Math.max(0, g.frontDist))]);
     if (p.inSpiral) chips.push(['bad', 'Spirale ' + U.fmtSigned(p.vz) + ' m/s']);
+    if (g.assist && g.assist.tip) chips.push([g.assist.ok ? 'therm ok' : 'therm', g.assist.tip]);                   // Zentrier-Hilfe
     if (g.sniff) chips.push(['good', 'Bart ' + g.sniff.arrow + ' ' + Math.round(g.sniff.d / 10) * 10 + ' m']);   // Perk Bartschnüffler
     if (g.quests && g.quests.length) g.questChips(chips);                                                        // Aufträge
     const chipKey = chips.map(c => c.join(':')).join('|');
@@ -7722,6 +7916,12 @@ class UI {
 
 /* Was man im Cockpit ein- und ausblenden kann */
 const HUD_PARTS = [['map', 'Karte'], ['instr', 'Höhe & Fahrt'], ['vario', 'Steigwert'], ['task', 'Aufgabe'], ['time', 'Zeitraffer'], ['rails', 'Bremsbalken']];
+/* Spielversion (build.py schreibt window.AUFWIND_BUILD = { v: Nummer, t: 'Uhrzeit Datum', c: Commit }) */
+function buildText(long) {
+  const b = window.AUFWIND_BUILD;
+  if (!b || typeof b !== 'object') return 'Spielversion Entwicklung';
+  return 'Spielversion ' + b.v + ' · ' + b.t + (long && b.c ? ' · ' + b.c : '');
+}
 /* Reiter der Ausrüstung: Schlüssel = Name der Seite */
 const GEAR_TABS = [['wings', 'Schirme'], ['harness', 'Gurtzeug'], ['tune', 'Werkstatt'], ['perks', 'Perks'], ['designer', 'Design']];
 
@@ -7779,6 +7979,7 @@ const UIScreens = {
         el('button', { id: 'tHelp', 'data-nav': 'help', onclick: () => { this.click(); this.go('help', () => this.renderHelp()); } }, [el('span', { text: 'Flugschule' })]),
         el('button', { id: 'tSettings', 'data-nav': 'settings', onclick: () => { this.click(); this.go('settings', () => this.renderSettings()); } }, [el('span', { text: 'Optionen' })]),
       ]),
+      el('div', { class: 'verline', id: 'verLine', text: buildText() + ' · OF-Design with CC · Gleitschirm-Game' }),
     ]));
   },
 
@@ -7822,8 +8023,41 @@ const UIScreens = {
     s.appendChild(el('div', { class: 'panel wide' }, [
       el('div', { class: 'eyebrow', text: 'Kampagne' }), el('h2', { text: 'Missionen' }),
       el('p', { text: 'Vom ersten Gleitflug bis zum FAI-Dreieck. Jede Mission bringt Erfahrung, die neue Schirme und Fluggebiete freischaltet.' }),
+      el('p', { class: 'small', text: '★ = geschafft. ★★ und ★★★ gibt es für schnelle Flüge, genaue Landungen, Siege im Rennen oder Flüge ohne Klapper – was genau zählt, steht im Briefing unter „So gibt es Sterne“.' }),
       list, this._back(),
     ]));
+  },
+
+  /* So gibt es Sterne (Briefing, Ergebnis): [Sterne, Bedingung] für ★, ★★, ★★★ und ein Tipp.
+     Gleiche Regeln wie GameRules._finish: Zeit (Bonus-Level bis zum letzten Ziel), Landegenauigkeit, Rennplatz, sonst Klapper */
+  starRules(m) {
+    const T = (t) => U.fmtTime(t), base = m.race ? 'Rennstrecke abfliegen und landen' : 'Alle Aufgaben erfüllen und sicher landen';
+    let r2, r3, tip;
+    if (m.race) { r2 = 'Platz 2 oder 3'; r3 = 'Sieg'; tip = 'Die Gegner siehst du auf der Karte. Nimm nur starke Bärte und flieg zwischen ihnen mit Beschleuniger.'; }
+    else if (m.starTime && m.bonus) { r2 = 'letztes Ziel nach höchstens ' + T(m.starTime[0]); r3 = 'letztes Ziel nach höchstens ' + T(m.starTime[1]); tip = 'Die Uhr läuft bis zum letzten Ziel, danach hast du Zeit zum Landen. Der Zeitraffer ändert an der Flugzeit nichts.'; }
+    else if (m.starTime) { r2 = 'Landung nach höchstens ' + T(m.starTime[0]) + ' Flugzeit'; r3 = 'Landung nach höchstens ' + T(m.starTime[1]) + ' Flugzeit'; tip = 'Die Uhr läuft ab dem Start. Kurbel nur so hoch, wie du für das nächste Ziel brauchst, und flieg die Strecken mit Beschleuniger. Der Zeitraffer ändert an der Flugzeit nichts.'; }
+    else if (m.starLand) { r2 = 'unter ' + m.starLand[0] + ' m vom Zielkreuz aufsetzen'; r3 = 'unter ' + m.starLand[1] + ' m vom Zielkreuz aufsetzen'; tip = 'Landeanflug gegen den Wind, die Höhe mit leichtem Bremsen einteilen und bei 2–3 m über dem Boden voll abfangen.'; }
+    else { r2 = base; r3 = 'dazu ohne einen einzigen Klapper'; tip = 'Flattert die Kappe, sofort auf dieser Seite kräftig anbremsen – dann klappt sie gar nicht erst ein.'; }
+    if (m.starNoCollapse) { r3 += ' und ohne Klapper'; tip += ' Ein Klapper kostet den dritten Stern.'; }
+    return { rows: [[1, base], [2, r2], [3, r3]], tip };
+  },
+  _starBox(m) {
+    const S = this.starRules(m);
+    return el('div', { class: 'starbox', id: 'starBox' }, [el('div', { class: 'eyebrow', text: 'So gibt es Sterne' })].concat(
+      S.rows.map(([n, t]) => el('div', { class: 'srow' }, [el('span', { class: 'ss', text: '★'.repeat(n) }), el('span', { text: t })])),
+      [el('p', { class: 'small', text: 'Tipp: ' + S.tip })]));
+  },
+  /* Ergebnis: was zum nächsten Stern gefehlt hat */
+  _starTip(m, r) {
+    if (!m || (r.success && r.stars >= 3)) return null;
+    const S = this.starRules(m), have = r.success ? r.stars : 0, rule = S.rows[Math.min(2, have)];
+    let you = '';
+    if (!r.success) you = '';
+    else if (m.race && r.race) you = 'du: Platz ' + r.race.place;
+    else if (m.starTime) you = 'du: ' + U.fmtTime(m.bonus && r.questT != null ? r.questT : r.time) + (m.starNoCollapse && r.collapses ? ', ' + r.collapses + ' Klapper' : '');
+    else if (m.starLand) you = 'du: ' + U.fmtInt(r.landDist) + ' m';
+    else you = 'du: ' + r.collapses + ' Klapper';
+    return 'Für ' + '★'.repeat(have + 1) + ': ' + rule[1] + (you ? ' (' + you + ')' : '') + '.';
   },
 
   renderBrief(m) {
@@ -7835,16 +8069,11 @@ const UIScreens = {
     const stars = m.daily ? (this.save.daily.key === m.dayKey ? this.save.daily.stars : 0) : (bonus ? bs.stars || 0 : (this.save.missions[m.id] || 0));
     const objs = el('ol', { class: 'obj' }); for (const o of m.objectives) objs.appendChild(el('li', { text: o.text }));
     const starHint = [];
-    if (m.race) starHint.push('★★★ für den Sieg, ★★ fürs Treppchen');
-    if (bonus) starHint.push('★★ unter ' + U.fmtTime(m.starTime[0]) + ', ★★★ unter ' + U.fmtTime(m.starTime[1]) + ' bis zum letzten Ziel');
-    else if (m.starTime && m.starTime[1] < 9000) starHint.push('★★★ in unter ' + U.fmtTime(m.starTime[1]));
     if (bonus && bs.best != null) starHint.push('Bestzeit ' + U.fmtTime(bs.best));
     if (bonus) starHint.push('Sternprämie ' + m.coins + ' Münzen je neuem Stern');
     // Aufträge vom Brett, die in diesem Gebiet nebenbei gehen
     const here = bonus || m.tutorial || m.race ? [] : this.openQuests().filter(q => q.map === m.map).map(q => QUEST_BY_ID[q.id].name);
     const H = this.currentHarness(), perks = this.activePerks();
-    if (m.starLand) starHint.push('★★★ unter ' + m.starLand[1] + ' m vom Zielkreuz');
-    if (m.starNoCollapse) starHint.push('★★★ nur ohne Klapper');
     if (m.timeLimit) starHint.push('Zeitlimit ' + U.fmtTime(m.timeLimit));
     const startTxt = m.startAGL ? 'Luftstart ' + m.startAGL + ' m über Grund' : 'Startlauf vom Hang';
     s.appendChild(el('div', { class: 'panel' }, [
@@ -7858,6 +8087,10 @@ const UIScreens = {
         el('div', {}, [el('div', { class: 'k', text: 'Wind' }), el('div', { class: 'v', text: Math.round(map.wind.speed * 3.6) + ' km/h ' + U.compass(U.rad(map.wind.from)) })]),
       ]),
       el('div', { class: 'eyebrow', text: 'Aufgaben' }), objs,
+      this._starBox(m),
+      bonus && bs.keep && bs.keep.got && bs.keep.got.length ? el('div', { class: 'unlock quest-here keepbox', id: 'bonusKeep' }, [
+        el('span', { html: 'Gespeichert: <b>' + bs.keep.got.length + ' von ' + (m.quest.n || '?') + '</b> ' + (m.quest.kind === 'collect' ? 'Ballons' : 'Zielen') + ' · bisher ' + U.fmtTime(bs.keep.t) + '. Hol dir nur noch den Rest.' }),
+        el('button', { class: 'minibtn', id: 'bonusKeepReset', text: 'Von vorn', onclick: () => { this.click(); delete this.save.bonus[m.id].keep; this.store(); this.redraw(); } })]) : null,
       starHint.length ? el('p', { class: 'small', text: starHint.join(' · ') }) : null,
       here.length ? el('div', { class: 'unlock quest-here', html: 'Aufträge hier nebenbei: <b>' + here.join('</b> · <b>') + '</b>' }) : null,
       el('div', { class: 'eyebrow', text: 'Schirm · ' + startTxt }),
@@ -8018,7 +8251,19 @@ const UIScreens = {
       row('Lenkung im Zeitraffer', 'Sanft: kleine Daumenbewegungen wirken im Zeitraffer schwächer und der Schirm rollt ruhiger ein – volle Bremse bleibt voll.', seg('setSoft', [[true, 'Sanft'], [false, 'Direkt']], set.softSteer !== false, (v) => { set.softSteer = v; this.store(); if (this.game.running && this.game.mode !== 'attract') this.game.softSteer = v; this.renderSettings(); })),
       el('div', { class: 'eyebrow', text: 'Cockpit' }),
       row('Deckkraft', 'Wie stark die Anzeigen den Flug abdecken. Ganz links: nur Schrift.', el('input', { type: 'range', id: 'setHa', min: '0', max: '0.8', step: '0.05', value: String(set.hud.a), 'aria-label': 'Deckkraft der Anzeigen', oninput: (e) => { set.hud.a = parseFloat(e.target.value); this.store(); this.applyHudLayout(); } })),
-      row('Größe', '', seg('setHs', [['s', 'Klein'], ['m', 'Normal'], ['l', 'Groß']], set.hud.s, (v) => { set.hud.s = v; this.store(); this.applyHudLayout(); this.renderSettings(); })),
+      row('Größe', 'Alle Anzeigen zusammen. Einzeln: darunter oder unter „Verschieben“.', seg('setHs', [['s', 'Klein'], ['m', 'Normal'], ['l', 'Groß']], set.hud.s, (v) => { set.hud.s = v; this.store(); this.applyHudLayout(); this.renderSettings(); })),
+      el('div', { class: 'setting col' }, [
+        el('div', {}, [el('div', { class: 'sl', text: 'Größe einzeln' }), el('small', { text: 'Karte, Knöpfe und Anzeigen jede für sich, zusätzlich zur Größe oben.' })]),
+        el('div', { class: 'szlist', id: 'setSz' }, HUD_SIZE_PARTS.map(([k, t]) => {
+          const v0 = (set.hud.sz || {})[k] || 1;
+          return el('label', { class: 'szrow' }, [
+            el('span', { text: t }),
+            el('input', { type: 'range', id: 'setSz_' + k, min: String(HUD_SZ.min), max: String(HUD_SZ.max), step: '0.05', value: String(v0), 'aria-label': 'Größe ' + t,
+              oninput: (e) => { const v = parseFloat(e.target.value); (set.hud.sz || (set.hud.sz = {}))[k] = v; this.$('setSzV_' + k).textContent = Math.round(v * 100) + ' %'; this.applyHudLayout(); this.store(); } }),
+            el('b', { id: 'setSzV_' + k, text: Math.round(v0 * 100) + ' %' }),
+          ]);
+        })),
+      ]),
       el('div', { class: 'setting col' }, [
         el('div', {}, [el('div', { class: 'sl', text: 'Anzeigen im Flug' }), el('small', { text: 'Steigen und Sinken zeigt auch der Bogen am Kartenrand.' })]),
         el('div', { class: 'chipset', id: 'setShow' }, HUD_PARTS.map(([k, t]) => el('button', { class: set.hud.show[k] ? 'on' : '', 'aria-pressed': String(!!set.hud.show[k]), text: t, onclick: () => { this.click(); set.hud.show[k] = !set.hud.show[k]; this.store(); this.applyHudLayout(); this.renderSettings(); } }))),
@@ -8044,11 +8289,12 @@ const UIScreens = {
       row('Vario-Ton', 'Piept beim Steigen, brummt bei starkem Sinken.', seg('setVario', [[true, 'An'], [false, 'Aus']], set.vario, (v) => { set.vario = v; this.audio.varioOn = v; this.store(); this.renderSettings(); })),
       row('Ton', '', seg('setMute', [[false, 'An'], [true, 'Stumm']], set.muted, (v) => { set.muted = v; this.audio.setMuted(v); this.store(); this.renderSettings(); })),
       row('Thermik-Hilfe', 'Leuchtende Säulen im Gelände und Bärte auf der Karte.', seg('setHints', [[true, 'An'], [false, 'Aus']], set.hints, (v) => { set.hints = v; this.store(); if (this.game.world && this.game.mode !== 'attract') this.game.world.setHints(v); this.renderSettings(); })),
+      row('Zentrier-Hilfe', 'Im Bart zeigt ein grüner Keil am Kartenrand zum Kern. Mit Tipps sagt dir das Cockpit auch, wohin und wie eng du eindrehst, wann du aufmachst und wann du zentriert bist.', seg('setCenter', [['tips', 'Tipps'], ['map', 'Nur Keil'], ['off', 'Aus']], set.center || 'tips', (v) => { set.center = v; this.store(); if (this.game.running && this.game.mode !== 'attract') this.game.centerHelp = v; this.renderSettings(); })),
       el('div', { class: 'eyebrow', text: 'Grafik' }),
       row('Qualität', 'Sparsam: 15 km Sicht, weniger Bäume und Tiere, schont den Akku. Normal: 22 km. Schön: 30 km, dichte Wälder, feinstes Gelände. Gilt ab dem nächsten Flug; bei Rucklern senkt das Spiel die Auflösung selbst.', seg('setQ', [['low', 'Sparsam'], ['mid', 'Normal'], ['high', 'Schön']], set.quality, (v) => { set.quality = v; this.store(); this.applySettings(); this.renderSettings(); })),
       el('div', { class: 'eyebrow', text: 'Testen' }),
       row('Alles freischalten', 'Alle Missionen, Gebiete, Schirme und Designs sofort spielbar. Dein echter Fortschritt bleibt erhalten – ausschalten stellt ihn wieder her.', seg('setAll', [[true, 'An'], [false, 'Aus']], set.unlockAll, (v) => { set.unlockAll = v; this.store(); this.renderSettings(); this.toast(v ? 'Testmodus: alles frei' : 'Testmodus aus'); })),
-      el('p', { class: 'small', id: 'buildInfo', text: 'Spielversion: ' + (window.AUFWIND_BUILD || 'Entwicklungsfassung') }),
+      el('p', { class: 'small', id: 'buildInfo', text: buildText(true) }),
       el('p', { class: 'small', text: 'Kartendaten ' + Object.values(GELAENDE).map(g => g.name).join(', ') + ' – ' + Object.values(GELAENDE)[0].src }),
       typeof LUFTBILD !== 'undefined' ? el('p', { class: 'small', text: 'Luftbilder: ' + Object.keys(LUFTBILD).map(k => (GELAENDE[k] ? GELAENDE[k].name : k) + ': ' + LUFTBILD[k].quelle).join(' – ') }) : null,
       this._back(),
@@ -8222,6 +8468,7 @@ const UIScreens = {
         el('h2', { text: head }),
         ml && good ? el('div', { class: 'bigstars', html: starStr(r.stars) }) : null,
         el('p', { text: sub || '' }),
+        ml ? (() => { const t = this._starTip(r.mode === 'bonus' ? BONUS_BY_ID[r.missionId] : r.mode === 'daily' ? this.game.mission : MISSIONS.find(x => x.id === r.missionId), r); return t ? el('p', { class: 'small startip', id: 'resStarTip', text: t }) : null; })() : null,
       ]),
       el('div', { class: 'chartbox' }, [el('div', { class: 'ctitle', text: 'Barogramm' }), baro, el('div', { class: 'ctip', id: 'baroTip', hidden: 'hidden' })]),
       el('div', { class: 'chartbox' }, [el('div', { class: 'ctitle', text: 'Flugspur' }), trk, el('div', { class: 'legend' }, [el('span', { class: 'lg climb', text: 'Steigen' }), el('span', { class: 'lg glide', text: 'Gleiten' }), el('span', { class: 'lg sink', text: 'starkes Sinken' })])]),
@@ -8643,13 +8890,28 @@ const UIProgress = {
     const sv = this.save, P = sv.perks, s = this.screens.perks, slots = this.perkSlots(), on = this.activePerks();
     const rer = () => this._keepScroll(s, () => this.renderPerks());
     const takeOff = (id) => { this.click(); P.on = on.filter(x => x !== id); this.store(); rer(); };
+    // Freien Platz antippen → darunter die eigenen, noch nicht getragenen Perks zur Auswahl
+    const pick = this._perkPick != null && this._perkPick < slots && !on[this._perkPick] ? this._perkPick : null;
+    const choose = (id) => {
+      this.click(); const cur = this.activePerks();
+      if (cur.length >= this.perkSlots()) { this.toast('Alle Plätze belegt – erst einen Perk ablegen'); return; }
+      P.on = cur.concat(id); this._perkPick = null; this.store(); this.toast(PERK_BY_ID[id].name + ' ausgerüstet'); rer();
+    };
     const slotEls = [0, 1, 2].map(i => {
-      if (i >= slots) return el('div', { class: 'pslot lock' }, [el('span', { class: 'pl', text: 'Platz 3' }), this._buyBtn(PERK_SLOT3, () => { P.slots = 3; }, rer)]);
-      const id = on[i];
-      if (!id) return el('div', { class: 'pslot' }, [el('span', { class: 'pl', text: 'Platz ' + (i + 1) }), el('span', { class: 'pn free', text: 'frei' })]);
+      if (i >= slots) return el('div', { class: 'pslot lock' }, [el('span', { class: 'pl', text: 'Platz 3' }), el('span', { class: 'pn free', text: 'gesperrt' })]);
+      const id = on[i], tm = i === 2 && this.testMode && (P.slots || 2) < 3 ? ' · Testmodus' : '';
+      if (!id) return el('button', { class: 'pslot' + (pick === i ? ' pick' : ''), id: 'pslot' + i, 'aria-label': 'Platz ' + (i + 1) + ': Perk wählen', onclick: () => { this.click(); this._perkPick = pick === i ? null : i; rer(); } },
+        [el('span', { class: 'pl', text: 'Platz ' + (i + 1) + tm }), el('span', { class: 'pn free', text: '+ Perk wählen' })]);
       const p = PERK_BY_ID[id];
-      return el('button', { class: 'pslot on', 'aria-label': p.name + ' ablegen', onclick: () => takeOff(id) }, [el('span', { class: 'pl', text: 'Platz ' + (i + 1) + ' · ablegen' }), el('span', { class: 'pn', text: p.name }), el('span', { class: 'pfx', text: p.fx })]);
+      return el('button', { class: 'pslot on', 'aria-label': p.name + ' ablegen', onclick: () => takeOff(id) }, [el('span', { class: 'pl', text: 'Platz ' + (i + 1) + tm + ' · ablegen' }), el('span', { class: 'pn', text: p.name }), el('span', { class: 'pfx', text: p.fx })]);
     });
+    const spare = PERKS.filter(p => this.perkOwned(p) && on.indexOf(p.id) < 0);
+    const picker = pick == null ? null : el('div', { class: 'ppick', id: 'perkPick' }, spare.length
+      ? [el('span', { class: 'sl', text: 'Für Platz ' + (pick + 1) + ':' })].concat(spare.map(p => el('button', { class: 'minibtn', id: 'pick_' + p.id, text: p.name + ' ' + p.fx, onclick: () => choose(p.id) })))
+      : [el('span', { class: 'sl', text: 'Kein weiterer Perk im Gepäck – kauf unten einen, er kommt gleich auf den freien Platz.' })]);
+    // Dritter Platz: eigene Zeile mit Kaufknopf (gekauft bleibt er für immer, P.slots = 3)
+    const slotBuy = slots < 3 ? el('div', { class: 'chsum slotbuy' }, [el('div', {}, [el('span', { text: 'Dritter Platz: drei Perks gleichzeitig tragen' })]),
+      this._buyBtn(PERK_SLOT3, () => { P.slots = 3; this._perkPick = on.length < 3 ? on.length : null; }, () => { rer(); this.toast('Platz 3 gehört dir – wähle einen Perk dafür'); }, false, 'Freischalten')]) : null;
     const cards = PERKS.map(p => {
       const own = this.perkOwned(p), act = on.indexOf(p.id) >= 0;
       const btn = !own ? this._buyBtn(p.price, () => { P.own[p.id] = 1; const cur = this.activePerks(); if (cur.length < this.perkSlots()) P.on = cur.concat(p.id); }, rer)
@@ -8665,8 +8927,8 @@ const UIProgress = {
       el('div', { class: 'eyebrow', text: 'Ausrüstung' }), el('h2', { text: 'Perks' }),
       this._gearTabs('perks'),
       this._pauseNote(),
-      el('p', { text: 'Perks gelten für jeden Flug und jeden Schirm. Zwei trägst du gleichzeitig, ein dritter Platz lässt sich kaufen. Tippe einen belegten Platz an, um den Perk abzulegen.' }),
-      el('div', { class: 'pslots' }, slotEls),
+      el('p', { text: 'Perks gelten für jeden Flug und jeden Schirm. Zwei trägst du gleichzeitig, ein dritter Platz lässt sich kaufen. Tippe einen freien Platz an, um einen Perk auszuwählen, einen belegten, um ihn abzulegen.' }),
+      el('div', { class: 'pslots' }, slotEls), picker, slotBuy,
       el('div', { class: 'chsum' }, [el('div', {}, [el('span', { text: 'Dein Guthaben' })]), el('span', { class: 'coinchip big', html: COIN + U.fmtInt(sv.coins) })]),
       this.testMode ? el('div', { class: 'unlock', text: 'Testmodus ist an: alle Perks und drei Plätze sind frei.' }) : null,
       el('div', { class: 'pgrid' }, cards),
@@ -8793,7 +9055,7 @@ const UIProgress = {
         el('div', { class: 'qicon', html: QUEST_ICON[d.kind] }),
         el('div', { class: 'qbody' }, [
           el('div', { class: 'whead' }, [el('span', { class: 'nm', text: d.name }), el('span', { class: 'cls', text: map.name })]),
-          el('div', { class: 'qtxt', text: d.text }),
+          el('div', { class: 'qtxt', text: d.text + (!q.done && q.got && q.got.length ? ' · ' + q.got.length + ' schon ' + (d.kind === 'collect' ? 'eingesammelt' : 'zugestellt') : '') }),
           el('div', { class: 'ds', text: d.desc }),
           el('div', { class: 'qfoot' }, [
             el('span', { class: 'qpay', html: '+' + coins + COIN + ' · +' + d.xp + ' XP' }),
@@ -8839,6 +9101,15 @@ const UIProgress = {
 
   /* Kaufen mit zweitem Tipp zur Bestätigung (kein Browser-Dialog); after baut die Seite danach neu auf,
      short: nur der Preis, verb: statt „Kaufen“ (z. B. „Tauschen“) */
+  /* Aufträge im Flug (GameQuests._questKeep): eingesammelte Ballons und zugestellte Päckchen bleiben gespeichert.
+     Bonus-Level: bonus[id].keep { got, t } bis zum geschafften Level; Brett: quests.list[i].got (nur am selben Tag) */
+  questKeep(o) {
+    const sv = this.save;
+    if (o.bonus) { const b = sv.bonus[o.id] || (sv.bonus[o.id] = { stars: 0, best: null }); b.keep = { got: o.got, t: o.t }; }
+    else { const Q = sv.quests, e = Q.list[o.idx]; if (Q.day !== o.day || !e || e.id !== o.id || e.done) return; e.got = o.got; }
+    this.store();
+  },
+
   _buyBtn(price, onBuy, after, short, verb) {
     const label = (short ? '' : (verb || 'Kaufen') + ' · ') + U.fmtInt(price) + COIN;
     const b = el('button', { class: 'buy' + (this.save.coins < price ? ' poor' : ''), html: label });
