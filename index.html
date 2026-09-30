@@ -632,7 +632,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = {"v": "4.3.28", "t": "23:14 30.09.2026", "c": "4cae6e2"};
+window.AUFWIND_BUILD = {"v": "4.4.29", "t": "23:39 30.09.2026", "c": "2c0c80c"};
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -1494,13 +1494,14 @@ const CHALLENGES = [
   { id: 'zeit', cat: 'Strecke', name: 'Luftbewohner', kind: 'sum', tiers: [1, 5, 20], unit: 'h', dec: 1, goal: '{v} Stunden in der Luft', desc: 'Flugzeit aus allen Flügen zusammen.', val: s => s.airtime / 3600 },
   { id: 'kuehe', cat: 'Entdecken', name: 'Almbesuch', kind: 'sum', tiers: [5, 30, 100], goal: '{v} Kuhherden im Tiefflug besuchen', desc: 'Unter 170 m über Grund so nah, dass die Glocken bimmeln.' },
   { id: 'fotos', cat: 'Entdecken', name: 'Luftbildner', kind: 'sum', tiers: [5, 25, 75], goal: '{v} Fotos schießen', desc: 'Fotomotive ruhig anfliegen, bis der Ring voll ist.' },
+  { id: 'gipfel', cat: 'Entdecken', name: 'Gipfelstürmer', kind: 'sum', tiers: [5, 30, 100], goal: '{v} Gipfelkreuze überfliegen', desc: 'Aus Aufträgen und Bonus-Leveln: bis 120 m über dem Kreuz und dicht daran vorbei.' },
   { id: 'adler', cat: 'Entdecken', name: 'Adlerauge', kind: 'sum', tiers: [1, 5, 20], goal: '{v}-mal dem Adler ausweichen', desc: 'Wenn er herabstößt: harte Kurve!' },
   { id: 'rennen', cat: 'Wettkampf', name: 'Rennsieger', kind: 'sum', tiers: [1, 5, 15], goal: '{v} Rennen gewinnen', desc: 'Als Erster durchs Ziel und sicher landen.' },
   { id: 'endlos', cat: 'Wettkampf', name: 'Frontläufer', kind: 'max', tiers: [500, 1500, 3000], unit: 'P', goal: '{v} Punkte in einem Endlosflug', desc: 'Vor der Gewitterfront bleiben und Punkte sammeln.' },
   { id: 'tage', cat: 'Wettkampf', name: 'Stammgast', kind: 'sum', tiers: [1, 7, 30], goal: '{v} Tagesaufgaben schaffen', desc: 'Jeden Tag gibt es eine neue Strecke; jeder Tag zählt einmal.' },
   { id: 'sterne', cat: 'Wettkampf', name: 'Sternesammler', kind: 'sum', tiers: [15, 45, 81], goal: '{v} Missionssterne sammeln', desc: 'Die besten Sterne jeder Mission zählen.', val: s => Object.values(s.missions).reduce((a, b) => a + b, 0) },
   { id: 'auftraege', cat: 'Aufträge', name: 'Auftragsbuch', kind: 'sum', tiers: [5, 30, 120], goal: '{v} Aufträge erledigen', desc: 'Jeder Auftrag vom Auftragsbrett zählt.' },
-  { id: 'bonus', cat: 'Aufträge', name: 'Bonusjäger', kind: 'sum', tiers: [6, 15, 27], goal: '{v} Sterne in Bonus-Leveln', desc: 'Die besten Sterne jedes Bonus-Levels zählen.', val: s => Object.values(s.bonus || {}).reduce((a, b) => a + (b.stars || 0), 0) },
+  { id: 'bonus', cat: 'Aufträge', name: 'Bonusjäger', kind: 'sum', tiers: [6, 18, 33], goal: '{v} Sterne in Bonus-Leveln', desc: 'Die besten Sterne jedes Bonus-Levels zählen.', val: s => Object.values(s.bonus || {}).reduce((a, b) => a + (b.stars || 0), 0) },
 ];
 
 /* ---------- Aufträge: Auftragsbrett mit drei neuen je Tag (UI.questBoard) ----------
@@ -1508,6 +1509,7 @@ const CHALLENGES = [
          rings    Ringparcours zwischen Start und Landeplatz, der nächste Ring leuchtet gelb
          drop     Post, Blumen oder Proviant abwerfen: tief über das Ziel fliegen (item: post, blumen, proviant)
          search   vermissten Wanderer im Suchkreis finden (oranger Rauch) und über ihm kreisen
+         peaks    Gipfelkreuze überfliegen (bis 120 m darüber, waagrecht unter 70 m); high: die meisten über dem Start
          goal     Flugwert erreichen – stat: gain (Höhe über dem Start), thermals, herds, dist, circles
    n Anzahl (bei goal: value), high: Ziele weiter oben, needs: nur in Gebieten mit dieser Tierart.
    coins/xp: Lohn. Alle drei an einem Tag geschafft: QUEST_CHEST obendrauf. */
@@ -1524,6 +1526,10 @@ const QUESTS = [
     desc: 'Beim Dorffest sind die Luftballons davongeflogen. Flieg mitten hindurch – sie platzen an der Kappe. Jeder Ballon bleibt gespeichert, du kannst in mehreren Flügen sammeln.' },
   { id: 'ringe', kind: 'rings', n: 6, name: 'Ringflug', text: 'Durch 6 Ringe fliegen', coins: 70, xp: 45,
     desc: 'Die Flugschule hat Ringe zwischen Startplatz und Landewiese gehängt. Immer durch den gelben.' },
+  { id: 'gipfel', kind: 'peaks', n: 2, name: 'Gipfelgrüße', text: '2 Gipfelkreuze überfliegen', coins: 70, xp: 45,
+    desc: 'Zwei Gipfel wollen gegrüßt werden. Flieg bis auf 120 m über das Kreuz – dann wackelt der Wimpel. Die Gipfel liegen so, dass du sie im Gleitflug erreichst.' },
+  { id: 'gipfeltour', kind: 'peaks', n: 4, high: true, name: 'Gipfeltour', text: '4 Gipfel überfliegen', coins: 150, xp: 90,
+    desc: 'Vier Gipfel, und die meisten liegen über dem Startplatz: Ohne Thermik kommst du nicht hinauf. Die Karte zeigt, wie viel höher jeder ist.' },
   { id: 'bergwacht', kind: 'search', n: 1, name: 'Bergwacht', text: 'Vermissten Wanderer finden', coins: 110, xp: 70,
     desc: 'Ein Wanderer hat sich verstiegen und zündet orangen Rauch. Such im Kreis auf der Karte und kreise über ihm, bis die Bergwacht die Position hat.' },
   { id: 'hoehe', kind: 'goal', stat: 'gain', value: 600, unit: 'm', name: 'Höhenjäger', text: '600 m über den Startplatz steigen', coins: 60, xp: 40,
@@ -1567,6 +1573,12 @@ const BONUS = [
   { id: 'b09', name: 'Kraterringe', map: 'vulkan', reward: 170, coins: 50, quest: { kind: 'rings', n: 8 }, starTime: [380, 270],
     brief: 'Acht Ringe am Hang des Vulkans hinunter zur Küste. Die Sonnenseite trägt, der Rauch zeigt den Wind.' },
 ];
+BONUS.push(
+  { id: 'b10', name: 'Gipfelsturm', map: 'dolomiten', reward: 180, coins: 55, startAGL: 450, quest: { kind: 'peaks', n: 4, high: true }, starTime: [1100, 740],
+    brief: 'Vier Gipfelkreuze in den Dolomiten, die meisten höher als dein Startpunkt. Such dir den nächsten Bart, kurbel dich hinauf und flieg dicht über das Kreuz. Erreichte Gipfel bleiben gespeichert.' },
+  { id: 'b11', name: 'Goldene Stunde', map: 'luesen', reward: 150, coins: 50, hour: 19, startAGL: 350, quest: { kind: 'peaks', n: 3 }, starTime: [600, 400],
+    brief: 'Die Abendsonne liegt auf den Lüsner Bergen. Grüße drei Gipfelkreuze im letzten Licht – die Thermik schläft schon, also nutz jeden Hang und jeden Meter Höhe.' },
+);
 for (const b of BONUS) {
   b.bonus = true;
   b.objectives = [{ type: 'quest', text: questText(b.quest) }, { type: 'land', text: 'Sicher landen' }];
@@ -1577,6 +1589,7 @@ function questText(q) {
     case 'collect': return n + ' Luftballons einsammeln';
     case 'rings': return 'Durch ' + n + ' Ringe fliegen';
     case 'drop': return (q.item === 'blumen' ? 'Blüten über ' + n + (n > 1 ? ' Hochzeiten' : ' Hochzeit') : q.item === 'proviant' ? 'Proviant zu ' + n + (n > 1 ? ' Seilschaften' : ' Seilschaft') : 'Post an ' + n + (n > 1 ? ' Höfe' : ' Hof')) + ' abwerfen';
+    case 'peaks': return n + (n > 1 ? ' Gipfelkreuze' : ' Gipfelkreuz') + ' überfliegen';
     case 'search': return n > 1 ? n + ' vermisste Wanderer finden' : 'Vermissten Wanderer finden';
   }
   return q.text || '';
@@ -5739,6 +5752,12 @@ class Minimap {
         ctx.fillStyle = q.def.item === 'blumen' ? '#ff6fae' : (q.def.item === 'proviant' ? '#7cfc9a' : '#ffffff');
         ctx.fillRect(s[0] - 5, s[1] - 3.5, 10, 7); ctx.strokeStyle = '#0b1f3a'; ctx.lineWidth = 1.2;
         ctx.beginPath(); ctx.moveTo(s[0] - 5, s[1] - 3.5); ctx.lineTo(s[0], s[1] + 0.5); ctx.lineTo(s[0] + 5, s[1] - 3.5); ctx.stroke();
+      } else if (q.kind === 'peaks') for (const t of q.items) {
+        if (t.got) continue; const s = clampS(toS(t.x, t.z), 7); if (!inR(s)) continue;
+        ctx.fillStyle = '#ffd24a'; ctx.strokeStyle = '#0b1f3a'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(s[0], s[1] - 6); ctx.lineTo(s[0] + 5.5, s[1] + 4); ctx.lineTo(s[0] - 5.5, s[1] + 4); ctx.closePath(); ctx.fill(); ctx.stroke();
+        const dh = Math.round((t.y - p.y) / 10) * 10, tx = (dh > 0 ? '+' : '') + dh;
+        ctx.font = '700 9px "Chakra Petch", system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineWidth = 2.6;
+        ctx.strokeText(tx, s[0] + 7, s[1]); ctx.fillStyle = dh > 30 ? '#7cfc9a' : dh < -30 ? '#ffc24b' : '#e6eef8'; ctx.fillText(tx, s[0] + 7, s[1]);
       } else if (q.kind === 'search') for (const t of q.items) {
         if (t.got) continue;
         if (!t.found) { const s = toS(t.cx, t.cz); ctx.strokeStyle = '#ff9a4a'; ctx.lineWidth = 1.6; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.arc(s[0], s[1], Math.max(6, t.r * k), 0, 6.28); ctx.stroke(); ctx.setLineDash([]); }
@@ -5973,7 +5992,7 @@ class Game {
     this.avgBuf = []; this.avgClimb = 0; this.resultShown = false; this.eagleDone = false; this.eagleMode = null;
     this.stormEta = null; this.stormLandEta = null; this.stormHit = 0; this.orbitA = null; this.showAllLandmarks = false;
     // Herausforderungen: Zähler dieses Flugs, Kurs-Verfolgung für Kreise und liegende Acht
-    this.chRun = { acht: Infinity, ohren: 0, kreise: 0, spirale: 0, kuehe: 0, fotos: 0 }; this.chSeen = {}; this.chT = 0;
+    this.chRun = { acht: Infinity, ohren: 0, kreise: 0, spirale: 0, kuehe: 0, fotos: 0, gipfel: 0 }; this.chSeen = {}; this.chT = 0;
     this.man = { last: null, dir: 0, acc: 0, back: 0, backT: 0, t0: 0, prev: null, ears: false }; this.herdsSeen = new Set();
 
     this._setupQuests(cfg);
@@ -6160,6 +6179,7 @@ class Game {
   }
 
   _advanceTime(dt) {
+    if (this.mode === 'bonus' && this.mission && this.mission.hour) return;      // feste Tageszeit (Goldene Stunde)
     const prev = this.hour;
     this.hour = prev + dt * this.timePerSec;
     if (Math.floor(this.hour * 12) !== Math.floor(prev * 12)) this.world.setTime(this.hour);
@@ -6833,13 +6853,14 @@ Object.assign(Game.prototype, GameRules);
      rings    Ringparcours zwischen Start und Landeplatz – immer durch den gelben Ring
      drop     Post, Blumen, Proviant – tief über das Ziel fliegen, dann schwebt es am Fallschirm hinunter
      search   vermisster Wanderer mit orangem Rauch im Suchkreis – finden, dann über ihm kreisen
+     peaks    Gipfelkreuze – bis 120 m über dem Kreuz und waagrecht unter 70 m daran vorbei
      goal     Flugwert: Höhe über dem Start, Bärte, Kuhherden, Entfernung, Vollkreise
    Die Ziele liegen fest je Auftrag (eigener Seed). Die 3D-Teile baut QuestMarks einmal je Flug:
    wenige Einzelobjekte mit geteilten Materialien, Rauch als Instanzen, Päckchen und Konfetti wiederverwendet. */
 'use strict';
 
 /* Reichweiten in Metern: einsammeln, Ring, Abwurf (waagrecht, höchstens so hoch über dem Ziel), Wanderer finden, überkreisen */
-const QUEST_R = { balloon: 24, ring: 18, drop: 75, dropAGL: 150, find: 170, findAGL: 380, circle: 230, hold: 10 };
+const QUEST_R = { balloon: 24, ring: 18, drop: 75, dropAGL: 150, find: 170, findAGL: 380, circle: 230, hold: 10, peak: 70, peakAGL: 120 };
 /* Ballons: fünf Farben, Mitte der Hülle BALLOON_CY über dem Knoten */
 const BALLOON_COLS = [0xe8453c, 0xffc93c, 0x3aa0ff, 0x5ee07a, 0xff4f9a], BALLOON_CY = 9.2;
 const QUEST_ITEM = {
@@ -6917,6 +6938,14 @@ class QuestMarks {
       : colGeo([[oct(2.4, 1, 1.4, 1), cfg.marker]]);
     t.sign = this._add(mk, this.bright, x, y + 34, z); this.spin.push(t.sign);
     t.beam = this._beam(cfg.beam, x, y, z, 300);
+  }
+  /* Gipfelkreuz mit Wimpel; gelber Lichtschacht und drehendes Zeichen darüber */
+  addPeak(t) {
+    const { box, oct } = _G;
+    const g = colGeo([[box(0.55, 7, 0.55, 0, 3.5, 0), 0x6b4a2b], [box(3.2, 0.55, 0.55, 0, 5.2, 0), 0x6b4a2b], [box(0.08, 2.4, 0.08, 1.6, 8.2, 0), 0xdddddd], [box(2.4, 1.3, 0.08, 2.8, 8.9, 0), 0xffc93c], [box(3.4, 0.9, 3.4, 0, 0.45, 0), 0x8d8a82]]);
+    t.mesh = this._add(g, this.bright, t.x, t.y, t.z);
+    t.sign = this._add(colGeo([[oct(2.6, 1, 1.4, 1), 0xffd24a]]), this.bright, t.x, t.y + 40, t.z); this.spin.push(t.sign);
+    t.beam = this._beam(0xffd24a, t.x, t.y, t.z, 320);
   }
   dropDone(t) { if (t.beam) t.beam.visible = false; if (t.sign) { t.sign.visible = false; const i = this.spin.indexOf(t.sign); if (i >= 0) this.spin.splice(i, 1); } }
 
@@ -7119,6 +7148,27 @@ const GameQuests = {
         s.rot = rng() * 6.28; s.got = false; items.push(s); M.addDrop(s, d.item);
         cx = s.x; cz = s.z; cy = s.y + 110;
       }
+    } else if (d.kind === 'peaks') {
+      // Gipfel: Kuppen mit Vorsprung vor ihrer Umgebung. Normal: im Gleitflug erreichbar (mindestens 1 : 8 bis 40 m über dem Kreuz);
+      // high: die meisten 150–450 m über dem Start – dafür braucht es Bärte. Eins nach dem anderen, in Richtung Tal und darüber hinaus.
+      let cx = S.x, cz = S.z, cy = S.h; const top = S.h + Math.min(450, room - 80);
+      for (let i = 0; i < q.n; i++) {
+        const first = !i, wantHigh = d.high && i > 0;
+        let s = null;
+        for (let pass = 0; pass < 3 && !s; pass++) {
+          const k = [1, 1.6, 2.4][pass];
+          s = this._questSpot(rng, cx, cz, 500, (first ? 2200 : 1500) * k, first ? a0 : rng() * 6.28, first ? 3 * k : 6.28, (x, z, h, sl, r) => {
+            if (sl > 0.8 || !far(x, z, 300) || items.some(t => U.dist2(t.x, t.z, x, z) < 450)) return -1e9;
+            const prom = h - (W.height(x + 130, z) + W.height(x - 130, z) + W.height(x, z + 130) + W.height(x, z - 130)) / 4;
+            if (wantHigh) return prom * 1.2 - Math.abs(h - Math.min(top, S.h + 150 + rng() * 300)) * 0.35 + rng() * 25;
+            const limit = cy - r / 8 + 40;
+            return h > limit ? -1e6 - (h - limit) : prom * 1.2 - (limit - h) * 0.12 + rng() * 25;
+          }, 220 + pass * 120);
+        }
+        if (!s) continue;
+        s.got = false; items.push(s); M.addPeak(s);
+        cx = s.x; cz = s.z; cy = Math.max(S.h - 50, s.y + 90);
+      }
     } else if (d.kind === 'search') {
       for (let i = 0; i < q.n; i++) {
         const s = this._questSpot(rng, S.x, S.z, 1000, 2400, a0, 4, (x, z, h, sl) => sl < 0.75 && far(x, z, 600) && h < map.base - 500 && h < S.h + 200 && !items.some(t => U.dist2(t.x, t.z, x, z) < 1000)
@@ -7132,7 +7182,7 @@ const GameQuests = {
     if (d.kind !== 'goal') { q.n = items.length; if (!q.n) return null; }
     // Gespeicherter Fortschritt: diese Ziele sind schon erledigt (die Zeit früherer Versuche zählt im Bonus-Level mit)
     const keep = o.keep && Array.isArray(o.keep.got) ? o.keep : null;
-    if (keep && (d.kind === 'collect' || d.kind === 'drop')) {
+    if (keep && (d.kind === 'collect' || d.kind === 'drop' || d.kind === 'peaks')) {
       for (const i of keep.got) {
         const it = items[i]; if (!it || it.got) continue;
         it.got = true; q.got++; if (d.kind === 'collect') M.popBalloon(it, true); else M.dropDone(it);
@@ -7143,7 +7193,7 @@ const GameQuests = {
   },
   /* Fortschritt sofort sichern (auch wenn der Flug danach abstürzt oder abgebrochen wird) */
   _questKeep(q) {
-    if (!this.ui || !this.ui.questKeep || (q.kind !== 'collect' && q.kind !== 'drop')) return;
+    if (!this.ui || !this.ui.questKeep || (q.kind !== 'collect' && q.kind !== 'drop' && q.kind !== 'peaks')) return;
     const got = []; q.items.forEach((it, i) => { if (it.got) got.push(i); });
     this.ui.questKeep({ bonus: q.bonus, id: q.bonus ? this.mission.id : q.def.id, idx: q.idx, day: this.questDay, got, t: Math.round((q.keepT || 0) + this.t) });
   },
@@ -7173,6 +7223,12 @@ const GameQuests = {
           for (const t of q.items) if (!t.got && p.y - t.y < QUEST_R.dropAGL && U.dist2(p.x, p.z, t.x, t.z) < QUEST_R.drop) {
             t.got = true; q.got++; M.dropParcel(p, t, q.def.item); M.dropDone(t); this.audio.whoosh(); this._questKeep(q);
             ui.toast((QUEST_ITEM[q.def.item] || QUEST_ITEM.post).done + (q.n > 1 ? ' · ' + q.got + ' / ' + q.n : ''));
+          }
+          break;
+        case 'peaks':
+          for (const t of q.items) if (!t.got && p.y - t.y < QUEST_R.peakAGL && p.y - t.y > -12 && U.dist2(p.x, p.z, t.x, t.z) < QUEST_R.peak) {
+            t.got = true; q.got++; M.dropDone(t); M.burst(t.x, t.y + 9, t.z, 40, [0xffd24a, 0xfbfbf8, 0xff8a3c], 6, 0); this.audio.chime(); this.chRun.gipfel++; this._questKeep(q);
+            ui.toast('Gipfel gegrüßt' + (q.n > 1 ? ' · ' + q.got + ' / ' + q.n : ''));
           }
           break;
         case 'search':
@@ -7212,13 +7268,13 @@ const GameQuests = {
       if (q.done) continue;
       let cands = null;
       if (q.kind === 'rings') cands = q.items[q.got] ? [q.items[q.got]] : null;
-      else if (q.kind === 'collect' || q.kind === 'drop') cands = q.items;
+      else if (q.kind === 'collect' || q.kind === 'drop' || q.kind === 'peaks') cands = q.items;
       else if (q.kind === 'search') cands = q.items;
       if (!cands) continue;
       for (const t of cands) {
         if (t.got) continue;
         const x = q.kind === 'search' && !t.found ? t.cx : t.x, z = q.kind === 'search' && !t.found ? t.cz : t.z, d = U.dist2(p.x, p.z, x, z);
-        if (d < bd) { bd = d; best = t; nav.x = x; nav.z = z; nav.y = q.kind === 'rings' || q.kind === 'collect' ? t.y : null; nav.name = q.kind === 'rings' ? 'Ring ' + (q.got + 1) : q.kind === 'collect' ? 'Ballon' : q.kind === 'search' ? (t.found ? 'Wanderer' : 'Suchgebiet') : 'Abwurf'; }
+        if (d < bd) { bd = d; best = t; nav.x = x; nav.z = z; nav.y = q.kind === 'rings' || q.kind === 'collect' || q.kind === 'peaks' ? t.y : null; nav.name = q.kind === 'rings' ? 'Ring ' + (q.got + 1) : q.kind === 'collect' ? 'Ballon' : q.kind === 'peaks' ? 'Gipfel' : q.kind === 'search' ? (t.found ? 'Wanderer' : 'Suchgebiet') : 'Abwurf'; }
       }
     }
     return best ? nav : null;
@@ -8793,7 +8849,7 @@ const UIProgress = {
       const o = sv.chal.b[id]; if (o == null || (low ? v < o : v > o)) sv.chal.b[id] = v;
     };
     add('ohren', ch.ohren); add('kreise', ch.kreise); add('spirale', ch.spirale); add('klapper', r.recovered); add('abfangen', r.caught);
-    add('butter', r.landQ === 'perfekt' ? 1 : 0); add('baerte', r.thermals); add('kuehe', ch.kuehe); add('fotos', ch.fotos);
+    add('butter', r.landQ === 'perfekt' ? 1 : 0); add('baerte', r.thermals); add('kuehe', ch.kuehe); add('fotos', ch.fotos); add('gipfel', ch.gipfel);
     add('adler', r.eagleMiss); add('rennen', r.race && r.race.place === 1 && r.success ? 1 : 0); add('tage', firstDaily ? 1 : 0); add('auftraege', quests || 0);
     best('acht', ch.acht, true); if (r.kind === 'landed') best('punkt', r.landDist, true);
     best('hoch', r.maxAlt); best('weit', r.maxDist / 1000); best('dauer', r.time / 60);
@@ -8828,7 +8884,7 @@ const UIProgress = {
     const R = g.chRun, p = g.pilot;
     switch (id) {
       case 'acht': return R.acht; case 'ohren': return R.ohren; case 'kreise': return R.kreise; case 'spirale': return R.spirale;
-      case 'kuehe': return R.kuehe; case 'fotos': return R.fotos; case 'klapper': return g.flags.recovered; case 'abfangen': return g.flags.caught; case 'adler': return g.flags.eagleMiss;
+      case 'kuehe': return R.kuehe; case 'fotos': return R.fotos; case 'gipfel': return R.gipfel; case 'klapper': return g.flags.recovered; case 'abfangen': return g.flags.caught; case 'adler': return g.flags.eagleMiss;
       case 'baerte': return g.doneThermals.size; case 'hm': return g.climbTotal; case 'hoch': return p.stats.maxAlt;
       case 'km': return p.stats.dist / 1000; case 'weit': return g.maxDist / 1000; case 'dauer': return g.t / 60; case 'zeit': return g.t / 3600;
       case 'endlos': return g.mode === 'endless' ? g.score : null;
@@ -9147,7 +9203,7 @@ const UIProgress = {
         el('div', { class: 'qicon', html: QUEST_ICON[d.kind] }),
         el('div', { class: 'qbody' }, [
           el('div', { class: 'whead' }, [el('span', { class: 'nm', text: d.name }), el('span', { class: 'cls', text: map.name })]),
-          el('div', { class: 'qtxt', text: d.text + (!q.done && q.got && q.got.length ? ' · ' + q.got.length + ' schon ' + (d.kind === 'collect' ? 'eingesammelt' : 'zugestellt') : '') }),
+          el('div', { class: 'qtxt', text: d.text + (!q.done && q.got && q.got.length ? ' · ' + q.got.length + ' schon ' + (d.kind === 'collect' ? 'eingesammelt' : d.kind === 'peaks' ? 'überflogen' : 'zugestellt') : '') }),
           el('div', { class: 'ds', text: d.desc }),
           el('div', { class: 'qfoot' }, [
             el('span', { class: 'qpay', html: '+' + coins + COIN + ' · +' + d.xp + ' XP' }),
