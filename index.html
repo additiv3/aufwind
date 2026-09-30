@@ -632,7 +632,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = {"v": "4.4.29", "t": "23:39 30.09.2026", "c": "2c0c80c"};
+window.AUFWIND_BUILD = {"v": "4.5.30", "t": "00:21 01.10.2026", "c": "9d94754"};
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -922,6 +922,9 @@ const WINGS = [
   { id: 'komet', name: 'Kometenjäger', cls: 'CCC', color: 0x101828, stripe: 0xffc24b,
     vMinSink: 9.3, sMin: 0.90, vTrim: 11.7, glide: 12.3, vMax: 16.7, bank: 56, agility: 1.3, stability: 0.5, unlockXP: 3800, price: 800,
     desc: 'Wettkampf-Zweileiner. Gleitzahl über 12, brutal schnell. Klappt beim kleinsten Fehler – nur für Profis.' },
+  { id: 'schwan', name: 'Himmelsschwan', cls: 'Ultraleicht', color: 0xf3f0e6, stripe: 0x3aa0ff,
+    vMinSink: 8.2, sMin: 0.80, vTrim: 10.6, glide: 10.8, vMax: 13.8, bank: 50, agility: 1.0, stability: 1.0, unlockXP: 5200, price: 900,
+    desc: 'Hauchdünnes Tuch, das geringste Sinken aller Schirme: In schwacher Thermik steigt er, wo andere absaufen, und Top-Landungen auf der Alm gelingen leichter. Dafür nur mittlere Endgeschwindigkeit.' },
 ];
 
 /* ---------- Fluggebiete ----------
@@ -1494,6 +1497,7 @@ const CHALLENGES = [
   { id: 'zeit', cat: 'Strecke', name: 'Luftbewohner', kind: 'sum', tiers: [1, 5, 20], unit: 'h', dec: 1, goal: '{v} Stunden in der Luft', desc: 'Flugzeit aus allen Flügen zusammen.', val: s => s.airtime / 3600 },
   { id: 'kuehe', cat: 'Entdecken', name: 'Almbesuch', kind: 'sum', tiers: [5, 30, 100], goal: '{v} Kuhherden im Tiefflug besuchen', desc: 'Unter 170 m über Grund so nah, dass die Glocken bimmeln.' },
   { id: 'fotos', cat: 'Entdecken', name: 'Luftbildner', kind: 'sum', tiers: [5, 25, 75], goal: '{v} Fotos schießen', desc: 'Fotomotive ruhig anfliegen, bis der Ring voll ist.' },
+  { id: 'toplandung', cat: 'Landen', name: 'Hochlandung', kind: 'sum', tiers: [1, 6, 20], goal: '{v} Top-Landungen auf Almen und Plateaus', desc: 'Lande im Kreis auf einer Alm oder einem Plateau hoch über dem Tal – Bonus-Level und Aufträge.' },
   { id: 'gipfel', cat: 'Entdecken', name: 'Gipfelstürmer', kind: 'sum', tiers: [5, 30, 100], goal: '{v} Gipfelkreuze überfliegen', desc: 'Aus Aufträgen und Bonus-Leveln: bis 120 m über dem Kreuz und dicht daran vorbei.' },
   { id: 'adler', cat: 'Entdecken', name: 'Adlerauge', kind: 'sum', tiers: [1, 5, 20], goal: '{v}-mal dem Adler ausweichen', desc: 'Wenn er herabstößt: harte Kurve!' },
   { id: 'rennen', cat: 'Wettkampf', name: 'Rennsieger', kind: 'sum', tiers: [1, 5, 15], goal: '{v} Rennen gewinnen', desc: 'Als Erster durchs Ziel und sicher landen.' },
@@ -1501,7 +1505,7 @@ const CHALLENGES = [
   { id: 'tage', cat: 'Wettkampf', name: 'Stammgast', kind: 'sum', tiers: [1, 7, 30], goal: '{v} Tagesaufgaben schaffen', desc: 'Jeden Tag gibt es eine neue Strecke; jeder Tag zählt einmal.' },
   { id: 'sterne', cat: 'Wettkampf', name: 'Sternesammler', kind: 'sum', tiers: [15, 45, 81], goal: '{v} Missionssterne sammeln', desc: 'Die besten Sterne jeder Mission zählen.', val: s => Object.values(s.missions).reduce((a, b) => a + b, 0) },
   { id: 'auftraege', cat: 'Aufträge', name: 'Auftragsbuch', kind: 'sum', tiers: [5, 30, 120], goal: '{v} Aufträge erledigen', desc: 'Jeder Auftrag vom Auftragsbrett zählt.' },
-  { id: 'bonus', cat: 'Aufträge', name: 'Bonusjäger', kind: 'sum', tiers: [6, 18, 33], goal: '{v} Sterne in Bonus-Leveln', desc: 'Die besten Sterne jedes Bonus-Levels zählen.', val: s => Object.values(s.bonus || {}).reduce((a, b) => a + (b.stars || 0), 0) },
+  { id: 'bonus', cat: 'Aufträge', name: 'Bonusjäger', kind: 'sum', tiers: [6, 24, 45], goal: '{v} Sterne in Bonus-Leveln', desc: 'Die besten Sterne jedes Bonus-Levels zählen.', val: s => Object.values(s.bonus || {}).reduce((a, b) => a + (b.stars || 0), 0) },
 ];
 
 /* ---------- Aufträge: Auftragsbrett mit drei neuen je Tag (UI.questBoard) ----------
@@ -1509,6 +1513,7 @@ const CHALLENGES = [
          rings    Ringparcours zwischen Start und Landeplatz, der nächste Ring leuchtet gelb
          drop     Post, Blumen oder Proviant abwerfen: tief über das Ziel fliegen (item: post, blumen, proviant)
          search   vermissten Wanderer im Suchkreis finden (oranger Rauch) und über ihm kreisen
+         land     (maps: nur in diesen Gebieten) Top-Landung: auf einer Almwiese sicher landen (high: über dem Start, dafür braucht es einen Bart)
          peaks    Gipfelkreuze überfliegen (bis 120 m darüber, waagrecht unter 70 m); high: die meisten über dem Start
          goal     Flugwert erreichen – stat: gain (Höhe über dem Start), thermals, herds, dist, circles
    n Anzahl (bei goal: value), high: Ziele weiter oben, needs: nur in Gebieten mit dieser Tierart.
@@ -1530,6 +1535,10 @@ const QUESTS = [
     desc: 'Zwei Gipfel wollen gegrüßt werden. Flieg bis auf 120 m über das Kreuz – dann wackelt der Wimpel. Die Gipfel liegen so, dass du sie im Gleitflug erreichst.' },
   { id: 'gipfeltour', kind: 'peaks', n: 4, high: true, name: 'Gipfeltour', text: '4 Gipfel überfliegen', coins: 150, xp: 90,
     desc: 'Vier Gipfel, und die meisten liegen über dem Startplatz: Ohne Thermik kommst du nicht hinauf. Die Karte zeigt, wie viel höher jeder ist.' },
+  { id: 'almlandung', kind: 'land', n: 1, maps: ['voralpen', 'luesen', 'wasserkuppe', 'wueste', 'vulkan'], name: 'Auf der Alm landen', text: 'Auf der Almwiese landen', coins: 90, xp: 60,
+    desc: 'Eine Almwiese mit Hütte und weißem Kreuz liegt im Gleitflug erreichbar über dem Tal. Flieg hin, teil dir die Höhe ein und setz innerhalb von 35 m vom Kreuz sicher auf.' },
+  { id: 'hochlandung', kind: 'land', n: 1, high: true, maps: ['luesen', 'vulkan'], name: 'Hochlandung', text: 'Auf einer Alm über dem Start landen', coins: 170, xp: 100,
+    desc: 'Die Wiese liegt höher als dein Startplatz. Such dir einen Bart, steig über die Kante und lande oben, innerhalb von 35 m vom Kreuz.' },
   { id: 'bergwacht', kind: 'search', n: 1, name: 'Bergwacht', text: 'Vermissten Wanderer finden', coins: 110, xp: 70,
     desc: 'Ein Wanderer hat sich verstiegen und zündet orangen Rauch. Such im Kreis auf der Karte und kreise über ihm, bis die Bergwacht die Position hat.' },
   { id: 'hoehe', kind: 'goal', stat: 'gain', value: 600, unit: 'm', name: 'Höhenjäger', text: '600 m über den Startplatz steigen', coins: 60, xp: 40,
@@ -1574,6 +1583,14 @@ const BONUS = [
     brief: 'Acht Ringe am Hang des Vulkans hinunter zur Küste. Die Sonnenseite trägt, der Rauch zeigt den Wind.' },
 ];
 BONUS.push(
+  { id: 'b12', name: 'Almlandung', map: 'luesen', reward: 140, coins: 45, landTop: 'alm', landR: 55, starLand: [40, 15],
+    brief: 'Heute landest du nicht im Tal: Der Lüsner Almbauer hat eine Wiese hoch über dem Dorf gemäht, mit Hütte und Fahne. Flieg vom Start hinüber, teil dir die Höhe ein und setz im weißen Kreis auf. Zu tief angekommen? Dann gibt es Brotzeit im Tal.' },
+  { id: 'b13', name: 'Hochalm', map: 'voralpen', reward: 120, coins: 40, landTop: 'alm', landR: 55, starLand: [40, 15],
+    brief: 'Die Hochalm im Alpenvorland liegt mitten am Hang. Sie ist im Gleitflug erreichbar, aber nur mit sauberer Höhenplanung: zu hoch darüber heißt Ausrunden, zu tief heißt Hang. Lande im Kreis, gegen den Wind.' },
+  { id: 'b14', name: 'Gipfelwiese', map: 'luesen', reward: 190, coins: 55, landTop: 'gipfel', landR: 55, starLand: [40, 15], startAGL: 300,
+    brief: 'Die Landewiese liegt diesmal über dem Startplatz, auf einem Absatz im Hang! Such dir einen Bart, kurbel dich über die Kante und lande oben. Die Karte zeigt mit dem Landekreuz, wo du hin musst.' },
+  { id: 'b15', name: 'Kraterrand', map: 'vulkan', reward: 200, coins: 60, landTop: 'gipfel', landR: 55, starLand: [40, 15], startAGL: 300,
+    brief: 'Am Rand des Kraters liegt eine ebene Wiese, die keine Straße erreicht. Gewinn Höhe an der Sonnenseite und setz dort oben auf. Auch die Landung bergauf will gelernt sein: Gegenwind, Schwung abbauen, ausrunden.' },
   { id: 'b10', name: 'Gipfelsturm', map: 'dolomiten', reward: 180, coins: 55, startAGL: 450, quest: { kind: 'peaks', n: 4, high: true }, starTime: [1100, 740],
     brief: 'Vier Gipfelkreuze in den Dolomiten, die meisten höher als dein Startpunkt. Such dir den nächsten Bart, kurbel dich hinauf und flieg dicht über das Kreuz. Erreichte Gipfel bleiben gespeichert.' },
   { id: 'b11', name: 'Goldene Stunde', map: 'luesen', reward: 150, coins: 50, hour: 19, startAGL: 350, quest: { kind: 'peaks', n: 3 }, starTime: [600, 400],
@@ -1581,9 +1598,11 @@ BONUS.push(
 );
 for (const b of BONUS) {
   b.bonus = true;
-  b.objectives = [{ type: 'quest', text: questText(b.quest) }, { type: 'land', text: 'Sicher landen' }];
+  b.objectives = b.quest ? [{ type: 'quest', text: questText(b.quest) }, { type: 'land', text: 'Sicher landen' }]
+    : [{ type: 'landAt', value: b.landR, text: (b.landTop === 'gipfel' ? 'Auf der Wiese oben landen (' : 'Auf der Alm landen (') + b.landR + ' m)' }];
 }
 function questText(q) {
+  if (!q) return '';
   const n = q.n || 1;
   switch (q.kind) {
     case 'collect': return n + ' Luftballons einsammeln';
@@ -3510,6 +3529,7 @@ class World {
       const a = m.sites.launch, b = m.sites.landing;
       this.launch = { x: a.x, z: a.z, h: this.rawHeight(a.x, a.z), heading: U.rad(a.heading), airOnly: false };
       this.landing = { x: b.x, z: b.z, h: this.rawHeight(b.x, b.z), pad: 75 };
+      if (this.opts.landTop) this._topLanding(this.opts.landTop);
       this._placeLakes(); this._buildSites();
       return;
     }
@@ -3571,8 +3591,39 @@ class World {
     if (!land) land = { x: best.x + Math.sin(best.heading) * 1500, z: best.z - Math.cos(best.heading) * 1500, h: best.h - 300 };
     if (m.water != null) land.h = Math.max(land.h, m.water + 6);
     this.landing = land;
+    if (this.opts.landTop) this._topLanding(this.opts.landTop);
     this._placeLakes();
     this._buildSites();
+  }
+  /* Top-Landung: der Landeplatz liegt nicht im Tal, sondern auf einer flachen Alm.
+     'alm': im Gleitflug vom Start erreichbar (Gleitzahl 8 plus Reserve), aber deutlich über dem Tal;
+     'gipfel': 80–420 m über dem Startplatz – dafür muss man erst in der Thermik steigen.
+     Der Ort darf im 52-m-Kreis höchstens 14 (dann 24, dann 36) m Höhenunterschied haben; die Wiese selbst planiert height() zu einem Absatz.
+     Findet sich nichts, bleibt der Landeplatz im Tal. */
+  _topLanding(mode) {
+    const L = this.launch, m = this.map, rng = this.siteRng, hi = mode === 'gipfel', R = 52;
+    const ringSpread = (x, z) => {
+      let lo = Infinity, up = -Infinity;
+      for (let k = 0; k < 8; k++) { const h = this.rawHeight(x + Math.cos(k * 0.785) * R, z + Math.sin(k * 0.785) * R); if (h < lo) lo = h; if (h > up) up = h; }
+      return up - lo;
+    };
+    let best = null;
+    for (let pass = 0; pass < 3 && !best; pass++) {
+      const maxSpread = [14, 24, 36][pass]; let bs = -1e9;
+      for (let i = 0; i < 700; i++) {
+        const a = L.heading + U.rad((rng() - 0.5) * 240), r = 650 + rng() * (hi ? 1900 : 1700);
+        const x = L.x + Math.sin(a) * r, z = L.z - Math.cos(a) * r, h = this.rawHeight(x, z);
+        if (m.water != null && h < m.water + 25) continue;
+        const dl = U.dist2(x, z, this.landing.x, this.landing.z); if (dl < 300) continue;
+        let sc;
+        if (hi) { if (h < L.h + 80 || h > Math.min(L.h + 420, m.base - 350)) continue; sc = -Math.abs(h - (L.h + 200)) * 0.3; }
+        else { const reach = L.h - r / 8 - 45; if (h > reach || h < reach - 380) continue; sc = -Math.abs(h - (L.h - r / 7 - 80)) * 0.25; }
+        const sp = ringSpread(x, z); if (sp > maxSpread) continue;
+        sc += -sp * 4 + rng() * 30;
+        if (sc > bs) { bs = sc; best = { x, z, h, pad: R, top: mode }; }
+      }
+    }
+    if (best) this.landing = best;
   }
   /* Probeflug ohne Eingabe: kommt der Schirm sicher vom Hang weg? */
   _launchOK(c, wings) {
@@ -4014,11 +4065,18 @@ class World {
     P.push([new THREE.CircleGeometry(L.pad || 120, 28).rotateX(-Math.PI / 2).translate(L.x, L.h + 0.6, L.z), fieldCol]);
     for (const [r0, r1] of [[26, 34], [58, 62]]) P.push([new THREE.RingGeometry(r0, r1, 36).rotateX(-Math.PI / 2).translate(L.x, L.h + 0.66, L.z), 0xffffff]);
     P.push([box(40, 0.1, 5, L.x, L.h + 0.67, L.z), 0xff7a3d], [box(5, 0.1, 40, L.x, L.h + 0.68, L.z), 0xff7a3d]);
+    if (L.top) {      // Top-Landung: Almhütte mit Bank, Brunnen und Holzzaun statt Kiosk
+      const hx = L.x - 70, hz = L.z + 40, hh = H(hx, hz), ang = Math.atan2(L.x - hx, -(L.z - hz));
+      P.push([box(9, 3.4, 6.4).rotateY(-ang).translate(hx, hh + 1.7, hz), 0x8a5a36], [prism(10, 7.4, 2.4).rotateY(-ang).translate(hx, hh + 3.4, hz), 0x5a4a3a], [box(1.1, 1.8, 0.9).rotateY(-ang).translate(hx + 2, hh + 5, hz + 1), 0x6f6a62]);
+      for (let i = -4; i <= 4; i++) { const fx = hx + i * 2.2, fz = hz + 9, fh = H(fx, fz); P.push([box(0.2, 1.1, 0.2, fx, fh + 0.55, fz), 0x6b4a2b], [box(2.2, 0.15, 0.12, fx + 1.1, fh + 0.85, fz), 0x7a5a38]); }
+      P.push([box(1.8, 0.5, 0.6, L.x + 40, H(L.x + 40, L.z - 40) + 0.3, L.z - 40), 0x6b4a2e], [cyl(0.15, 0.15, 7, 4, hx + 6, H(hx + 6, hz - 3) + 3.5, hz - 3), 0xeeeeee], [box(0.08, 1.2, 2, hx + 6, H(hx + 6, hz - 3) + 6.4, hz - 3), 0xe8453c]);
+    } else {
     // Landeplatz-Kiosk mit Bänken, zwei Autos und gepackten Schirmen
     const kx = L.x - 95, kz = L.z + 60, kh = H(kx, kz);
     P.push([box(8, 3.2, 6, kx, kh + 1.6, kz), 0x8a5a36], [prism(9, 7.4, 2, kx, kh + 3.2, kz), 0x7a3324], [box(3, 0.9, 1, kx + 7, kh + 0.45, kz - 4), 0x6b4a2e], [box(3, 0.9, 1, kx + 7, kh + 0.45, kz + 4), 0x6b4a2e], [cyl(1.4, 0.05, 1.6, 8, kx + 7, kh + 2.6, kz), 0xe8453c]);
     for (const [dx, dz, c] of [[-20, -8, 0x3c8de8], [-20, 2, 0xf4f4f4]]) { const x = kx + dx, z = kz + dz, h = H(x, z); P.push([box(2, 1.2, 4.4, x, h + 0.9, z), c], [box(1.8, 0.8, 2.4, x, h + 1.8, z + 0.3), 0x2a3440]); }
     for (let i = 0; i < 4; i++) { const x = L.x - 70 + i * 3, z = L.z + 70, h = H(x, z); P.push([box(1.1, 0.6, 1.6, x, h + 0.3, z), [0xe8453c, 0x33c26b, 0xf28c28, 0x3c8de8][i]]); }
+    }
     // Startplatz: Wiese, Flaggen, wartende Piloten mit ausgelegten Schirmen, ein Bus
     const fx = Math.sin(Lp.heading), fz = -Math.cos(Lp.heading), rx = Math.cos(Lp.heading), rz = Math.sin(Lp.heading);
     // Startwiese: fein unterteilt, 0,35 m über der gezeichneten Fläche, weich schattiert, gemähte Bahnen in Startrichtung,
@@ -4486,9 +4544,6 @@ function buildGliderModel(wing, opts) {
     [new THREE.SphereGeometry(0.139, 8, 2, 3.8, 1.82, Math.PI * 0.3, Math.PI * 0.14).translate(0, 0.775, 0.012), 0x1b2027], // Visier
     [new THREE.BoxGeometry(0.3, 0.035, 0.19).rotateX(-0.55).translate(0, 0.2, -0.27), 0x2a2e35],                          // Cockpit
     [new THREE.BoxGeometry(0.13, 0.01, 0.09).rotateX(-0.55).translate(0.05, 0.222, -0.275), 0x8fb7c9],                   // Vario
-    [new THREE.BoxGeometry(0.035, 0.36, 0.02).rotateX(0.05).translate(-0.1, 0.36, -0.135), hacc],                         // Brustgurte
-    [new THREE.BoxGeometry(0.035, 0.36, 0.02).rotateX(0.05).translate(0.1, 0.36, -0.135), hacc],
-    [new THREE.BoxGeometry(0.24, 0.035, 0.02).translate(0, 0.3, -0.14), 0x2b2f36],
   ]), lam);
   const backGeo = harnessBackGeo(look, hcol, hacc); if (backGeo) upper.add(new THREE.Mesh(backGeo, lam));
   // Arme: Oberarm (Drehpunkt Schulter) und Unterarm mit Handschuh und Bremsgriff (Drehpunkt Ellbogen), zeigen nach −y
@@ -4622,43 +4677,104 @@ function buildGliderModel(wing, opts) {
   return root;
 }
 
+/* ---------- Gurtzeug-Baukasten ---------- */
+/* Abgerundeter Quader (Kugel auf Quader abgebildet): Polster, Packsäcke, Container. Normalen kommen aus _soft, also wie ein Kissen. */
+function rbox(w, h, d, r, x, y, z) {
+  r = Math.min(r, w / 2 - 0.002, h / 2 - 0.002, d / 2 - 0.002);
+  const g = new THREE.SphereGeometry(1, 14, 10), p = g.attributes.position, hx = w / 2 - r, hy = h / 2 - r, hz = d / 2 - r;
+  for (let i = 0; i < p.count; i++) {
+    const nx = p.getX(i), ny = p.getY(i), nz = p.getZ(i);
+    p.setXYZ(i, (nx < 0 ? -hx : hx) + nx * r, (ny < 0 ? -hy : hy) + ny * r, (nz < 0 ? -hz : hz) + nz * r);
+  }
+  return _soft(g.translate(x || 0, y || 0, z || 0));
+}
+/* Gurtband von a nach b (Breite w, Dicke t) */
+function webbing(a, b, w, t) {
+  const v = new THREE.Vector3(b[0] - a[0], b[1] - a[1], b[2] - a[2]), len = v.length();
+  const g = new THREE.BoxGeometry(w, t, len); g.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), v.normalize())));
+  return g.translate((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2);
+}
+/* Schnalle und Karabiner-Grau */
+const BUCKLE = 0xc9ced4;
+/* Beinschlaufen um die Oberschenkel (Sitz-Koordinaten; der Oberschenkel zeigt nach vorn und leicht nach unten) */
+function legLoops(col) {
+  const out = [];
+  for (const s of [-1, 1]) {
+    out.push([new THREE.TorusGeometry(0.088, 0.013, 5, 16).rotateX(0.22).translate(s * 0.11, 0.05, -0.37), col],
+      [new THREE.BoxGeometry(0.05, 0.035, 0.04).translate(s * 0.11, -0.04, -0.375), BUCKLE],
+      [webbing([s * 0.17, 0.0, -0.36], [s * 0.225, -0.02, -0.2], 0.03, 0.012), col]);
+  }
+  return out;
+}
+
 /* Gurtzeug an der Hüfte als eine Geometrie (vorn = −z). look aus HARNESSES, col Hauptfarbe, acc Akzent.
    Sitzgurtzeuge: Ursprung = Hinterkante des Sitzes, die Beine hängen frei; stehend klappt der Sitz nach unten.
    Liegegurtzeug und Expedition: Kokon mit Beinsack (Ursprung = Mitte), stehend als Rucksack. */
 function harnessGeo(look, col, acc) {
-  const B = (w, h, d, x, y, z) => new THREE.BoxGeometry(w, h, d).translate(x || 0, y || 0, z || 0);
+  const dark = new THREE.Color(col).multiplyScalar(0.6).getHex(), grey = 0x39424f;
+  const lathe = (prof, sy) => _soft(new THREE.LatheGeometry(prof.map(([r, y]) => new THREE.Vector2(r, y)), 18).rotateX(Math.PI / 2).scale(1, sy, 0.85));
   switch (look) {
-    case 'leicht':          // dünnes Sitzbrett mit Beinschlaufen
-      return colGeo([[B(0.44, 0.04, 0.46, 0, -0.02, -0.23), col], [B(0.46, 0.035, 0.05, 0, 0, -0.43), acc], [B(0.46, 0.035, 0.05, 0, 0, -0.03), acc]]);
-    case 'liege': {         // Kokon mit Beinsack bis vor die Füße und Heckverkleidung
-      const tail = new THREE.ConeGeometry(0.2, 0.7, 8).rotateX(Math.PI / 2).translate(0, 0.02, 0.72);
-      const noseG = new THREE.ConeGeometry(0.2, 0.42, 8).rotateX(-Math.PI / 2).scale(1.25, 0.8, 1).translate(0, -0.04, -1.3);
-      return colGeo([[_soft(new THREE.CylinderGeometry(0.26, 0.22, 1.62, 10).rotateX(Math.PI / 2).scale(1, 0.72, 1).translate(0, 0, -0.28)), col], [noseG, col], [tail, col],
-        [B(0.54, 0.04, 1.4, 0, 0.18, -0.3), acc], [B(0.3, 0.02, 0.34, 0, 0.19, -0.62), 0x1b2027]]);
+    case 'leicht':          // Sitzbrett aus Kunststoff mit Gurtband und Beinschlaufen – kaum mehr als ein Brett
+      return colGeo([[rbox(0.42, 0.03, 0.4, 0.012, 0, -0.015, -0.22), 0x343a42], [rbox(0.46, 0.022, 0.05, 0.01, 0, 0.002, -0.43), acc], [rbox(0.46, 0.022, 0.05, 0.01, 0, 0.002, -0.03), acc],
+        [webbing([-0.22, 0, -0.2], [-0.24, 0.1, -0.22], 0.035, 0.012), col], [webbing([0.22, 0, -0.2], [0.24, 0.1, -0.22], 0.035, 0.012), col], ...legLoops(acc)]);
+    case 'liege': {         // strömungsgünstiger Kokon: Tropfenform, Beinsack bis vor die Füße, Mittelnaht und Heckflosse
+      const prof = [[0.0, -1.52], [0.1, -1.47], [0.17, -1.38], [0.225, -1.24], [0.255, -1.0], [0.262, -0.6], [0.258, -0.2], [0.23, 0.12], [0.19, 0.3], [0.13, 0.5], [0.07, 0.66], [0.0, 0.78]];
+      return colGeo([[lathe(prof, 0.72), col], [rbox(0.07, 0.02, 1.5, 0.01, 0, 0.187, -0.45), acc], [rbox(0.34, 0.025, 0.4, 0.012, 0, 0.19, -0.62), 0x1b2027],
+        [rbox(0.03, 0.2, 0.3, 0.012, 0, 0.11, 0.6), acc], [rbox(0.5, 0.012, 0.03, 0.005, 0, 0.02, -1.15), acc], [rbox(0.46, 0.012, 0.03, 0.005, 0, 0.0, -0.9), acc]]);
     }
-    case 'akro':            // kurz und straff, zwei Rettungscontainer an der Seite
-      return colGeo([[B(0.46, 0.13, 0.5, 0, -0.065, -0.25), col], [B(0.12, 0.2, 0.34, -0.3, -0.03, -0.2), acc], [B(0.12, 0.2, 0.34, 0.3, -0.03, -0.2), acc]]);
-    case 'expedition':      // dick gefüttert, quer abgesteppt
-      return colGeo([[_soft(new THREE.CylinderGeometry(0.3, 0.28, 1.4, 10).rotateX(Math.PI / 2).scale(1, 0.75, 1).translate(0, -0.02, -0.05)), col],
-        ...[-0.5, -0.05, 0.4].map(z => [new THREE.CylinderGeometry(0.31, 0.31, 0.06, 10).rotateX(Math.PI / 2).scale(1, 0.76, 1).translate(0, -0.02, z), acc])]);
-    case 'kurier':          // fester Sitz mit Seitengurten (das Frachtfach sitzt im Rücken)
-      return colGeo([[B(0.46, 0.11, 0.5, 0, -0.055, -0.25), col], [B(0.04, 0.1, 0.52, -0.24, 0.02, -0.25), acc], [B(0.04, 0.1, 0.52, 0.24, 0.02, -0.25), acc]]);
-    default:                // Schulgurtzeug: gepolsterter Sitz mit großem Airbag darunter
-      return colGeo([[B(0.46, 0.1, 0.5, 0, -0.05, -0.25), col], [_soft(new THREE.SphereGeometry(0.3, 10, 6).scale(0.8, 0.46, 1.05).translate(0, -0.18, -0.2)), 0x39424f],
-        [B(0.05, 0.12, 0.5, -0.25, -0.02, -0.25), acc], [B(0.05, 0.12, 0.5, 0.25, -0.02, -0.25), acc]]);
+    case 'akro':            // kurz und straff, schmaler Sitz, zwei Rettungscontainer seitlich an der Hüfte
+      return colGeo([[rbox(0.42, 0.08, 0.44, 0.03, 0, -0.04, -0.23), col], [rbox(0.44, 0.03, 0.46, 0.012, 0, 0.0, -0.23), dark],
+        [rbox(0.11, 0.17, 0.3, 0.04, -0.3, -0.02, -0.2), acc], [rbox(0.11, 0.17, 0.3, 0.04, 0.3, -0.02, -0.2), acc],
+        [rbox(0.13, 0.03, 0.06, 0.012, -0.3, 0.075, -0.3), dark], [rbox(0.13, 0.03, 0.06, 0.012, 0.3, 0.075, -0.3), dark],
+        [rbox(0.04, 0.12, 0.05, 0.015, -0.3, -0.03, -0.37), BUCKLE], [rbox(0.04, 0.12, 0.05, 0.015, 0.3, -0.03, -0.37), BUCKLE], ...legLoops(dark)]);
+    case 'expedition': {    // daunengefüllter Schlafsack-Kokon mit aufgeblähten Kammern
+      const prof = [], n = 28;
+      for (let i = 0; i <= n; i++) { const t = i / n, z = -0.85 + t * 1.6, bulge = 0.022 * Math.abs(Math.sin(t * 6 * Math.PI)), cap = Math.sqrt(Math.max(0, 1 - Math.pow(Math.abs(t - 0.5) * 2, 6))); prof.push([Math.max(0.001, (0.27 + bulge) * Math.pow(cap, 0.45)), z]); }
+      const seam = (z) => new THREE.TorusGeometry(0.278, 0.008, 4, 18).scale(1, 0.76, 1).translate(0, -0.02, z);
+      return colGeo([[lathe(prof, 0.76).translate(0, -0.02, -0.05), col], ...[-0.55, -0.23, 0.09, 0.41].map(z => [seam(z - 0.05), acc]),
+        [rbox(0.3, 0.03, 0.36, 0.014, 0, 0.2, -0.55), dark], [rbox(0.08, 0.02, 1.1, 0.01, 0, 0.212, -0.15), acc]]);
+    }
+    case 'kurier':          // fester, breiter Sitz mit Seitentaschen und Packriemen
+      return colGeo([[rbox(0.48, 0.09, 0.5, 0.03, 0, -0.045, -0.25), col], [rbox(0.5, 0.025, 0.52, 0.01, 0, 0.0, -0.25), dark],
+        [rbox(0.06, 0.15, 0.24, 0.022, -0.27, -0.03, -0.25), acc], [rbox(0.06, 0.15, 0.24, 0.022, 0.27, -0.03, -0.25), acc],
+        [rbox(0.03, 0.03, 0.46, 0.012, 0, 0.012, -0.25), acc], ...legLoops(col)]);
+    default:                // Schulgurtzeug: dick gepolsterter Sitz, darunter der Airbag, farbiger Rand
+      return colGeo([[rbox(0.49, 0.09, 0.5, 0.035, 0, -0.045, -0.25), col], [rbox(0.43, 0.2, 0.47, 0.08, 0, -0.18, -0.2), grey], [rbox(0.45, 0.03, 0.03, 0.012, 0, -0.1, -0.44), dark],
+        [rbox(0.045, 0.1, 0.46, 0.018, -0.255, -0.02, -0.25), acc], [rbox(0.045, 0.1, 0.46, 0.018, 0.255, -0.02, -0.25), acc],
+        [rbox(0.34, 0.012, 0.012, 0.005, 0, -0.145, -0.44), acc], ...legLoops(dark)]);
   }
 }
-/* Rückenteil eines Sitzgurtzeugs am Oberkörper (Rückenprotektor, Packsack, Frachtfach); Kokons haben keins */
+/* Rückenteil und Gurte am Oberkörper (Rückenprotektor, Packsack, Frachtfach, Schultergurte, Karabinerschlaufen, Reserve vorn).
+   Kokons haben keins. Koordinaten wie der Oberkörper: y nach oben, Brust vorn = −z, Karabiner bei (±0,2; 0,4; 0) */
 function harnessBackGeo(look, col, acc) {
-  const B = (w, h, d, x, y, z) => new THREE.BoxGeometry(w, h, d).translate(x || 0, y || 0, z || 0);
-  const dark = new THREE.Color(col).multiplyScalar(0.62).getHex();
+  if (look === 'liege' || look === 'expedition') return null;
+  const dark = new THREE.Color(col).multiplyScalar(0.62).getHex(), strapC = look === 'leicht' ? col : 0x2b2f36, P = [];
   switch (look) {
-    case 'liege': case 'expedition': return null;
-    case 'leicht': return colGeo([[B(0.38, 0.5, 0.04, 0, 0.24, 0.155), col], [_soft(new THREE.SphereGeometry(0.17, 9, 6).scale(1.05, 0.8, 0.6).translate(0, 0.14, 0.26)), dark]]);
-    case 'akro': return colGeo([[B(0.44, 0.58, 0.16, 0, 0.25, 0.2), col], [B(0.46, 0.06, 0.2, 0, 0.52, 0.22), acc]]);
-    case 'kurier': return colGeo([[B(0.42, 0.56, 0.12, 0, 0.25, 0.19), col], [B(0.44, 0.46, 0.32, 0, 0.26, 0.41), acc], [B(0.46, 0.05, 0.34, 0, 0.5, 0.42), dark]]);
-    default: return colGeo([[B(0.44, 0.6, 0.15, 0, 0.26, 0.2), col], [B(0.46, 0.05, 0.16, 0, 0.1, 0.21), acc]]);
+    case 'leicht':          // Rucksack-Sack mit Klappe
+      P.push([rbox(0.32, 0.42, 0.17, 0.07, 0, 0.2, 0.25), dark], [rbox(0.34, 0.14, 0.18, 0.05, 0, 0.36, 0.26), col], [rbox(0.28, 0.03, 0.03, 0.012, 0, 0.3, 0.35), acc], [rbox(0.04, 0.07, 0.02, 0.008, 0, 0.3, 0.355), BUCKLE]);
+      break;
+    case 'akro':            // schmaler, geformter Protektor
+      P.push([rbox(0.4, 0.6, 0.11, 0.04, 0, 0.25, 0.2), col], [rbox(0.42, 0.05, 0.12, 0.02, 0, 0.53, 0.2), acc], [rbox(0.1, 0.42, 0.115, 0.03, 0, 0.24, 0.205), dark]);
+      break;
+    case 'kurier':          // großes Frachtfach mit Deckel, Packriemen und Schild
+      P.push([rbox(0.42, 0.56, 0.12, 0.05, 0, 0.25, 0.19), col], [rbox(0.44, 0.44, 0.3, 0.05, 0, 0.26, 0.4), acc], [rbox(0.46, 0.12, 0.32, 0.05, 0, 0.5, 0.41), dark],
+        [rbox(0.05, 0.4, 0.02, 0.008, -0.1, 0.27, 0.56), dark], [rbox(0.05, 0.4, 0.02, 0.008, 0.1, 0.27, 0.56), dark], [rbox(0.05, 0.06, 0.03, 0.01, 0, 0.44, 0.57), BUCKLE], [rbox(0.16, 0.06, 0.01, 0.004, 0, 0.12, 0.555), 0xf6f6f2]);
+      break;
+    default:                // Schule: dicker Rückenprotektor mit Kammern
+      P.push([rbox(0.44, 0.6, 0.16, 0.06, 0, 0.26, 0.2), col], [rbox(0.46, 0.05, 0.17, 0.02, 0, 0.54, 0.2), acc],
+        ...[0.1, 0.22, 0.34, 0.46].map(y => [rbox(0.46, 0.012, 0.165, 0.005, 0, y, 0.2), dark]));
   }
+  // Schultergurte: vom Rücken über die Schulter nach vorn zur Karabinerschlaufe, dazu der seitliche Tragegurt von der Hüfte
+  for (const s of [-1, 1]) {
+    P.push([webbing([s * 0.13, 0.42, 0.14], [s * 0.15, 0.625, 0.03], 0.06, 0.03), strapC], [webbing([s * 0.15, 0.625, 0.03], [s * 0.205, 0.4, -0.02], 0.06, 0.03), strapC],
+      [webbing([s * 0.24, -0.04, -0.02], [s * 0.215, 0.37, -0.02], 0.045, 0.026), strapC],
+      [rbox(0.04, 0.085, 0.07, 0.012, s * 0.215, 0.4, 0.0), BUCKLE], [rbox(0.02, 0.05, 0.03, 0.006, s * 0.23, 0.4, 0.0), 0x5d6670]);
+  }
+  // Brustgurt mit Schnalle und die Reserve vor dem Bauch
+  P.push([webbing([-0.2, 0.3, -0.142], [0.2, 0.3, -0.142], 0.04, 0.016), strapC], [rbox(0.055, 0.045, 0.024, 0.008, 0, 0.3, -0.155), acc]);
+  if (look !== 'akro') P.push([rbox(0.26, 0.06, 0.13, 0.025, 0, 0.1, -0.2), look === 'leicht' ? 0x343a42 : dark], [rbox(0.27, 0.012, 0.02, 0.005, 0, 0.128, -0.255), acc]);
+  else P.push([rbox(0.3, 0.05, 0.05, 0.02, 0, 0.12, -0.175), dark]);
+  return colGeo(P);
 }
 
 /* Körperhaltung: s = 0 sitzt im Gurtzeug, s = 1 steht. swing: Beinschwung beim Laufen, lean: Oberkörper nach vorn
@@ -4669,9 +4785,9 @@ function poseBody(ud, s, swing, lean, base, bL, bR, bar) {
     ud.pod.position.set(0, -0.1, 0.15); ud.pod.rotation.x = U.lerp(0, -1.25, s); ud.pod.scale.set(1, 1, 1);
   } else {                                                    // Kokon über den Beinen, stehend als Rucksack
     ud.pod.position.set(0, U.lerp(-0.16, 0.28, s), U.lerp(-0.3, 0.3, s));
-    ud.pod.rotation.x = U.lerp(0.1, 1.5, s); ud.pod.scale.set(1, U.lerp(1, 0.7, s), U.lerp(1, 0.82, s));
+    ud.pod.rotation.x = U.lerp(0.1, 1.5, s); ud.pod.scale.set(1, U.lerp(1, 0.7, s), U.lerp(1, 0.45, s));
   }
-  ud.upper.rotation.x = U.lerp(0.32, -0.08, s) + lean;
+  ud.upper.rotation.x = U.lerp(0.32, -0.08, s) + lean + (ud.seat ? 0 : 0.5 * (1 - s));       // im Kokon liegt der Rücken zurückgelehnt
   // Beine: sitzend Oberschenkel nach vorn, Unterschenkel hängen; Beschleuniger streckt sie; laufend schwingen sie
   const bv = bar || 0, thigh = U.lerp(1.35 - 0.25 * bv, 0, s) + base, knee = (1 - s) * (-1.15 + 0.95 * bv);
   ud.legL.rotation.x = thigh + swing; ud.legR.rotation.x = thigh - swing;
@@ -5752,6 +5868,8 @@ class Minimap {
         ctx.fillStyle = q.def.item === 'blumen' ? '#ff6fae' : (q.def.item === 'proviant' ? '#7cfc9a' : '#ffffff');
         ctx.fillRect(s[0] - 5, s[1] - 3.5, 10, 7); ctx.strokeStyle = '#0b1f3a'; ctx.lineWidth = 1.2;
         ctx.beginPath(); ctx.moveTo(s[0] - 5, s[1] - 3.5); ctx.lineTo(s[0], s[1] + 0.5); ctx.lineTo(s[0] + 5, s[1] - 3.5); ctx.stroke();
+      } else if (q.kind === 'land') for (const t of q.items) {
+        if (t.got) continue; const s = clampS(toS(t.x, t.z), 7); ctx.globalAlpha = s[2] ? 0.6 : 1; drawX(s, '#7cfc9a'); ctx.globalAlpha = 1;
       } else if (q.kind === 'peaks') for (const t of q.items) {
         if (t.got) continue; const s = clampS(toS(t.x, t.z), 7); if (!inR(s)) continue;
         ctx.fillStyle = '#ffd24a'; ctx.strokeStyle = '#0b1f3a'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(s[0], s[1] - 6); ctx.lineTo(s[0] + 5.5, s[1] + 4); ctx.lineTo(s[0] - 5.5, s[1] + 4); ctx.closePath(); ctx.fill(); ctx.stroke();
@@ -5887,7 +6005,7 @@ class Game {
   }
 
   /* ---------------- Aufbau einer Welt ---------------- */
-  _buildWorld(map, seed, siteSeed, q, hints) {
+  _buildWorld(map, seed, siteSeed, q, hints, landTop) {
     this.scene = new THREE.Scene();
     // Kameraposition für das Licht der Lambert- und Phong-Materialien (Schattenfeld, Wolkenschatten; siehe atmo.js)
     this.scene.onBeforeRender = (r, s, cam) => ATMO.u.atmoCam.value.setFromMatrixPosition(cam.matrixWorld);
@@ -5895,7 +6013,7 @@ class Game {
     this._initRenderer(q);
     // Schattenfelder brauchen Texturen mit halben Gleitkommazahlen (WebGL 2, jedes aktuelle iPhone)
     const shadows = this.renderer.capabilities.isWebGL2;
-    const world = this.world = new World(this.scene, map, seed, { siteSeed, hints, viewR: q.viewR, treeR: q.treeR, segs: q.segs, detail: q.detail, vis: q.vis, farCells: q.farCells, shadowN: q.shadowN, shadows });
+    const world = this.world = new World(this.scene, map, seed, { siteSeed, hints, landTop, viewR: q.viewR, treeR: q.treeR, segs: q.segs, detail: q.detail, vis: q.vis, farCells: q.farCells, shadowN: q.shadowN, shadows });
     ATMO.u.atmoP.value.set(map.haze || 1 / 10500, 1 / 2600, 1500, q.vis * 0.97);
     world.placeSites();
     this.landmarks = new Landmarks(world, this.scene, map);
@@ -5957,7 +6075,7 @@ class Game {
     this.map = map; this.softSteer = cfg.softSteer !== false;
     this.centerHelp = cfg.center || 'tips'; this.assist = null; this.assistOpen = null; this.assistT = 0; this.assistBank = 0;   // Zentrier-Hilfe
     const hints = cfg.hints !== false && !(mission && mission.thermalHint === false);
-    const world = this._buildWorld(map, seed, siteSeed, q, hints);
+    const world = this._buildWorld(map, seed, siteSeed, q, hints, mission && mission.landTop);
     world.birdShare = mission && mission.birds != null ? mission.birds : null;     // Anteil der Bärte mit Vögeln (Geierflüsterer)
 
     this.hour = mission ? (mission.hour || 13) : (this.mode === 'daily' ? 12 : 10.5);
@@ -6794,6 +6912,12 @@ const GameRules = {
     this.input.releaseAll();
     const p = this.pilot, m = this.mission, W = this.world;
     const landDist = U.dist2(p.x, p.z, W.landing.x, W.landing.z);
+    // Top-Landung: sicher auf der Almwiese (Auftrag) oder im Kreis der Hochalm (Bonus-Level) aufgesetzt
+    let topLand = kind === 'landed' && !!(m && m.landTop) && landDist <= m.landR;
+    for (const q of this.quests || []) if (q.kind === 'land' && !q.done && kind === 'landed') {
+      const t = q.items[0];
+      if (t && U.dist2(p.x, p.z, t.x, t.z) <= QUEST_R.landR) { t.got = true; q.got = 1; q.done = true; q.doneT = this.t; topLand = true; if (this.qmarks) this.qmarks.landDone(t); }
+    }
     let success = false, stars = 0;
     const missionLike = this.mode === 'mission' || this.mode === 'daily' || this.mode === 'bonus';
     if (missionLike) {
@@ -6832,7 +6956,7 @@ const GameRules = {
       mapId: this.map.id, wingId: this.wingDef.id, perks: this.perks.slice(), harness: this.harness.id,
       quests: this._questResult(), questDay: this.questDay, questT: m && m.bonus && this.quests[0] ? this.quests[0].doneT : null, extraCoins: this.extraCoins,
       time: this.t, dist: p.stats.dist, maxDist: this.maxDist, maxAlt: p.stats.maxAlt, maxClimb: p.stats.maxClimb,
-      climbTotal: this.climbTotal, bestClimbRun: this.bestClimbRun, collapses: p.stats.collapses, recovered: this.flags.recovered, caught: this.flags.caught,
+      topLand, climbTotal: this.climbTotal, bestClimbRun: this.bestClimbRun, collapses: p.stats.collapses, recovered: this.flags.recovered, caught: this.flags.caught,
       spinRecovered: this.flags.spinRecovered, eagleMiss: this.flags.eagleMiss, stormEscaped: this.flags.stormEscaped,
       landDist, landQ, impact: p.touchdown ? p.touchdown.impact : null, thermals: this.doneThermals.size,
       race: this.race ? { place: this.race.place, total: this.race.total, finish: this.race.finish.slice() } : null,
@@ -6853,6 +6977,7 @@ Object.assign(Game.prototype, GameRules);
      rings    Ringparcours zwischen Start und Landeplatz – immer durch den gelben Ring
      drop     Post, Blumen, Proviant – tief über das Ziel fliegen, dann schwebt es am Fallschirm hinunter
      search   vermisster Wanderer mit orangem Rauch im Suchkreis – finden, dann über ihm kreisen
+     land     Top-Landung: Almwiese mit Kreuz, Hütte und Lichtschacht – sicher innerhalb von 35 m landen (Wertung beim Aufsetzen, Game._finish)
      peaks    Gipfelkreuze – bis 120 m über dem Kreuz und waagrecht unter 70 m daran vorbei
      goal     Flugwert: Höhe über dem Start, Bärte, Kuhherden, Entfernung, Vollkreise
    Die Ziele liegen fest je Auftrag (eigener Seed). Die 3D-Teile baut QuestMarks einmal je Flug:
@@ -6860,7 +6985,7 @@ Object.assign(Game.prototype, GameRules);
 'use strict';
 
 /* Reichweiten in Metern: einsammeln, Ring, Abwurf (waagrecht, höchstens so hoch über dem Ziel), Wanderer finden, überkreisen */
-const QUEST_R = { balloon: 24, ring: 18, drop: 75, dropAGL: 150, find: 170, findAGL: 380, circle: 230, hold: 10, peak: 70, peakAGL: 120 };
+const QUEST_R = { balloon: 24, ring: 18, drop: 75, dropAGL: 150, find: 170, findAGL: 380, circle: 230, hold: 10, peak: 70, peakAGL: 120, landR: 35 };
 /* Ballons: fünf Farben, Mitte der Hülle BALLOON_CY über dem Knoten */
 const BALLOON_COLS = [0xe8453c, 0xffc93c, 0x3aa0ff, 0x5ee07a, 0xff4f9a], BALLOON_CY = 9.2;
 const QUEST_ITEM = {
@@ -6947,6 +7072,21 @@ class QuestMarks {
     t.sign = this._add(colGeo([[oct(2.6, 1, 1.4, 1), 0xffd24a]]), this.bright, t.x, t.y + 40, t.z); this.spin.push(t.sign);
     t.beam = this._beam(0xffd24a, t.x, t.y, t.z, 320);
   }
+  /* Landewiese einer Top-Landung: Ring und Kreuz liegen auf dem Gelände (Höhe je Punkt), daneben Hütte, Fahne, Lichtschacht */
+  addLanding(t) {
+    const W = this.world, conform = (g) => { const p = g.attributes.position; for (let i = 0; i < p.count; i++) p.setY(i, W.height(p.getX(i), p.getZ(i)) + 0.7); return g; };
+    const ring = conform(new THREE.RingGeometry(26, 34, 40, 1).rotateX(-Math.PI / 2).translate(t.x, 0, t.z));
+    const bar = (a) => conform(new THREE.PlaneGeometry(44, 5, 10, 1).rotateX(-Math.PI / 2).rotateY(a).translate(t.x, 0, t.z));
+    this.landMat = this.landMat || new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+    this.landMat2 = this.landMat2 || new THREE.MeshBasicMaterial({ color: 0xff7a3d, side: THREE.DoubleSide });
+    t.ring = this._add(ring, this.landMat, 0, 0, 0); t.cross = [this._add(bar(0), this.landMat2, 0, 0, 0), this._add(bar(Math.PI / 2), this.landMat2, 0, 0, 0)];
+    const { box, prism, cyl } = _G, hx = 46, hz = 38, hy = W.height(t.x + hx, t.z + hz);
+    const hut = colGeo([[box(9, 3.4, 6.4, 0, 1.7, 0), 0x8a5a36], [prism(10, 7.4, 2.4, 0, 3.4, 0), 0x5a4a3a], [box(1.1, 1.8, 0.9, 2, 5, 1), 0x6f6a62],
+      [cyl(0.15, 0.15, 7, 4, -6, 3.5, -3), 0xeeeeee], [box(0.08, 1.2, 2, -6, 6.4, -3), 0xe8453c]]);
+    t.hut = this._add(hut, this.mat, t.x + hx, hy, t.z + hz);
+    t.beam = this._beam(0x7cfc9a, t.x, t.y, t.z, 320);
+  }
+  landDone(t) { for (const m of [t.ring, ...(t.cross || []), t.beam]) if (m) m.visible = false; }
   dropDone(t) { if (t.beam) t.beam.visible = false; if (t.sign) { t.sign.visible = false; const i = this.spin.indexOf(t.sign); if (i >= 0) this.spin.splice(i, 1); } }
 
   /* Wanderer mit Rauchsäule (zehn Puffs als Instanzen, wandern nach oben und treiben mit dem Wind) */
@@ -7148,6 +7288,22 @@ const GameQuests = {
         s.rot = rng() * 6.28; s.got = false; items.push(s); M.addDrop(s, d.item);
         cx = s.x; cz = s.z; cy = s.y + 110;
       }
+    } else if (d.kind === 'land') {
+      // Flache Almwiese (Höhenunterschied im 30-m-Kreis höchstens 8, dann 16, dann 26 m). Normal: im Gleitflug erreichbar (1 : 8 plus 45 m Reserve),
+      // high: 80–420 m über dem Start – dafür braucht es einen Bart.
+      const spread = (x, z) => { let lo = Infinity, up = -Infinity; for (let k = 0; k < 8; k++) { const h = W.height(x + Math.cos(k * 0.785) * 30, z + Math.sin(k * 0.785) * 30); if (h < lo) lo = h; if (h > up) up = h; } return up - lo; };
+      let s = null;
+      for (let pass = 0; pass < 3 && !s; pass++) {
+        const maxSp = [8, 16, 26][pass];
+        s = this._questSpot(rng, S.x, S.z, 650, 2200, a0, 4.2, (x, z, h, sl, r) => {
+          if (!far(x, z, 300)) return -1e9;
+          const sp = spread(x, z); if (sp > maxSp) return -1e9;
+          if (d.high) { if (h < S.h + 80 || h > Math.min(S.h + 420, map.base - 350)) return -1e9; return -Math.abs(h - (S.h + 200)) * 0.3 - sp * 4 + rng() * 30; }
+          const reach = S.h - r / 8 - 45; if (h > reach || h < reach - 380) return -1e9;
+          return -Math.abs(h - (S.h - r / 7 - 80)) * 0.25 - sp * 4 + rng() * 30;
+        }, 400);
+      }
+      if (s) { s.got = false; items.push(s); M.addLanding(s); }
     } else if (d.kind === 'peaks') {
       // Gipfel: Kuppen mit Vorsprung vor ihrer Umgebung. Normal: im Gleitflug erreichbar (mindestens 1 : 8 bis 40 m über dem Kreuz);
       // high: die meisten 150–450 m über dem Start – dafür braucht es Bärte. Eins nach dem anderen, in Richtung Tal und darüber hinaus.
@@ -7268,13 +7424,13 @@ const GameQuests = {
       if (q.done) continue;
       let cands = null;
       if (q.kind === 'rings') cands = q.items[q.got] ? [q.items[q.got]] : null;
-      else if (q.kind === 'collect' || q.kind === 'drop' || q.kind === 'peaks') cands = q.items;
+      else if (q.kind === 'collect' || q.kind === 'drop' || q.kind === 'peaks' || q.kind === 'land') cands = q.items;
       else if (q.kind === 'search') cands = q.items;
       if (!cands) continue;
       for (const t of cands) {
         if (t.got) continue;
         const x = q.kind === 'search' && !t.found ? t.cx : t.x, z = q.kind === 'search' && !t.found ? t.cz : t.z, d = U.dist2(p.x, p.z, x, z);
-        if (d < bd) { bd = d; best = t; nav.x = x; nav.z = z; nav.y = q.kind === 'rings' || q.kind === 'collect' || q.kind === 'peaks' ? t.y : null; nav.name = q.kind === 'rings' ? 'Ring ' + (q.got + 1) : q.kind === 'collect' ? 'Ballon' : q.kind === 'peaks' ? 'Gipfel' : q.kind === 'search' ? (t.found ? 'Wanderer' : 'Suchgebiet') : 'Abwurf'; }
+        if (d < bd) { bd = d; best = t; nav.x = x; nav.z = z; nav.y = q.kind === 'rings' || q.kind === 'collect' || q.kind === 'peaks' || q.kind === 'land' ? t.y : null; nav.name = q.kind === 'rings' ? 'Ring ' + (q.got + 1) : q.kind === 'collect' ? 'Ballon' : q.kind === 'peaks' ? 'Gipfel' : q.kind === 'land' ? 'Alm' : q.kind === 'search' ? (t.found ? 'Wanderer' : 'Suchgebiet') : 'Abwurf'; }
       }
     }
     return best ? nav : null;
@@ -7335,17 +7491,26 @@ function wingSvg(w, d) {
 }
 /* Gurtzeug von der Seite: sitzender Pilot, darunter die Form des Gurtzeugs (look) in seiner Farbe */
 function harnessSvg(h, col) {
-  const c = U.hex(col), a = U.hex(h.acc), d = U.hex(new THREE.Color(col).multiplyScalar(0.62).getHex());
-  const seat = {
-    leicht: `<rect x="12" y="25" width="23" height="3.2" rx="1.6" fill="${c}"/><path d="M14 25 20 17 M33 25 27 17" stroke="${a}" stroke-width="1.4"/><rect x="31" y="19" width="6" height="6" rx="2" fill="${d}"/><path d="M15 28 13 37 M19 28 18 37" stroke="#2b3140" stroke-width="2.6" stroke-linecap="round"/>`,
-    liege: `<path d="M4 26 Q8 19.5 20 19.5 L34 20 Q45 22 45 25.5 Q41 30 31 30 L11 30 Q4 30 4 26Z" fill="${c}"/><path d="M8 22.5 Q20 20.5 40 22" stroke="${a}" stroke-width="1.6" fill="none"/>`,
-    akro: `<rect x="15" y="20" width="19" height="9" rx="3" fill="${c}"/><rect x="22" y="23" width="8" height="5" rx="1.2" fill="${a}"/><path d="M15 29 13 36 M19 29 18 36" stroke="#2b3140" stroke-width="2.6" stroke-linecap="round"/>`,
-    expedition: `<rect x="10" y="18" width="27" height="12.5" rx="6" fill="${c}"/><path d="M17 18.5v11.5 M23.5 18.5v11.5 M30 18.5v11.5" stroke="${a}" stroke-width="1.3"/>`,
-    kurier: `<rect x="11" y="21" width="21" height="8.5" rx="3" fill="${c}"/><rect x="29" y="14" width="11" height="12" rx="1.5" fill="${a}"/><path d="M29 18h11" stroke="${d}" stroke-width="1.4"/>`,
-    schule: `<rect x="11" y="20" width="25" height="9.5" rx="4" fill="${c}"/><path d="M16 29.5 Q24 37 34 29.5Z" fill="#39424f"/><rect x="11" y="20" width="25" height="2" rx="1" fill="${a}"/>`,
+  const c = U.hex(col), a = U.hex(h.acc), d = U.hex(new THREE.Color(col).multiplyScalar(0.62).getHex()), pants = '#2b3140', kokon = h.look === 'liege' || h.look === 'expedition';
+  // Pilot von der Seite (blickt nach rechts): Helm, Oberkörper, Arm zum Bremsgriff, Bein; im Kokon zurückgelehnt und die Beine verdeckt
+  const torso = kokon ? '<path d="M27 25 18 15" stroke="#e6eef8" stroke-width="5" stroke-linecap="round"/><circle cx="16" cy="12" r="3.3" fill="#ffc24b"/><path d="M22 17 27 11" stroke="#d9e2ee" stroke-width="2.6" stroke-linecap="round"/>'
+    : '<path d="M22 24 25 13" stroke="#e6eef8" stroke-width="5" stroke-linecap="round"/><circle cx="26" cy="9" r="3.4" fill="#ffc24b"/><path d="M26 14 31 12" stroke="#d9e2ee" stroke-width="2.6" stroke-linecap="round"/>';
+  const legs = kokon ? '' : `<path d="M22 26 33 28 34 35.5" stroke="${pants}" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><rect x="32" y="34.4" width="6" height="2.6" rx="1.2" fill="#161616"/>`;
+  const gear = {
+    schule: `<rect x="13" y="12" width="7" height="15" rx="3.2" fill="${c}"/><path d="M13.6 16h6M13.6 20h6" stroke="${d}" stroke-width=".8"/><rect x="13" y="12" width="7" height="2" rx="1" fill="${a}"/>
+      <ellipse cx="23.5" cy="31" rx="7.5" ry="3.6" fill="#39424f"/><rect x="15" y="25.4" width="19" height="4.6" rx="2.2" fill="${c}"/><rect x="15.6" y="25.4" width="18" height="1.3" rx=".6" fill="${a}"/>
+      <path d="M19 13 24 11 28.5 14 M20 26 28 14" stroke="#2b2f36" stroke-width="1.3" fill="none"/><rect x="27" y="12.6" width="3" height="3.4" rx=".8" fill="#c9ced4"/>`,
+    leicht: `<rect x="12" y="15" width="7.5" height="11" rx="3.4" fill="${d}"/><rect x="12.4" y="14" width="7" height="4" rx="2" fill="${c}"/><path d="M13 20.4h6" stroke="${a}" stroke-width="1"/>
+      <rect x="17" y="26.4" width="16" height="2" rx=".9" fill="#343a42"/><path d="M19 13 24 11 28.5 14" stroke="${c}" stroke-width="1.6" fill="none"/><ellipse cx="31" cy="28" rx="1.6" ry="2.6" fill="none" stroke="${a}" stroke-width="1"/>`,
+    liege: `<path d="M6 27.5Q8 22.5 20 22.5L38 25Q46 27 44 30Q40 33 24 33L11 33Q5 32 6 27.5Z" fill="${c}"/><path d="M9 25.6Q22 23 42 27.4" stroke="${a}" stroke-width="1.5" fill="none"/><path d="M6 27q-3-1-2.6-5.4 3.4 1.2 5 4.2Z" fill="${a}"/><rect x="26" y="23.4" width="9" height="2" rx="1" fill="#1b2027" transform="rotate(10 30 24)"/>`,
+    akro: `<rect x="13.5" y="12.5" width="6" height="14" rx="2.6" fill="${c}"/><rect x="14" y="12.5" width="5" height="1.8" rx=".9" fill="${a}"/>
+      <rect x="16" y="26" width="16" height="3.6" rx="1.8" fill="${c}"/><rect x="21" y="26.4" width="9" height="5.8" rx="2.2" fill="${a}"/><rect x="22" y="29" width="7" height="1.2" rx=".6" fill="${d}"/>
+      <path d="M19 13 24 11 28.5 14 M20 26 28 14" stroke="#2b2f36" stroke-width="1.3" fill="none"/><rect x="27" y="12.6" width="3" height="3.4" rx=".8" fill="#c9ced4"/>`,
+    expedition: `<path d="M8 28Q9 22.4 21 22.4L36 24.4Q45 26 43.4 30Q40 33.4 22 33.4 8 33.4 8 28Z" fill="${c}"/><path d="M15 23.2v10 M22 23v10.4 M29 23.6v9.8 M36 24.6v8.2" stroke="${a}" stroke-width="1" stroke-linecap="round"/><rect x="24" y="22.4" width="8" height="1.6" rx=".8" fill="${d}" transform="rotate(8 28 23)"/>`,
+    kurier: `<rect x="7.5" y="15" width="9" height="12.4" rx="2" fill="${a}"/><rect x="7" y="13" width="10" height="3.6" rx="1.6" fill="${d}"/><path d="M12 16.6v10.8" stroke="${d}" stroke-width="1.2"/><rect x="10.4" y="20.6" width="3.4" height="3.6" rx=".6" fill="#f6f6f2"/>
+      <rect x="15" y="25.4" width="19" height="4.6" rx="2.2" fill="${c}"/><rect x="31" y="26" width="3.4" height="3.6" rx="1.2" fill="${a}"/><path d="M19 13 24 11 28.5 14 M20 26 28 14" stroke="#2b2f36" stroke-width="1.3" fill="none"/><rect x="27" y="12.6" width="3" height="3.4" rx=".8" fill="#c9ced4"/>`,
   }[h.look] || '';
-  return `<svg viewBox="0 0 48 40" aria-hidden="true"><path d="M20 13 16 1 M24 13 30 1" stroke="rgba(230,238,248,.55)" stroke-width="1"/>
-    <path d="M20 21 22.5 11.5" stroke="#e6eef8" stroke-width="4.2" stroke-linecap="round"/><circle cx="23" cy="8.5" r="3.2" fill="#ffc24b"/>${seat}</svg>`;
+  return `<svg viewBox="0 0 48 40" aria-hidden="true"><path d="M23 10 20 1 M28 9 33 1 M22 10 26 1" stroke="rgba(230,238,248,.5)" stroke-width=".9"/>${legs}${kokon ? gear + torso : torso + gear}</svg>`;
 }
 const COIN = '<i class="coin" aria-hidden="true"></i>';
 const TIME_CHOICES = [2, 3, 4, 6, 8, 10, 15, 20];        // wählbare Zeitraffer-Stufen (Optionen → Cockpit)
@@ -7957,7 +8122,7 @@ class UI {
     this._css('speedFx', 'opacity', (U.clamp((p.v - p.wing.vTrim) / 4, 0, 1) * 0.9).toFixed(2));
     const danger = (p.collapse || p.stall || p.spin) ? 0.8 : (p.inSpiral || p.threat ? 0.45 : 0);
     this._css('dangerFx', 'opacity', String(danger));
-    if (p.flying && p.agl < 45 && p.vz < -2 && U.dist2(p.x, p.z, W.landing.x, W.landing.z) > 200) this.warn('BODEN!', 0.4);
+    if (p.flying && p.agl < 45 && p.vz < -2 && U.dist2(p.x, p.z, W.landing.x, W.landing.z) > 200 && !(g.navTarget && U.dist2(p.x, p.z, g.navTarget.x, g.navTarget.z) < 200)) this.warn('BODEN!', 0.4);
     if (p.flying && p.agl < 2.4 && p.agl > 0.3 && p.vz < -0.4 && Math.min(inp.brakeL, inp.brakeR) < 0.5 && g.t > 8) this.warn('ABFANGEN!', 0.5);
   }
 
@@ -8821,6 +8986,8 @@ const QUEST_ICON = {
   rings: '<svg viewBox="0 0 24 24"><ellipse cx="8" cy="12" rx="3" ry="6.5"/><ellipse cx="17" cy="12" rx="2.4" ry="5"/><path d="M1.5 13h20"/></svg>',
   drop: '<svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0Z"/><path d="M6 8l5 7M18 8l-5 7"/><rect x="9.5" y="15" width="5" height="4.5" rx="1"/></svg>',
   search: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l6 6"/><path d="M10.5 7.5v3l2 1.5"/></svg>',
+  peaks: '<svg viewBox="0 0 24 24"><path d="M2 20 9 7l4 6 3-4 6 11Z"/><path d="M9 7V3m0 0h4l-1 1.5L13 6H9"/></svg>',
+  land: '<svg viewBox="0 0 24 24"><path d="M3 20h18"/><path d="M12 4v10m-4-3 4 4 4-4"/><ellipse cx="12" cy="18.5" rx="6" ry="1.6"/></svg>',
   goal: '<svg viewBox="0 0 24 24"><path d="M6 21V3M6 4h11l-2.5 3.5L17 11H6"/></svg>',
 };
 
@@ -8849,7 +9016,7 @@ const UIProgress = {
       const o = sv.chal.b[id]; if (o == null || (low ? v < o : v > o)) sv.chal.b[id] = v;
     };
     add('ohren', ch.ohren); add('kreise', ch.kreise); add('spirale', ch.spirale); add('klapper', r.recovered); add('abfangen', r.caught);
-    add('butter', r.landQ === 'perfekt' ? 1 : 0); add('baerte', r.thermals); add('kuehe', ch.kuehe); add('fotos', ch.fotos); add('gipfel', ch.gipfel);
+    add('butter', r.landQ === 'perfekt' ? 1 : 0); add('baerte', r.thermals); add('kuehe', ch.kuehe); add('fotos', ch.fotos); add('gipfel', ch.gipfel); add('toplandung', r.topLand ? 1 : 0);
     add('adler', r.eagleMiss); add('rennen', r.race && r.race.place === 1 && r.success ? 1 : 0); add('tage', firstDaily ? 1 : 0); add('auftraege', quests || 0);
     best('acht', ch.acht, true); if (r.kind === 'landed') best('punkt', r.landDist, true);
     best('hoch', r.maxAlt); best('weit', r.maxDist / 1000); best('dauer', r.time / 60);
@@ -9178,6 +9345,7 @@ const UIProgress = {
     for (let k = 0; k < 60; k++) {
       const d = QUESTS[Math.floor(rng() * QUESTS.length)], map = maps[Math.floor(rng() * maps.length)];
       if (taken.some(t => t.id === d.id)) continue;
+      if (d.maps && d.maps.indexOf(map) < 0) continue;
       if (d.needs && !(MAP_BY_ID[map].decor.animals || []).some(a => a[0] === d.needs)) continue;
       return { id: d.id, map, seed: Math.floor(rng() * 1e9), done: false };
     }
@@ -9224,8 +9392,8 @@ const UIProgress = {
         if (!ok) { this.toast('Erst das Gebiet ' + map.name + ' freischalten'); return; }
         this.click(); this.go('brief', () => this.renderBrief(b));
       } }, [
-        el('span', { class: 'mno qicon', html: QUEST_ICON[b.quest.kind] }),
-        el('span', { class: 'mbody' }, [el('span', { class: 'mname', text: b.name }), el('span', { class: 'mtags', text: map.name + ' · ' + questText(b.quest) + (st.best != null ? ' · Bestzeit ' + U.fmtTime(st.best) : '') })]),
+        el('span', { class: 'mno qicon', html: QUEST_ICON[b.quest ? b.quest.kind : 'land'] }),
+        el('span', { class: 'mbody' }, [el('span', { class: 'mname', text: b.name }), el('span', { class: 'mtags', text: map.name + ' · ' + (b.quest ? questText(b.quest) : b.landTop === 'gipfel' ? 'Landung über dem Start' : 'Landung auf der Alm') + (st.best != null ? ' · Bestzeit ' + U.fmtTime(st.best) : '') })]),
         el('span', { class: 'stars', html: ok ? starStr(st.stars || 0) : '<span class="lock">gesperrt</span>' }),
       ]);
     });
