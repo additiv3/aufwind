@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; connect-src 'none'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Aufwind</title>
 <meta name="description" content="Gleitschirm-Simulator fürs Handy: Thermik zentrieren, Strecke fliegen, Schirme freispielen.">
@@ -609,6 +609,15 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
   #toast.show { animation: none; opacity: 1; }
 }
 
+/* Leistungsanzeige (Optionen → Leistungsanzeige) */
+.savecode { width: 100%; box-sizing: border-box; margin: 6px 0; padding: 8px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,.06); color: inherit; font: 12px/1.3 monospace; resize: none; }
+.setting.col .row2 { display: flex; gap: 8px; flex-wrap: wrap; }
+#perf { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 2px); left: 50%; transform: translateX(-50%); z-index: 99; padding: 2px 8px; border-radius: 8px; background: rgba(0,0,0,.55); color: #9fe8a8; font: 700 11px/1.4 monospace; pointer-events: none; white-space: nowrap; }
+
+/* Notfall-Hinweis (main.js): Grafik verloren oder Fehlerserie */
+#rescue { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(6,14,28,.92); color: #fff; text-align: center; padding: 24px; }
+#rescue p { margin: 10px 0 18px; opacity: .8; }
+
 </style>
 </head>
 <body>
@@ -623,7 +632,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = {"v": "4.2.27", "t": "01:37 30.09.2026", "c": "2628f53"};
+window.AUFWIND_BUILD = {"v": "4.3.28", "t": "23:14 30.09.2026", "c": "4cae6e2"};
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -6062,9 +6071,29 @@ class Game {
   }
   setPaused(v) { this.paused = v; if (v) this.audio.update(0.016, 0, 0, false); }
 
+  /* Leistungsanzeige (Optionen): Bilder pro Sekunde, Pixelverhältnis, Dreiecke und Zeichenaufrufe zum Messen am Handy */
+  showPerf(on) {
+    if (on && !this._perfEl) {
+      const d = this._perfEl = document.createElement('div');
+      d.id = 'perf'; document.body.appendChild(d); this._perf = { t: 0, n: 0 };
+    }
+    if (this._perfEl) this._perfEl.hidden = !on;
+    this._perfOn = !!on;
+  }
+  _perfTick(ts) {
+    const P = this._perf; P.n++;
+    if (ts - P.t < 500) return;
+    if (P.t) {
+      const r = this.renderer && this.renderer.info.render;
+      this._perfEl.textContent = Math.round(P.n * 1000 / (ts - P.t)) + ' fps · ' + (this.dyn ? this.dyn.pr.toFixed(2) : '?') + '× · ' + (r ? Math.round(r.triangles / 1000) + 'k Dreiecke · ' + r.calls + ' Aufrufe' : '');
+    }
+    P.t = ts; P.n = 0;
+  }
+
   /* ---------------- Schleife ---------------- */
   loop(ts) {
     this.raf = requestAnimationFrame((t) => this.loop(t));
+    if (this._perfOn) this._perfTick(ts);
     if (!this.lastTs) this.lastTs = ts;
     let dt = (ts - this.lastTs) / 1000; this.lastTs = ts;
     if (!(dt > 0)) dt = 0.016;
@@ -7297,8 +7326,11 @@ class UI {
       harness: 'schule', harnessCol: {}, quests: { day: 0, list: [], swaps: 0, chest: false }, bonus: {},
       set: { tiltWS: false, sens: 1.0, invert: false, muted: false, vario: true, quality: 'mid', hints: true, unlockAll: false, launch: 'manual', softSteer: true, center: 'tips', hud: HUD_DEFAULT(), brake: { len: BRAKE_LEN.def, size: 'm', lock: true } },
     };
+    // Stand lesen; ist er kaputt, greift die Sicherung vom letzten guten Start
     let s = null;
-    try { s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { s = null; }
+    for (const key of [SAVE_KEY, SAVE_KEY + '.bak']) {
+      try { const o = JSON.parse(localStorage.getItem(key) || 'null'); if (o && typeof o === 'object' && !Array.isArray(o)) { s = o; break; } } catch (e) { /* nächster Versuch */ }
+    }
     if (!s) {
       // Fortschritt aus der ersten Fassung übernehmen: Erfahrung, Statistik, Bestwerte
       try {
@@ -7328,7 +7360,32 @@ class UI {
     const b = s.set && s.set.brake;
     out.set.brake = b ? { len: U.clamp(+b.len || BRAKE_LEN.def, BRAKE_LEN.min, BRAKE_LEN.max), size: BRAKE_SIZES[b.size] ? b.size : 'm', lock: b.lock !== false }
       : { len: Math.round(U.clamp(169 / (out.set.sens || 1), BRAKE_LEN.min, BRAKE_LEN.max) / 5) * 5, size: 'm', lock: true };
+    this._sanitize(out, def);
+    try { localStorage.setItem(SAVE_KEY + '.bak', JSON.stringify(out)); } catch (e) { /* voll oder privat */ }   // Sicherung des letzten guten Stands
     return out;
+  }
+  /* Schützt vor kaputten oder von Hand veränderten Ständen: falsche Typen, NaN, unbekannte Ids.
+     Was nicht passt, fällt auf den Standardwert zurück – der Rest des Fortschritts bleibt. */
+  _sanitize(o, def) {
+    const obj = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
+    const num = (v, lo, hi, d) => (typeof v === 'number' && isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d);
+    for (const k of ['xp', 'flights', 'totalKm', 'totalClimb', 'airtime', 'coins']) o[k] = num(o[k], 0, 1e9, 0);
+    for (const k of ['missions', 'bestXC', 'bestEndless', 'badges', 'photos', 'tune', 'harnessCol', 'bonus']) if (!obj(o[k])) o[k] = {};
+    for (const k of ['wings', 'maps', 'designs', 'pats', 'harness']) if (!obj(o.owned[k])) o.owned[k] = {};
+    for (const k of ['c', 'b', 't']) if (!obj(o.chal[k])) o.chal[k] = {};
+    if (!obj(o.perks.own)) o.perks.own = {};
+    if (!Array.isArray(o.perks.on)) o.perks.on = [];
+    o.perks.slots = num(o.perks.slots, 1, 9, 2);
+    if (!Array.isArray(o.quests.list)) o.quests.list = [];
+    if (!obj(o.daily)) o.daily = { key: 0, stars: 0, best: 0 };
+    if (typeof o.wing !== 'string' || !WING_BY_ID[o.wing]) o.wing = 'schul';
+    if (typeof o.map !== 'string' || !MAP_BY_ID[o.map]) o.map = 'voralpen';
+    if (typeof o.harness !== 'string' || !HARNESSES.some(h => h.id === o.harness)) o.harness = 'schule';
+    if (typeof o.design !== 'string') o.design = 'werk';
+    const st = o.set;
+    if (!['low', 'mid', 'high'].includes(st.quality) && !(typeof QUALITY === 'object' && QUALITY[st.quality])) st.quality = 'mid';
+    st.sens = num(st.sens, 0.2, 4, 1);
+    if (!Array.isArray(st.hud.ts)) st.hud.ts = HUD_DEFAULT().ts;
   }
   store() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(this.save)); } catch (e) { /* privat oder voll */ } }
   level() { let i = 0; for (let k = 0; k < LEVELS.length; k++) if (this.save.xp >= LEVELS[k].xp) i = k; return i; }
@@ -7644,6 +7701,7 @@ class UI {
     const set = this.save.set;
     this.input.tiltWS = set.tiltWS; this.input.sensitivity = set.sens; this.input.invert = set.invert;
     this.applyBrake();
+    if (this.game) this.game.showPerf(!!set.perf);
     this.audio.varioOn = set.vario; this.audio.setMuted(set.muted);
     document.body.classList.toggle('lowfx', set.quality === 'low');   // Unschärfe-Effekte kosten auf alten Handys viel
     this.applyHudLayout();
@@ -8219,6 +8277,30 @@ const UIScreens = {
   },
 
   /* ---------------- Optionen ---------------- */
+  /* Spielstand als Text: AUFWIND1.<Base64 des JSON>.<Prüfsumme>. Die Prüfsumme fängt Tippfehler und abgeschnittene Texte ab. */
+  _saveSum(str) { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h.toString(36); },
+  saveCode() {
+    const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(this.save))));
+    return 'AUFWIND1.' + b64 + '.' + this._saveSum(b64);
+  },
+  async copySaveCode() {
+    const code = this.saveCode(), ta = document.getElementById('saveCode');
+    if (ta) { ta.value = code; ta.focus(); ta.select(); }
+    let ok = false;
+    try { await navigator.clipboard.writeText(code); ok = true; } catch (e) { try { ok = document.execCommand('copy'); } catch (e2) { /* von Hand kopieren */ } }
+    this.toast(ok ? 'Code kopiert – in Notizen aufheben' : 'Code markiert – lang drücken und kopieren');
+  },
+  loadSaveCode(text) {
+    const m = /^AUFWIND1\.([A-Za-z0-9+\/=]+)\.([a-z0-9]+)$/.exec((text || '').replace(/\s+/g, ''));
+    if (!m || this._saveSum(m[1]) !== m[2]) { this.toast('Code unvollständig oder beschädigt'); return; }
+    let o = null;
+    try { o = JSON.parse(decodeURIComponent(escape(atob(m[1])))); } catch (e) { /* unten gemeldet */ }
+    if (!o || typeof o !== 'object' || Array.isArray(o) || typeof o.xp !== 'number') { this.toast('Code unvollständig oder beschädigt'); return; }
+    if (!confirm('Den aktuellen Fortschritt durch den Stand aus dem Code ersetzen?')) return;
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(o)); } catch (e) { this.toast('Speichern nicht möglich'); return; }
+    this.save = this.load(); this.applySettings(); this.toTitle(); this.toast('Spielstand geladen');
+  },
+
   renderSettings() {
     const s = this.screens.settings; s.innerHTML = '';
     const set = this.save.set;
@@ -8292,6 +8374,16 @@ const UIScreens = {
       row('Zentrier-Hilfe', 'Im Bart zeigt ein grüner Keil am Kartenrand zum Kern. Mit Tipps sagt dir das Cockpit auch, wohin und wie eng du eindrehst, wann du aufmachst und wann du zentriert bist.', seg('setCenter', [['tips', 'Tipps'], ['map', 'Nur Keil'], ['off', 'Aus']], set.center || 'tips', (v) => { set.center = v; this.store(); if (this.game.running && this.game.mode !== 'attract') this.game.centerHelp = v; this.renderSettings(); })),
       el('div', { class: 'eyebrow', text: 'Grafik' }),
       row('Qualität', 'Sparsam: 15 km Sicht, weniger Bäume und Tiere, schont den Akku. Normal: 22 km. Schön: 30 km, dichte Wälder, feinstes Gelände. Gilt ab dem nächsten Flug; bei Rucklern senkt das Spiel die Auflösung selbst.', seg('setQ', [['low', 'Sparsam'], ['mid', 'Normal'], ['high', 'Schön']], set.quality, (v) => { set.quality = v; this.store(); this.applySettings(); this.renderSettings(); })),
+      el('div', { class: 'eyebrow', text: 'Spielstand' }),
+      el('div', { class: 'setting col' }, [
+        el('div', {}, [el('div', { class: 'sl', text: 'Sichern und übertragen' }), el('small', { text: 'Safari kann Webdaten löschen. Kopiere den Code und hebe ihn in Notizen auf – zum Laden hier einfügen. Auch zum Wechsel auf ein anderes Gerät.' })]),
+        el('textarea', { id: 'saveCode', class: 'savecode', rows: '3', placeholder: 'Code hier einfügen …', 'aria-label': 'Spielstand-Code', spellcheck: 'false', autocomplete: 'off' }),
+        el('div', { class: 'row2' }, [
+          el('button', { class: 'btn ghost', id: 'saveCopy', onclick: () => { this.click(); this.copySaveCode(); } }, [el('span', { text: 'Code kopieren' })]),
+          el('button', { class: 'btn ghost', id: 'saveLoad', onclick: () => { this.click(); this.loadSaveCode(document.getElementById('saveCode').value); } }, [el('span', { text: 'Code laden' })]),
+        ]),
+      ]),
+      row('Leistungsanzeige', 'Bilder pro Sekunde, Auflösung und Dreiecke oben im Bild – zum Messen am Handy.', seg('setPerf', [[true, 'An'], [false, 'Aus']], !!set.perf, (v) => { set.perf = v; this.store(); this.game.showPerf(v); this.renderSettings(); })),
       el('div', { class: 'eyebrow', text: 'Testen' }),
       row('Alles freischalten', 'Alle Missionen, Gebiete, Schirme und Designs sofort spielbar. Dein echter Fortschritt bleibt erhalten – ausschalten stellt ihn wieder her.', seg('setAll', [[true, 'An'], [false, 'Aus']], set.unlockAll, (v) => { set.unlockAll = v; this.store(); this.renderSettings(); this.toast(v ? 'Testmodus: alles frei' : 'Testmodus aus'); })),
       el('p', { class: 'small', id: 'buildInfo', text: buildText(true) }),
@@ -8370,7 +8462,7 @@ const UIScreens = {
       sv.bestSpot != null ? el('p', { class: 'small', text: 'Beste Punktlandung: ' + U.fmtDec(sv.bestSpot) + ' m vom Zielkreuz.' }) : null,
       el('button', { class: 'btn ghost danger', onclick: () => {
         if (!confirm('Wirklich den gesamten Fortschritt löschen? Missionen, Schirme, Abzeichen und Bestwerte sind dann weg.')) return;
-        try { localStorage.removeItem(SAVE_KEY); localStorage.removeItem('aufwind.save.v2'); } catch (e) { /* egal */ }
+        try { localStorage.removeItem(SAVE_KEY); localStorage.removeItem(SAVE_KEY + '.bak'); localStorage.removeItem('aufwind.save.v2'); } catch (e) { /* egal */ }
         this.save = this.load(); this.applySettings(); this.toTitle();
       } }, [el('span', { text: 'Fortschritt löschen' })]),
       this._back(),
@@ -9165,10 +9257,28 @@ Object.assign(UI.prototype, UIProgress);
   // Beim Wegwischen der App pausieren
   document.addEventListener('visibilitychange', () => { if (document.hidden && game.running && !game.over && !ui.cur && game.mode !== 'attract') ui.pause(); });
 
+  // Sicherheitsnetz: bleibt das Spiel stehen (Fehlerserie, WebGL verloren), bietet ein Hinweis den Neustart an.
+  // Der Fortschritt liegt im Spielstand und geht dabei nicht verloren.
+  const rescue = (why) => {
+    if (document.getElementById('rescue')) return;
+    cancelAnimationFrame(game.raf);
+    const d = document.createElement('div'); d.id = 'rescue';
+    d.innerHTML = '<div><b>Das Spiel ist hängen geblieben.</b><p></p><button class="btn" type="button">Neu starten</button></div>';
+    d.querySelector('p').textContent = why + ' Dein Fortschritt ist gespeichert.';
+    d.querySelector('button').addEventListener('click', () => location.reload());
+    document.body.appendChild(d);
+  };
+  const cv = document.getElementById('c');
+  cv.addEventListener('webglcontextlost', (e) => { e.preventDefault(); rescue('Die Grafik wurde vom Gerät angehalten (zu wenig Speicher).'); });
+  let errs = [];
+  window.addEventListener('error', () => { const t = performance.now(); errs = errs.filter(x => t - x < 3000); errs.push(t); if (errs.length >= 20 && !window.aufwindTest) rescue('Es sind mehrere Fehler aufgetreten.'); });
+
   window.aufwind = { ui, game, audio, input };
   ui.toTitle();
 
-  if (window.AUFWIND_PWA && 'serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  // Entwicklungsfassung (AUFWIND_PWA) und die veröffentlichte Einzeldatei (nur über https) speichern sich für den Offline-Start
+  const pages = location.protocol === 'https:' && !window.AUFWIND_PWA && window.AUFWIND_BUILD && window.AUFWIND_BUILD.c;
+  if ((window.AUFWIND_PWA || pages) && 'serviceWorker' in navigator && location.protocol.startsWith('http')) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 })();
