@@ -229,6 +229,12 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 .ripple.go { animation: ripOut 0.45s ease-out forwards; }
 .ripple.good { border-color: var(--climb); } .ripple.ok { border-color: var(--sun); } .ripple.bad { border-color: var(--sink); }
 @keyframes ripOut { from { transform: scale(0.5); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+/* Umschau-Box: Mitte unten, über Ohren, Beschleuniger und Zeitraffer (die Knöpfe bleiben bedienbar) */
+#lookBox { position: absolute; left: 50%; bottom: calc(6px + var(--sb)); width: clamp(150px, 42vw, 300px); height: clamp(130px, 30vh, 220px); transform: translateX(-50%); border-radius: 18px; border: 1.5px dashed rgba(255, 255, 255, 0.28); background: rgba(255, 255, 255, 0.04); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 8px; gap: 2px; pointer-events: none; }
+#lookBox svg { width: 24px; height: 24px; fill: none; stroke: rgba(255, 255, 255, 0.55); stroke-width: 1.8; stroke-linejoin: round; }
+#lookBox span { font-family: var(--font-d); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); }
+#lookBox.on { border-color: var(--sun); background: rgba(255, 194, 75, 0.1); } #lookBox.on svg { stroke: var(--sun); } #lookBox.on span { color: var(--sun); }
+#lookBox.off { display: none; }
 #hudBottom { position: absolute; left: 0; right: 0; bottom: 0; height: 0; }
 .rail { position: absolute; bottom: calc(14px + var(--sb)); width: calc(46px * var(--bs)); display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
 #railL { left: calc(12px + var(--sl)); } #railR { right: calc(12px + var(--sr)); }
@@ -632,7 +638,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = {"v": "4.5.30", "t": "00:21 01.10.2026", "c": "9d94754"};
+window.AUFWIND_BUILD = {"v": "4.6.31", "t": "00:44 02.10.2026", "c": "b40c868"};
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -1799,6 +1805,8 @@ class Input {
     this.lockOk = false;                    // nur im Flug (Game._step); am Boden gibt Loslassen die Bremse immer frei
     this.lock = { L: 0, R: 0 };             // eingerastete Bremse je Seite (0 = frei)
     this.onLock = null;                     // Rückmeldung (Seite, 'lock' | 'free')
+    this.look = { yaw: 0, pitch: 0, on: false, id: null, x: 0, y: 0, idle: 0 };   // Umschau-Box: Kamera um den Schirm (Bogenmaß)
+    this.lookOk = false; this.lookBox = null; this.onLook = null;                   // nur im Flug; lookBox = Element der Box
     this.pointers = new Map();              // pointerId -> {side, x0, y0, x, y}
     this.keys = {};
     this.lastTilt = { roll: 0, pitch: 50 };
@@ -1828,13 +1836,19 @@ class Input {
       if (e.code === 'KeyE') this.ears = false;
       if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') this.bar = false;
     });
-    window.addEventListener('blur', () => { this.keys = {}; this.bar = false; this.ears = false; this.pointers.clear(); });
+    window.addEventListener('blur', () => { this.look.id = null; this.look.on = false; this.keys = {}; this.bar = false; this.ears = false; this.pointers.clear(); });
   }
 
   /* Spielfläche: jede Berührung wird zur Bremsleine der jeweiligen Seite */
   bindSurface(el) {
     el.addEventListener('pointerdown', (e) => {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (this._inLookBox(e) && this.look.id == null) {            // Mitte: Umschauen statt Bremse
+        const L = this.look; L.id = e.pointerId; L.on = true; L.x = e.clientX; L.y = e.clientY;
+        try { el.setPointerCapture(e.pointerId); } catch (_) {}
+        if (this.onLook) this.onLook(true);
+        return;
+      }
       const side = e.clientX < window.innerWidth / 2 ? 'L' : 'R';
       for (const [id, p] of this.pointers) if (p.side === side) { this.pointers.delete(id); }
       const now = performance.now();
@@ -1848,6 +1862,12 @@ class Input {
       if (this.onThumb) this.onThumb(side, p, p.grab ? this._amount(p) : 0);
     });
     el.addEventListener('pointermove', (e) => {
+      const L = this.look;
+      if (L.id === e.pointerId) {                                   // Finger rechts → Kamera nach links, runter → von oben
+        L.yaw = U.clamp(L.yaw - (e.clientX - L.x) * 0.011, -3.0, 3.0);
+        L.pitch = U.clamp(L.pitch + (e.clientY - L.y) * 0.008, -0.75, 1.2);
+        L.x = e.clientX; L.y = e.clientY; return;
+      }
       const p = this.pointers.get(e.pointerId); if (!p) return;
       p.x = e.clientX; p.y = e.clientY;
       // Daumen nach oben über den Startpunkt hinaus: Startpunkt wandert mit, Bremse bleibt bei 0
@@ -1855,6 +1875,7 @@ class Input {
       if (this.onThumb) this.onThumb(p.side, p, this._amount(p));
     });
     const end = (e) => {
+      if (this.look.id === e.pointerId) { this.look.id = null; this.look.on = false; this.look.idle = 0; if (this.onLook) this.onLook(false); return; }
       const p = this.pointers.get(e.pointerId); if (!p) return;
       this.pointers.delete(e.pointerId);
       if (e.type === 'pointerup' && e.clientY) { p.y = e.clientY; if (p.y < p.y0) p.y0 = p.y; }
@@ -1865,6 +1886,19 @@ class Input {
     el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
     el.addEventListener('contextmenu', (e) => e.preventDefault());
   }
+  _inLookBox(e) {
+    if (!this.lookOk || !this.lookBox) return false;
+    const r = this.lookBox.getBoundingClientRect();
+    return r.width > 0 && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+  }
+  /* Blick zurück zur Standardkamera, sobald der Finger weg ist (nach kurzer Haltezeit) */
+  updateLook(dt) {
+    const L = this.look;
+    if (L.on) return;
+    L.idle += dt;
+    if (L.idle > 0.9) { const k = Math.exp(-dt * 2.6); L.yaw *= k; L.pitch *= k; if (Math.abs(L.yaw) + Math.abs(L.pitch) < 0.004) L.yaw = L.pitch = 0; }
+  }
+  get looking() { const L = this.look; return L.on || Math.abs(L.yaw) + Math.abs(L.pitch) > 0.02; }
   _amount(p) {
     if (!p.grab && this.brakeDelay && performance.now() - p.ts < this.brakeDelay * 1000) return 0;
     return U.clamp((p.y - p.y0) / this.rangeFor(p), 0, 1);
@@ -1896,6 +1930,7 @@ class Input {
     this.pointers.clear(); this.bar = false; this.ears = false; this.keys = {};
     this.brakeL = this.lock.L; this.brakeR = this.lock.R; this.barV = 0;
     this.swipeUp = 0; this.flickDown = false;
+    const L = this.look; L.id = null; L.on = false; L.yaw = L.pitch = 0;
     if (this.onThumb) { this.onThumb('L', null, 0); this.onThumb('R', null, 0); }
   }
 
@@ -4034,6 +4069,7 @@ class World {
     const m = this.map;
     const dayT = U.clamp((hour - 9.5) / 9.5, 0, 1);
     this.dayFactor = Math.pow(Math.max(0, Math.sin(Math.PI * dayT)), 0.7);
+    if (this.softDay && hour < 19) this.dayFactor = Math.max(this.dayFactor, 0.5);   // Spielmodi: der Nachmittag trägt noch
     const el = U.rad(m.sun.el) * (0.25 + 0.75 * Math.sin(Math.PI * U.clamp((hour - 6) / 14, 0, 1)));
     const az = U.rad(m.sun.az + (hour - 13) * 15);
     this.sunDir = (this.sunDir || new THREE.Vector3()).set(Math.sin(az) * Math.cos(el), Math.sin(el), -Math.cos(az) * Math.cos(el));
@@ -4258,6 +4294,7 @@ class World {
       if (th.age > th.life || !near) { this.removeThermal(th); continue; }
       this._poseThermal(th, dt);
     }
+    this._ensureLift(px, pz, dt);
     this.hintPool.commit(); if (this.cloudPools) for (const p of this.cloudPools) p.commit(); if (this.dustPool) this.dustPool.commit(); this.birdPool.commit();
     const target = Math.round(T.density * this.densityMul * 55);
     if (this.rng() < dt * 1.5 * Math.min(3, nf)) {
@@ -4278,6 +4315,34 @@ class World {
         }
       }
     }
+  }
+  /* Sicherheitsnetz: Ist im Umkreis kein brauchbarer Bart (stark genug, noch nicht abgebaut, Basis über uns),
+     entsteht in Reichweite ein neuer – so bleibt jedes Level machbar, auch wenn der Zufall schlecht würfelt. */
+  _ensureLift(px, pz, dt) {
+    const py = this.focusY; if (py == null || this.quiet || this.strengthMul < 0.3) return;
+    this._rescueT = (this._rescueT || 0) - dt; if (this._rescueT > 0) return;
+    if (py > this.map.base - 140) return;                                         // schon an der Basis: nichts mehr zu holen
+    const T = this.map.thermals;
+    for (const th of this.thermals) {
+      if (th.top < py + 180 || th.s < T.sMin + (T.sMax - T.sMin) * 0.25) continue;
+      if (th.age + 40 > th.life || th.age < 0) continue;
+      if (U.dist2(px, pz, th.x, th.z) < 1900) return;                              // erreichbarer Bart vorhanden
+    }
+    this._rescueT = 6;
+    const base = this.rng() * Math.PI * 2;
+    let bestX = 0, bestZ = 0, bestScore = -1;
+    for (let i = 0; i < 16; i++) {
+      const a = base + i / 16 * Math.PI * 2, r = 450 + this.rng() * 700;
+      const x = px + Math.cos(a) * r, z = pz + Math.sin(a) * r;
+      if (this.isWater(x, z)) continue;
+      let sc = 1 + (this._roomToCircle(x, z, 150) ? 2 : 0);
+      const g = this.gradient(x, z), gl = Math.hypot(g.x, g.z);
+      if (gl > 0.03 && this.sunDir) sc += 0.5 + 0.5 * ((-g.x / gl) * this.sunDir.x + (-g.z / gl) * this.sunDir.z);
+      sc *= 0.6 + this.rng() * 0.4;
+      if (sc > bestScore) { bestScore = sc; bestX = x; bestZ = z; }
+    }
+    if (bestScore < 0) return;
+    this.spawnThermal(bestX, bestZ, { s: T.sMin + (T.sMax - T.sMin) * (0.6 + this.rng() * 0.3), r: Math.max(T.rMin, 140), life: 420 + this.rng() * 180, birth: 10, birds: true });
   }
   seedThermals(px, pz, heading) {
     const T = this.map.thermals;
@@ -4362,6 +4427,7 @@ class World {
       b.position.set(this.wind.x * t * 200 + 30 * Math.sin(t * 9), 2000 + t * 900, this.wind.z * t * 200 + 30 * Math.cos(t * 7));
       const s = 0.6 + t * 2.2; b.scale.set(s, s, s);
     }
+    this.focusY = py;
     this.manageThermals(px, pz, dt);
     this._updateMotes(px, py, pz, dt);
     this.decor.update(dt, cp.x, cp.z);
@@ -6079,7 +6145,8 @@ class Game {
     world.birdShare = mission && mission.birds != null ? mission.birds : null;     // Anteil der Bärte mit Vögeln (Geierflüsterer)
 
     this.hour = mission ? (mission.hour || 13) : (this.mode === 'daily' ? 12 : 10.5);
-    this.timePerSec = fixed ? 0.0006 : 0.0095;
+    this.timePerSec = fixed ? 0.0006 : 0.0065;
+    world.softDay = !fixed;
     world.setTime(this.hour);
 
     const L = world.launch;
@@ -6335,6 +6402,23 @@ class Game {
       if (p.inSpiral || p.spin) kp = 2.2;
       roll = p.bank * 0.28;
     }
+    // Umschauen: Kamera auf einer Kugel um Schirm und Pilot (Mitte zwischen beiden), Blick auf diesen Punkt
+    const lk = this.input.look; let lookW = 0;
+    if (!this.over && p.flying) {
+      this.input.updateLook(dt);
+      lookW = U.clamp((Math.abs(lk.yaw) + Math.abs(lk.pitch)) / 0.12, 0, 1);
+      if (lookW > 0) {
+        const px = p.x, py = p.y + 3.4, pz = p.z;
+        let dx = tp.x - px, dy = tp.y - py, dz = tp.z - pz;
+        const hr = Math.hypot(dx, dz), r = Math.hypot(hr, dy);
+        const ph = Math.atan2(dy, hr) + lk.pitch * 0.9;                         // Höhenwinkel
+        const az = Math.atan2(dx, dz) + lk.yaw;                                  // Seitenwinkel um den Piloten
+        const rr = Math.max(r * (lk.pitch > 0.5 ? 0.82 : 1), 12), cp = Math.cos(U.clamp(ph, -1.2, 1.45));
+        tp.set(px + Math.sin(az) * cp * rr, py + Math.sin(U.clamp(ph, -1.2, 1.45)) * rr, pz + Math.cos(az) * cp * rr);
+        tl.x += (px - tl.x) * lookW; tl.y += (py - tl.y) * lookW; tl.z += (pz - tl.z) * lookW;
+        kp = Math.max(kp, 9); kl = Math.max(kl, 12); roll *= 1 - lookW;
+      }
+    }
     this.camPos.x += (tp.x - this.camPos.x) * Math.min(1, dt * kp);
     this.camPos.y += (tp.y - this.camPos.y) * Math.min(1, dt * kp);
     this.camPos.z += (tp.z - this.camPos.z) * Math.min(1, dt * kp);
@@ -6522,6 +6606,8 @@ const GameRules = {
     this._advanceTime(dt);
     this.input.brakeDelay = p.flying && !p.seated && p.needSit ? 0.18 : 0;   // Wisch nach unten soll nicht bremsen
     this.input.lockOk = p.flying;                                             // Raste nur in der Luft
+    this.input.lookOk = p.flying;                                             // Umschau-Box ebenso
+    if (this._lookVis !== p.flying) { this._lookVis = p.flying; const lb = this.input.lookBox; if (lb) lb.classList.toggle('off', !p.flying); }
     // Bremsen folgen dem Daumen in echter Zeit; im Zeitraffer lenkt der Schirm sanfter (Pilot.lapse)
     const k = this.speedup > 1 ? this.speedup : 1;
     this.input.update(dt / k);
@@ -7729,6 +7815,8 @@ class UI {
         el('button', { class: 'hbtn', id: 'btnBar', 'aria-label': 'Beschleuniger (halten)', title: 'Beschleuniger',
           html: icon('<path d="M8.5 17.5 16 10 23.5 17.5"/><path d="M8.5 25 16 17.5 23.5 25"/>') }),
       ]),
+      // Umschau-Box in der Mitte (zwischen den Bremsen, hinter Ohren/Beschleuniger/Zeitraffer): Finger darin dreht die Kamera um den Schirm
+      el('div', { id: 'lookBox', class: 'off', 'aria-hidden': 'true', html: '<svg viewBox="0 0 32 32"><path d="M16 4 27 10v12L16 28 5 22V10z"/><path d="M5 10l11 6 11-6M16 16v12"/></svg><span>Umschauen</span>' }),
       // Bremsbalken links und rechts
       el('div', { id: 'hudBottom' }, ['L', 'R'].map(s => el('div', { class: 'rail', id: 'rail' + s }, [
         el('div', { class: 'track' }, [el('div', { class: 'zone' }), el('div', { class: 'fill', id: 'rail' + s + 'F' }), el('div', { class: 'grip', id: 'rail' + s + 'G' })]),
@@ -9462,6 +9550,8 @@ Object.assign(UI.prototype, UIProgress);
   input.bindSurface(document.getElementById('c'));
   input.onThumb = (side, p, a) => ui.onThumb(side, p, a);
   input.onLock = (side, st) => ui.onLock(side, st);
+  const lookBox = document.getElementById('lookBox');
+  input.lookBox = lookBox; input.onLook = (on) => lookBox.classList.toggle('on', on);
   input.bindHoldButton(document.getElementById('btnEars'), 'ears');
   input.bindHoldButton(document.getElementById('btnBar'), 'bar');
   const pauseBtn = document.getElementById('btnPause');
