@@ -748,6 +748,24 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 .gtxt small { font-size: 12.5px; color: var(--ink-2); line-height: 1.35; }
 .gmeta { display: flex; gap: 10px; align-items: center; font-size: 11.5px; color: var(--ink-3); }
 .gbtn { flex: 0 0 auto; width: auto; padding: 11px 14px; font-size: 13px; justify-content: center; }
+#gWind.warn { box-shadow: 0 0 0 2px rgba(255, 106, 92, 0.9), 0 0 18px rgba(255, 106, 92, 0.6); animation: railWarn 0.35s ease-in-out infinite alternate; }
+#gWind.warn .gwv small { color: #ff8a7a; font-weight: 700; }
+#gScore { position: absolute; left: calc(64px + var(--sl)); right: calc(104px + var(--sr)); top: calc(76px + var(--st)); padding: 5px 10px 6px; }
+#gScore .row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+#gScore .num { font-family: var(--font-d); font-size: 20px; color: var(--cloud); line-height: 1.1; }
+#gScore #gCombo { font-size: 12px; color: var(--sun); font-weight: 700; white-space: nowrap; }
+#gChainBar { height: 100%; width: 0; background: var(--sun); border-radius: 2px; transition: width 0.12s linear; }
+#gScore .bar { height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.14); margin-top: 4px; overflow: hidden; }
+#gFig { position: absolute; left: 50%; top: 24%; transform: translateX(-50%); text-align: center; width: max-content; max-width: 86vw; opacity: 0; }
+#gFig b { display: block; font-family: var(--font-d); font-size: 26px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sun); }
+#gFig span { font-size: 15px; font-weight: 700; color: var(--cloud); }
+#gFig.show { animation: figIn 1.5s ease forwards; }
+@keyframes figIn { 0% { opacity: 0; transform: translateX(-50%) translateY(14px) scale(0.85); } 14% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.08); } 24% { transform: translateX(-50%) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-18px); } }
+.gbreak { display: flex; flex-direction: column; gap: 3px; margin: 6px 0 4px; padding: 8px 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); font-size: 13.5px; }
+.gbreak .grow { display: flex; justify-content: space-between; gap: 10px; }
+.gbreak .grow.sub { color: var(--ink-2); border-top: 1px dashed rgba(255, 255, 255, 0.12); padding-top: 3px; margin-top: 2px; }
+.gbreak .grow.sub + .grow.sub { border-top: 0; margin-top: 0; padding-top: 0; }
+.gbreak .num { color: var(--cloud); }
 .stars .off { color: rgba(255, 255, 255, 0.2); }
 
 </style>
@@ -764,7 +782,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = {"v": "4.9.34", "t": "14:58 02.10.2026", "c": "8f19125"};
+window.AUFWIND_BUILD = {"v": "5.0.36", "t": "15:47 02.10.2026", "c": "3a7128d"};
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -1962,12 +1980,80 @@ const GROUND = [
   { id: 'g15', block: 'Tricks', name: 'Meisterprüfung', map: 'voralpen', icon: 'master', wind: { s: 6, gust: 0.45, from: 330, shift: 0.8 }, start: 'lay', stance: 1, goal: [{ type: 'hold', t: 3 }, { type: 'turn', n: 1 }, { type: 'sway', n: 3 }, { type: 'cobra', t: 1.5 }, { type: 'kill' }], limit: 150, st: [90, 45], reward: 250,
     blurb: 'Rückwärts aufziehen, eindrehen, dreimal pendeln, Cobra und zum Schluss sauber abziehen.' },
 ];
+
+/* ---- Windlabor: feste Windmuster je Platz. wind.events: gust {t,dur,amp,warn} = Böe (amp in m/s zusätzlich), turn {t,dur,deg,warn} = Wind dreht,
+   ramp {t,dur,s,gust} = Wetterwechsel (neuer Grundwind); wind.pulse {amp,per} = Hangaufwind pumpt; wind.flip = wilde Richtungswechsel (Lee-Rotor).
+   Aufgaben: catch {n} = n Böen abfangen (Kappe bleibt das ganze Fenster oben). Bei Wind unter ~3,4 m/s trabt der Pilot von selbst gegen den Wind an. */
+GROUND.splice(9, 0,
+  { id: 'g16', block: 'Windlabor', name: 'Hangaufwind', map: 'wasserkuppe', icon: 'slope', wind: { s: 6.5, gust: 0.42, from: 250, pulse: { amp: 0.35, per: 9 } }, start: 'up', stance: 0, goal: [{ type: 'hold', t: 30 }], limit: 120, st: [66, 40], reward: 110, extra: true,
+    blurb: 'Am Hang pumpt der Wind: alle neun Sekunden schwillt er an und fällt wieder ab. Lies das Fähnchen und halte den Schirm 30 Sekunden oben.' },
+  { id: 'g17', block: 'Windlabor', name: 'Flaute und Böe', map: 'voralpen', icon: 'calm', wind: { s: 1.2, gust: 0.1, from: 200, events: [{ type: 'gust', t: 24, dur: 4, amp: 6.5, warn: 2.5 }] }, start: 'lay', stance: 0, goal: [{ type: 'hold', t: 6 }, { type: 'catch', n: 1 }], limit: 100, st: [60, 42], reward: 130, extra: true,
+    blurb: 'Fast Windstille: kräftig wischen, der Pilot trabt dem Schirm entgegen. Dann kommt aus dem Nichts eine Böe. Das Fähnchen weit draußen warnt dich 2,5 Sekunden vorher.' },
+  { id: 'g18', block: 'Windlabor', name: 'Föhnböen', map: 'dolomiten', icon: 'gust', wind: { s: 4.5, gust: 0.15, from: 170, events: [{ type: 'gust', t: 12, dur: 3.5, amp: 5, warn: 2.5 }, { type: 'gust', t: 26, dur: 3.5, amp: 6, warn: 2.5 }, { type: 'gust', t: 40, dur: 3.5, amp: 6.5, warn: 2.5 }] }, start: 'up', stance: 0, goal: [{ type: 'catch', n: 3 }], limit: 110, st: [78, 56], reward: 150, extra: true,
+    blurb: 'Der Föhn kommt in Stößen. Drei harte Böen im Abstand von 14 Sekunden: sobald das Fähnchen flattert, beide Bremsen leicht an und die Kappe tief halten.' },
+  { id: 'g19', block: 'Windlabor', name: 'Drehender Wind', map: 'kueste', icon: 'shift', wind: { s: 5.5, gust: 0.45, from: 20, events: [{ type: 'turn', t: 10, dur: 5, deg: 75, warn: 2 }, { type: 'turn', t: 28, dur: 6, deg: -110, warn: 2 }] }, start: 'up', stance: 0, goal: [{ type: 'hold', t: 40 }], limit: 120, st: [78, 52], reward: 150, extra: true,
+    blurb: '40 Sekunden oben halten, während der Wind zweimal dreht: erst um 75 Grad nach rechts, dann um 110 Grad zurück. Der Windsack zeigt dir die neue Richtung.' },
+  { id: 'g20', block: 'Windlabor', name: 'Lee-Rotor', map: 'dolomiten', icon: 'rotor', wind: { s: 4.2, gust: 0.6, from: 310, flip: 1.1 }, start: 'up', stance: 0, goal: [{ type: 'hold', t: 25 }], limit: 120, st: [60, 38], reward: 170, extra: true,
+    blurb: 'Hinter dem Grat wirbelt der Wind: Richtung und Stärke wechseln wild, kein Muster, nur Reaktion. Bleib ruhig und steuere früh gegen.' },
+  { id: 'g21', block: 'Windlabor', name: 'Wetterwechsel', map: 'voralpen', icon: 'front', wind: { s: 3.8, gust: 0.12, from: 230, events: [{ type: 'ramp', t: 10, dur: 12, s: 8.5, gust: 0.35, warn: 4 }, { type: 'turn', t: 14, dur: 8, deg: 60 }] }, start: 'up', stance: 0, goal: [{ type: 'hold', t: 40 }], limit: 130, st: [80, 54], reward: 170, extra: true,
+    blurb: 'Eine Front zieht auf: aus lauem Wind werden binnen Sekunden fast 30 km/h mit Böen, und er dreht. Halte den Schirm die ganzen 40 Sekunden oben, auch wenn der Wind kippt.' },
+  { id: 'g22', block: 'Windlabor', name: 'Windprüfung', map: 'wasserkuppe', icon: 'master', wind: { s: 1.6, gust: 0.2, from: 280, events: [{ type: 'gust', t: 22, dur: 4, amp: 6, warn: 2.5 }, { type: 'ramp', t: 30, dur: 8, s: 6.5, gust: 0.4 }, { type: 'turn', t: 40, dur: 5, deg: 90, warn: 2 }, { type: 'gust', t: 52, dur: 3.5, amp: 6.5, warn: 2.5 }] }, start: 'lay', stance: 0, goal: [{ type: 'hold', t: 6 }, { type: 'catch', n: 1 }, { type: 'hold', t: 12 }, { type: 'catch', n: 1 }], limit: 160, st: [110, 78], reward: 260, extra: true,
+    blurb: 'Bei Flaute aufziehen, eine Böe abfangen, die Front aufziehen sehen, mit drehendem Wind mithalten und die zweite Böe parieren.' },
+);
+/* Windlabor schließt an „Windwechsel“ an, die Tricks bleiben so frei wie bisher */
+GROUND.find(d => d.id === 'g16').after = 'g09';
+GROUND.find(d => d.id === 'g10').after = 'g09';
+
+/* ---- Freestyle: Figuren werden aus dem Weg der Kappe erkannt. pts = Grundwert (Schwierigkeit), how = Kurzanleitung */
+const GROUND_FIGS = {
+  pendel:     { name: 'Pendel',     pts: 30,  how: 'links und rechts weit ausschwingen' },
+  eindrehen:  { name: 'Eindrehen',  pts: 25,  how: 'zur Seite wischen' },
+  cobra:      { name: 'Cobra',      pts: 60,  how: 'Kappe quer stehen lassen' },
+  helikopter: { name: 'Helikopter', pts: 110, how: 'zweimal rasch zur Seite wischen' },
+  wingover:   { name: 'Wing-Over',  pts: 100, how: 'große Pendel, die Kappe steht fast quer' },
+  kreis:      { name: '360°',       pts: 170, how: 'die Kappe in einem Kreis um dich führen' },
+  rave:       { name: 'Rave',       pts: 140, how: 'Kappe zurückziehen und nach vorn schießen lassen' },
+  toprave:    { name: 'Toprave',    pts: 260, how: 'zwei Kreise in Folge, gleiche Richtung' },
+};
+const GROUND_FIG_ORDER = ['pendel', 'eindrehen', 'cobra', 'helikopter', 'wingover', 'kreis', 'rave', 'toprave'];
+const GROUND_COMBO_GAP = 3.0;      // so lange darf zwischen zwei Figuren Pause sein, ohne dass die Kombo reißt
+const GROUND_COMBO_MAX = 3.0;      // höchster Kombo-Faktor
+const GROUND_WO_MIN = 0.8;         // Ausschlag ab dem ein Pendel als Wing-Over gilt (Bogenmaß, rund 46 Grad)
+const GROUND_COBRA = 0.9;          // Ausschlag, den die Kappe eine Sekunde halten muss (Cobra-Figur)
+const GROUND_CIRCLE = 5.2;         // Windung (Bogenmaß) für 360°
+const GROUND_TOP_GAP = 10;         // zweiter Kreis in gleicher Richtung innerhalb dieser Zeit (s) = Toprave
+
+/* ---- Freestyle: Figurenschule (fig {fig,n} = n solche Figuren zeigen) und Punkterunden (free {t}: t Sekunden Figuren aneinanderreihen,
+   st = [Punkte für 2 Sterne, für 3 Sterne], min = Punkte für den ersten Stern). daily = Tageswertung (Wind aus dem Tages-Seed). */
+GROUND.push(
+  { id: 'gf1', block: 'Freestyle', name: 'Wing-Over', map: 'kueste', icon: 'wingover', wind: { s: 5.5, gust: 0.1, from: 100 }, start: 'up', stance: 0, goal: [{ type: 'fig', fig: 'wingover', n: 3 }], limit: 100, st: [50, 26], reward: 160, extra: true, after: 'g12',
+    blurb: 'Schwing die Kappe im Wechsel weit nach links und rechts, bis sie fast quer neben dir steht (rund 45 Grad). Ziehe die Bremse früh und fest, lass sie los, sobald die Kappe oben ist.' },
+  { id: 'gf2', block: 'Freestyle', name: '360°', map: 'voralpen', icon: 'circle', wind: { s: 5, gust: 0.1, from: 210 }, start: 'up', stance: 0, goal: [{ type: 'fig', fig: 'kreis', n: 2 }], limit: 110, st: [60, 32], reward: 180, extra: true,
+    blurb: 'Führe die Kappe in einem Kreis um dich: erst seitlich, dann zurück, dann zur anderen Seite, dann nach vorn. Zwei volle Kreise.' },
+  { id: 'gf3', block: 'Freestyle', name: 'Rave', map: 'wasserkuppe', icon: 'rave', wind: { s: 5.5, gust: 0.1, from: 260 }, start: 'up', stance: 0, goal: [{ type: 'fig', fig: 'rave', n: 3 }], limit: 100, st: [55, 28], reward: 180, extra: true,
+    blurb: 'Zieh beide Bremsen kräftig durch, die Kappe geht zurück. Lass im richtigen Moment los: sie schießt nach vorn. Dreimal vor und zurück.' },
+  { id: 'gf4', block: 'Freestyle', name: 'Toprave', map: 'dolomiten', icon: 'toprave', wind: { s: 5, gust: 0.1, from: 140 }, start: 'up', stance: 0, goal: [{ type: 'fig', fig: 'toprave', n: 1 }], limit: 120, st: [90, 50], reward: 220, extra: true,
+    blurb: 'Die Königsfigur: zwei volle Kreise ohne Pause in dieselbe Richtung. Die Kappe darf dabei nicht nachlassen, sonst fällt sie ein.' },
+  { id: 'gf5', block: 'Freestyle', name: 'Freestyle-Einstieg', map: 'kueste', icon: 'combo', free: true, wind: { s: 5.5, gust: 0.12, from: 60 }, start: 'up', stance: 0, goal: [{ type: 'free', t: 75 }], limit: 90, st: [700, 1400], min: 300, reward: 200, extra: true, after: 'gf3',
+    blurb: '75 Sekunden Zeit: reihe Figuren aneinander. Jede neue Figur in Folge erhöht den Kombo-Faktor, Wiederholungen bringen weniger, eine einfallende Kappe beendet die Kombo.' },
+  { id: 'gf6', block: 'Freestyle', name: 'Freestyle-Kür', map: 'wasserkuppe', icon: 'combo', free: true, wind: { s: 6, gust: 0.3, from: 300 }, start: 'up', stance: 0, goal: [{ type: 'free', t: 90 }], limit: 105, st: [1100, 2000], min: 450, reward: 260, extra: true,
+    blurb: '90 Sekunden, böiger Wind. Zeig alle Figuren: Helikopter, Wing-Over, 360°, Rave, Toprave – je abwechslungsreicher, desto mehr Punkte.' },
+  { id: 'gf7', block: 'Freestyle', name: 'Tageswertung', map: 'voralpen', icon: 'daily', free: true, daily: true, wind: { s: 5.5, gust: 0.2, from: 0 }, start: 'up', stance: 0, goal: [{ type: 'free', t: 90 }], limit: 105, st: [800, 1500], min: 350, reward: 200, extra: true, after: 'gf5',
+    blurb: 'Jeden Tag ein anderer Wind, für alle derselbe. 90 Sekunden Freestyle – dein Tagesbestwert wird gemerkt.' },
+);
+/* Tageswind: aus dem Tages-Seed (gleicher Wind für alle am selben Tag) */
+function groundDaily(d, dayKey) {
+  const r = makeRng(U.hash('ground-daily:' + dayKey) >>> 0), c = Object.assign({}, d);
+  c.wind = { s: +(4.5 + 3 * r()).toFixed(1), gust: +(0.1 + 0.3 * r()).toFixed(2), from: Math.round(r() * 359), shift: r() < 0.4 ? +(0.4 * (r() - 0.5)).toFixed(2) : 0 };
+  c.map = ['voralpen', 'kueste', 'wasserkuppe', 'dolomiten'][Math.floor(r() * 4)];
+  return c;
+}
 const GROUND_BY_ID = Object.fromEntries(GROUND.map(g => [g.id, g]));
 /* Sterne aus Ground Handling: so viele bringt ein vollständiger Durchgang */
 const GROUND_MAX_STARS = GROUND.length * 3;
 function groundStars(sv) { let n = 0; for (const id in (sv.ground || {})) n += (sv.ground[id] && sv.ground[id].stars) || 0; return n; }
 /* Bodenschule macht den Start leichter: bis zu 35 % weniger Seitenwind, Böen und Anfangsstoß beim Aufziehen im Flug */
-function groundSkill(sv) { return Math.min(1, groundStars(sv) / GROUND_MAX_STARS); }
+function groundSkill(sv) { let n = 0, m = 0; for (const d of GROUND) if (!d.extra) { m += 3; n += (sv.ground && sv.ground[d.id] && sv.ground[d.id].stars) || 0; } return Math.min(1, n / m); }
 
 /* AUFWIND – Audio: Vario, Wind, Ereignisse (alles synthetisiert) */
 'use strict';
@@ -8127,7 +8213,7 @@ class UI {
       tune: {}, perks: { own: {}, on: [], slots: 2 }, custom: { pat: 'mitte', c: [0x2fb7d6, 0xf6f6f2, 0xffc93c], nose: false, trim: false },
       // Gurtzeug und seine Farbe je Gurtzeug; Auftragsbrett des Tages; Bonus-Level { id: { stars, best } }
       lines: 'werk', lineCustom: LINE_SET_BY_ID.eigen.cols.slice(), winglet: 'werk',
-      harness: 'schule', harnessCol: {}, quests: { day: 0, list: [], swaps: 0, chest: false }, bonus: {}, ground: {},
+      harness: 'schule', harnessCol: {}, quests: { day: 0, list: [], swaps: 0, chest: false }, bonus: {}, ground: {}, groundDay: { day: 0, best: 0, stars: 0 },
       set: { tiltWS: false, sens: 1.0, invert: false, muted: false, vario: true, quality: 'mid', hints: true, unlockAll: false, launch: 'manual', softSteer: true, center: 'tips', hud: HUD_DEFAULT(), brake: { len: BRAKE_LEN.def, size: 'm', lock: true } },
     };
     // Stand lesen; ist er kaputt, greift die Sicherung vom letzten guten Start
@@ -8182,6 +8268,8 @@ class UI {
     o.perks.slots = num(o.perks.slots, 1, 9, 2);
     if (!Array.isArray(o.quests.list)) o.quests.list = [];
     if (!obj(o.daily)) o.daily = { key: 0, stars: 0, best: 0 };
+    for (const id of Object.keys(o.ground)) { const r = o.ground[id]; o.ground[id] = obj(r) ? { stars: Math.round(num(r.stars, 0, 3, 0)), best: Math.round(num(r.best, 0, 1e7, 0)) } : { stars: 0, best: 0 }; }
+    o.groundDay = obj(o.groundDay) ? { day: Math.round(num(o.groundDay.day, 0, 99999999, 0)), best: Math.round(num(o.groundDay.best, 0, 1e7, 0)), stars: Math.round(num(o.groundDay.stars, 0, 3, 0)) } : { day: 0, best: 0, stars: 0 };
     if (typeof o.wing !== 'string' || !WING_BY_ID[o.wing]) o.wing = 'schul';
     if (typeof o.map !== 'string' || !MAP_BY_ID[o.map]) o.map = 'voralpen';
     if (typeof o.harness !== 'string' || !HARNESSES.some(h => h.id === o.harness)) o.harness = 'schule';
@@ -10253,6 +10341,12 @@ class GroundSim {
     // Wind
     const W = drill.wind; this.w0 = W.s; this.gustAmp = W.gust || 0; this.from0 = U.rad(W.from); this.shift = U.rad(W.shift || 0);
     this.s = W.s; this.from = this.from0; this.gustNow = 0;
+    // Windprogramm (Windlabor): feste Ereignisse je Platz – gust {t,dur,amp,warn}, turn {t,dur,deg,warn}, ramp {t,dur,s,gust} (Wetterwechsel)
+    this.ev = (W.events || []).slice().sort((a, b) => a.t - b.t); this.wo = { s: W.s, from: this.from0, add: 0, gust: this.gustAmp, w0: W.s };
+    { let ps = W.s, pg = this.gustAmp; for (const e of this.ev) if (e.type === 'ramp') { e.s0 = ps; e.g0 = pg; ps = e.s; pg = e.gust == null ? pg : e.gust; } }
+    this.gustWin = this.ev.filter(e => e.type === 'gust').map(e => ({ e, ok: true, done: false, brk: 0 }));
+    this.addPrev = 0; this.caught = 0; this.gustMissed = 0; this.warn = null; this.pre = { s: W.s, from: this.from0 }; this.jog = 0; this.inGust = false;
+    this.fxInit();
     // Pilot (Ursprung bei 0, der Aufrufer legt ihn auf die Wiese)
     this.x = 0; this.z = 0; this.vx = 0; this.vz = 0; this.speed = 0;
     this.wy = this.from0; this.stanceOff = drill.stance ? Math.PI : 0; this.h = this.wy + this.stanceOff;
@@ -10263,16 +10357,31 @@ class GroundSim {
     this.pull = null; this.killT = 0; this.flowA = 0;
     this.bLw = 0; this.bRw = 0; this.sym = 0;
     this.n = [0, 0]; this.r = [0, 0];               // Nase und rechte Seite des Schirms (Welt)
-    this.free = [0, 0]; this.lat = 0; this.fore = 0; this.dev = 0; this.dist = 0;
+    this.free = [0, 0]; this.lat = 0; this.fore = 0; this.dev = 0; this.dist = 0; this.devL = 0; this.devF = 0;
     // Aufgaben
     this.turns = 0; this.swayN = 0; this.pullFails = 0; this.collapses = 0; this.maxDev = 0; this.holdBest = 0; this.hx = 0; this.hz = 0;
     this.si = 0; this._startStep();
     this.msg = null; this.msgT = 0;
   }
-  _noise(k, rate) { const t = this.t * rate; return 0.55 * Math.sin(t * 1.0 + this.ph[k]) + 0.3 * Math.sin(t * 1.93 + this.ph[k + 1] * 1.3) + 0.15 * Math.sin(t * 3.7 + this.ph[k + 2]); }
+  _noise(k, rate, tt) { const t = (tt == null ? this.t : tt) * rate; return 0.55 * Math.sin(t * 1.0 + this.ph[k]) + 0.3 * Math.sin(t * 1.93 + this.ph[k + 1] * 1.3) + 0.15 * Math.sin(t * 3.7 + this.ph[k + 2]); }
+  /* Wind zur Zeit t (rein, deterministisch): Grundwind mit Wetterwechsel und Pulsen, Böen, Richtungsschwankung und -drehung, Ereignisse */
+  windAt(t, o) {
+    const W = this.d.wind; let w0 = W.s, ga = this.gustAmp, dir = 0, add = 0;
+    for (const e of this.ev) {
+      if (e.type === 'ramp') { if (t > e.t) { const k = U.smoothstep(e.t, e.t + e.dur, t); w0 = U.lerp(e.s0, e.s, k); ga = U.lerp(e.g0, e.gust == null ? e.g0 : e.gust, k); } }
+      else if (e.type === 'turn') dir += U.rad(e.deg) * U.smoothstep(e.t, e.t + e.dur, t);
+      else if (e.type === 'gust') add += e.amp * U.smoothstep(e.t, e.t + 0.6, t) * (1 - U.smoothstep(e.t + e.dur - 0.9, e.t + e.dur, t));
+    }
+    if (W.pulse) w0 *= 1 + W.pulse.amp * Math.sin(6.2832 * t / W.pulse.per);
+    const gN = this._noise(0, 0.9, t), gN2 = this._noise(3, 0.55, t);
+    o.s = Math.max(0.2, w0 * (1 + ga * (0.9 * gN + 0.25 * gN2)) + add);
+    o.from = this.from0 + this.shift * t + dir + ga * 0.45 * gN2 + (W.flip ? W.flip * Math.sin(t * 0.8 + this.ph[7]) * Math.sin(t * 0.37 + this.ph[8]) : 0);
+    o.w0 = w0; o.add = add; o.gust = ga; return o;
+  }
   get step() { return this.d.goal[this.si]; }
   _startStep() {
-    this.sp = { acc: 0, grace: 0, n: 0, last: 0, gi: 0, turns0: this.turns };
+    const g0fig = (q) => { const g = q.step; return g && g.type === 'fig' ? q.figCount(g.fig) : 0; };
+    this.sp = { acc: 0, grace: 0, n: 0, last: 0, gi: 0, turns0: this.turns, caught0: this.caught, fig0: g0fig(this) };
     const g = this.step; if (g && g.type === 'gates') {
       const sgn = this.rng() < 0.5 ? -1 : 1, rt = [Math.cos(this.wy), Math.sin(this.wy)], nz = GH_VEC(this.wy); this.gates = [];
       for (let k = 0; k < g.n; k++) { const a = sgn * (6.5 + 6 * k), b = (k % 2 ? 1 : -1) * 2; this.gates.push({ x: this.x + rt[0] * a + nz[0] * b, z: this.z + rt[1] * a + nz[1] * b }); }
@@ -10284,6 +10393,8 @@ class GroundSim {
     switch (g.type) {
       case 'hold': return U.clamp(sp.acc / g.t, 0, 1); case 'sway': return U.clamp(sp.n / g.n, 0, 1); case 'cobra': return U.clamp(sp.acc / g.t, 0, 1);
       case 'turn': return U.clamp((this.turns - sp.turns0) / g.n, 0, 1); case 'kill': return U.clamp(1 - this.f, 0, 1); case 'gates': return U.clamp(sp.gi / g.n, 0, 1);
+      case 'catch': return U.clamp((this.caught - sp.caught0) / g.n, 0, 1); case 'fig': return U.clamp((this.figCount(g.fig) - sp.fig0) / g.n, 0, 1);
+      case 'free': return U.clamp(this.t / g.t, 0, 1);
     }
     return 0;
   }
@@ -10297,6 +10408,9 @@ class GroundSim {
       case 'turn': return 'Unter dem Schirm eindrehen (zur Seite wischen) · ' + Math.min(g.n, this.turns - sp.turns0) + ' / ' + g.n;
       case 'kill': return 'Abziehen: schnell nach unten wischen';
       case 'gates': return 'Durch die Tore · ' + sp.gi + ' / ' + g.n;
+      case 'catch': return (this.warn ? (this.warn.kind === 'gust' ? 'Böe in ' + Math.ceil(this.warn.left) + ' s! ' : 'Wind dreht gleich! ') : 'Böen abfangen: Kappe oben halten · ') + Math.min(g.n, this.caught - sp.caught0) + ' / ' + g.n;
+      case 'fig': return GROUND_FIGS[g.fig].name + ': ' + GROUND_FIGS[g.fig].how + ' · ' + Math.min(g.n, this.figCount(g.fig) - sp.fig0) + ' / ' + g.n;
+      case 'free': return 'Figuren aneinanderreihen';
     }
     return '';
   }
@@ -10306,15 +10420,19 @@ class GroundSim {
   update(dt, inp) {
     if (this.done) return;
     this.t += dt; this.msgT = Math.max(0, this.msgT - dt); this.events.length = 0;
-    // ---- Wind: Grundwind, Böen, Richtungsschwankung, langsame Drehung
-    const gN = this._noise(0, 0.9), gN2 = this._noise(3, 0.55);
-    this.s = Math.max(0.2, this.w0 * (1 + this.gustAmp * (0.9 * gN + 0.25 * gN2)));
-    this.from = this.from0 + this.shift * this.t + this.gustAmp * 0.45 * gN2;
-    this.gustNow = U.clamp((this.s - this.w0) / Math.max(0.5, this.w0 * (this.gustAmp + 0.01)), -1, 1);
+    // ---- Wind: Grundwind, Böen, Richtungsschwankung, langsame Drehung, Ereignisse (Windlabor)
+    const wo = this.windAt(this.t, this.wo); this.s = wo.s; this.from = wo.from; this.w0 = wo.w0;
+    this.gustNow = wo.add > 0.8 ? 1 : U.clamp((wo.s - wo.w0) / Math.max(0.5, wo.w0 * (wo.gust + 0.01)), -1, 1);
+    this.windAt(this.t + 2.5, this.pre);                                                    // Vorschau: so weht es gleich (Fähnchen, Vorwarnung)
+    this.warn = null;
+    for (const e of this.ev) if (e.warn && this.t >= e.t - e.warn && this.t < e.t) { this.warn = { kind: e.type, left: e.t - this.t }; break; }
     const wd = GH_VEC(this.from + Math.PI), wx = wd[0] * this.s, wz = wd[1] * this.s;
     // ---- Luftstrom am Schirm relativ zum Piloten
     const Vx = wx - this.vx, Vz = wz - this.vz, s = Math.hypot(Vx, Vz);
-    const hf = s > 0.05 ? Math.atan2(-Vx, Vz) : this.wy, rel = U.wrapAngle(hf - this.wy), a = s * Math.cos(rel);
+    const hf = s > 0.05 ? Math.atan2(-Vx, Vz) : this.wy, rel = U.wrapAngle(hf - this.wy);
+    // Flaute: steht der Schirm, trabt der Pilot gegen den Wind an – das hält die Nase gefüllt (bei Wind ab ~3,4 m/s nicht nötig)
+    const aid = this.f > 0.3 ? Math.max(0, 3.4 - this.s) * 0.9 : 0; this.jog = aid * 0.75;
+    const a = s * Math.cos(rel) + aid;
     this.flowA = a;
     const nz = GH_VEC(this.wy), n = this.n, r = this.r; n[0] = nz[0]; n[1] = nz[1]; r[0] = Math.cos(this.wy); r[1] = Math.sin(this.wy);
     // ---- Bremsen: nach dem Eindrehen sind die Seiten vertauscht
@@ -10340,7 +10458,7 @@ class GroundSim {
     if (this.killT > 0) fe = 0;
     const f0 = this.f;
     this.f += (fe - this.f) * Math.min(1, dt * (fe > this.f ? 2.0 : (this.killT > 0 ? 4.5 : 2.4)));
-    if (f0 > 0.7 && this.f < 0.3 && this.killT <= 0 && !this.pull) { this.collapses++; this.events.push('collapse'); this._msg('Der Schirm ist eingefallen'); }
+    if (f0 > 0.7 && this.f < 0.3 && this.killT <= 0 && !this.pull) { this.collapses++; this.chain = 0; this.mult = 1; this.events.push('collapse'); this._msg('Der Schirm ist eingefallen'); }
     const f = this.f;
     // ---- Gleichgewicht der Kappe: freie Lage (Wind drückt sie leewärts) + Bremsen
     const vh = s > 0.3 ? [Vx / s, Vz / s] : wd;
@@ -10358,10 +10476,12 @@ class GroundSim {
       ex = U.lerp(ex, ux, k); ez = U.lerp(ez, uz, k);
     }
     // Böen schubsen die Kappe, ohne Gegensteuern wandert sie weg
-    const gs = this.gustAmp * (0.35 + 0.5 * U.clamp(s / 8, 0, 1)) * f;
+    const gs = (wo.gust * (0.35 + 0.5 * U.clamp(s / 8, 0, 1)) + wo.add * (this.d.wind.shove || 0.12)) * f;
     const px = this._noise(6, 1.1) * gs * 5.0, pz = this._noise(9, 1.3) * gs * 5.0;
     const c = 2 * 0.55 * Math.sqrt(kD);
-    const ax = kD * (ex - this.dx) - c * this.dvx + inst * (this.dx - fx) + px, az = kD * (ez - this.dz) - c * this.dvz + inst * (this.dz - fz) + pz;
+    // Böen-Stoß: steigt der Wind schlagartig, schießt die Kappe nach vorn (wie beim Aufziehen: beide Bremsen früh anziehen)
+    const sg = dt > 0 ? Math.max(0, wo.add - this.addPrev) / dt * (this.d.wind.surge == null ? 0.6 : this.d.wind.surge) * f : 0; this.addPrev = wo.add;
+    const ax = kD * (ex - this.dx) - c * this.dvx + inst * (this.dx - fx) + px + n[0] * sg, az = kD * (ez - this.dz) - c * this.dvz + inst * (this.dz - fz) + pz + n[1] * sg;
     // ---- Pilot läuft unter den Schirm (Schritthilfe)
     const devx = this.dx - fx, devz = this.dz - fz;
     let tx = 0, tz = 0;
@@ -10387,9 +10507,99 @@ class GroundSim {
     const dvx = this.dx - fx, dvz = this.dz - fz;
     this.dev = Math.hypot(dvx, dvz); this.lat = this.dx * r[0] + this.dz * r[1]; this.fore = this.dx * n[0] + this.dz * n[1];
     this.maxDev = Math.max(this.maxDev, this.dev);
+    this.devL = dvx * r[0] + dvz * r[1]; this.devF = dvx * n[0] + dvz * n[1];
+    if (inp.turn && this.f > 0.45) this._turnFig();
+    this._fx(dt); this._gustWatch();
     this._goals(dt);
     if (!this.done && this.t >= this.d.limit) { this.done = true; this.failed = 'time'; this.events.push('fail'); }
   }
+
+  /* ---------- Böen abfangen: eine Böe zählt, wenn die Kappe das ganze Fenster über steht ---------- */
+  _gustWatch() {
+    this.inGust = false;
+    for (const g of this.gustWin) {
+      if (g.done) continue;
+      const e = g.e;
+      if (this.t >= e.t - (e.warn || 1.5) - 0.5 && this.t < e.t + e.dur) g.brk = Math.max(g.brk, this.sym);      // wer nicht bremst, hat die Böe nicht abgefangen
+      if (this.t >= e.t && this.t < e.t + e.dur + 1.2) { this.inGust = true; if (this.f < 0.45) g.ok = false; }
+      if (this.t >= e.t + e.dur + 1.2) { g.done = true; if (g.ok && g.brk >= 0.2) { this.caught++; this.events.push('caught'); this._msg('Böe abgefangen!'); } else { this.gustMissed++; if (g.ok) this._msg('Böe nur überstanden: Bremsen leicht anziehen!'); } }
+    }
+  }
+
+  /* ---------- Figuren (Freestyle): erkannt aus dem Weg der Kappe, gewertet nach Schwierigkeit, Höhe und Fluss ---------- */
+  fxInit() {
+    this.score = 0; this.chain = 0; this.mult = 1; this.bestChain = 0; this.lastFig = null; this.figs = {}; this.figLog = []; this.hist = []; this.bestFig = null;
+    this.fx = { L: { pk: 0, cool: 0 }, F: { pk: 0, cool: 0 }, lastL: null, lastF: null, cobT: 0, cobDone: false, th: 0, thOk: false, W: 0, dm: 0, hm: 1, prevEnd: -99, turnN: 0, turnT: -99 };
+  }
+  _peak(S, v, thP, thN, drop) {
+    let ev = 0;
+    const near = v > 0 ? v / thP : -v / thN;
+    if (S.cool && (v * S.cool <= 0 || near < 0.55)) S.cool = 0;
+    if (S.pk === 0) { if (!S.cool && (v >= thP || v <= -thN)) S.pk = v; }
+    else if (v * S.pk > 0) { if (Math.abs(v) > Math.abs(S.pk)) S.pk = v; else if (Math.abs(v) < Math.abs(S.pk) - drop) { ev = S.pk; S.cool = Math.sign(S.pk); S.pk = 0; } }
+    else { ev = S.pk; S.cool = 0; S.pk = 0; }
+    return ev;
+  }
+  _fx(dt) {
+    const X = this.fx, f = this.f, t = this.t;
+    X.hm += (Math.cos(Math.min(this.dist, 1.45)) - X.hm) * Math.min(1, dt / 1.5);
+    if (this.chain > 0 && t - X.prevEnd > GROUND_COMBO_GAP + 1.5) { this.chain = 0; this.mult = 1; this.events.push('chainEnd'); }
+    if (f < 0.35) { X.L.pk = 0; X.F.pk = 0; X.cobT = 0; X.W = 0; X.thOk = false; return; }
+    // seitliche Ausschläge: Pendeln und Wing-Over
+    const eL = this._peak(X.L, this.devL, 0.5, 0.5, 0.12);
+    if (eL) {
+      const side = Math.sign(eL), v = Math.abs(eL), pv = X.lastL;
+      if (pv && pv.side === -side && t - pv.t < 4.5) {
+        if (v >= GROUND_WO_MIN && pv.v >= 0.6) this._fig('wingover', t - 1.2);
+        else if (v >= 0.5) this._fig('pendel', t - 1.0);
+      }
+      X.lastL = { side, v, t };
+    }
+    // Cobra: Kappe steht quer
+    if (Math.abs(this.devL) > GROUND_COBRA && Math.abs(this.dvx * this.r[0] + this.dvz * this.r[1]) < 0.4) { X.cobT += dt; if (X.cobT >= 1.0 && !X.cobDone) { X.cobDone = true; this._fig('cobra', t - 1.0); } }
+    else if (Math.abs(this.devL) < 0.6) { X.cobT = 0; X.cobDone = false; }
+    // vor und zurück: Rave
+    const eF = this._peak(X.F, this.devF, 0.27, 0.28, 0.06);
+    if (eF && Math.abs(this.devL) > 0.5) X.lastF = null;                                    // seitlich unterwegs (Kreis): zählt nicht als Rave
+    else if (eF) {
+      const pv = X.lastF;
+      if (pv && pv.sign === -Math.sign(eF) && t - pv.t < 3.6) { this._fig('rave', t - 1.4); X.lastF = null; }
+      else X.lastF = { sign: Math.sign(eF), t };
+    }
+    // Umrundung: Winkel der Kappe um ihre Ruhelage
+    if (this.dev > 0.28) {
+      const th = Math.atan2(this.dx - this.free[0], this.dz - this.free[1]);
+      if (X.thOk) X.W += U.wrapAngle(th - X.th);
+      X.th = th; X.thOk = true; X.dm += (this.dev - X.dm) * Math.min(1, dt / 2);
+    } else { X.thOk = false; X.dm += (this.dev - X.dm) * Math.min(1, dt / 2); }
+    X.W *= 1 - Math.min(1, dt / 7);
+    if (Math.abs(X.W) >= GROUND_CIRCLE) {
+      const dir = Math.sign(X.W), pk = X.lastK, two = pk && pk.dir === dir && t - pk.t < GROUND_TOP_GAP;    // zwei Kreise in Folge, gleiche Richtung = Toprave
+      this._fig(two ? 'toprave' : 'kreis', t - 3); X.lastK = two ? null : { dir, t }; X.W = 0; X.thOk = false;
+    }
+  }
+  _turnFig() {
+    const X = this.fx, t = this.t;
+    X.turnN = t - X.turnT < 4.5 ? X.turnN + 1 : 1; X.turnT = t;
+    this._fig(X.turnN % 2 ? 'eindrehen' : 'helikopter', t - 0.4);
+  }
+  /* Punkte: Grundwert × Höhe der Kappe × Fluss × Wiederholungsabzug × Kombo-Faktor */
+  _fig(id, t0) {
+    const F = GROUND_FIGS[id], X = this.fx, t = this.t;
+    const gap = X.prevEnd < 0 ? 9 : Math.max(0, t0 - X.prevEnd);
+    if (this.chain > 0 && gap > GROUND_COMBO_GAP) { this.chain = 0; this.mult = 1; }
+    this.chain++; this.bestChain = Math.max(this.bestChain, this.chain);
+    this.mult = Math.min(GROUND_COMBO_MAX, 1 + 0.25 * (this.chain - 1));
+    const h = U.clamp((X.hm - 0.3) / 0.6, 0, 1), flow = this.chain <= 1 ? 0.85 : 1 - 0.5 * U.clamp((gap - 0.8) / 2.2, 0, 1);
+    const hs = this.hist, rep = hs[0] === id ? 0.6 : hs[1] === id ? 0.8 : 1;
+    const pts = Math.round(F.pts * (0.8 + 0.4 * h) * (0.55 + 0.45 * flow) * rep * this.mult);
+    this.score += pts; X.prevEnd = t; hs.unshift(id); if (hs.length > 3) hs.pop();
+    const r = this.figs[id] || (this.figs[id] = { n: 0, pts: 0 }); r.n++; r.pts += pts;
+    this.lastFig = { id, name: F.name, pts, mult: this.mult, chain: this.chain, t, h, flow, rep };
+    if (!this.bestFig || pts > this.bestFig.pts) this.bestFig = { name: F.name, pts };
+    this.events.push('fig');
+  }
+  figCount(id) { return (this.figs[id] && this.figs[id].n) || 0; }
   _msg(t) { this.msg = t; this.msgT = 2.2; }
   _goals(dt) {
     const g = this.step, sp = this.sp, f = this.f; if (!g) return;
@@ -10413,10 +10623,13 @@ class GroundSim {
         if (G && f > 0.5 && Math.hypot(this.x - G.x, this.z - G.z) < 2.6) { sp.gi++; this.events.push('gate'); }
         ok = sp.gi >= g.n; break;
       }
+      case 'catch': ok = this.caught - sp.caught0 >= g.n; break;
+      case 'fig': ok = this.figCount(g.fig) - sp.fig0 >= g.n; break;
+      case 'free': ok = this.t >= g.t; break;
     }
     if (ok) {
       this.si++; this.events.push('step');
-      if (this.si >= this.d.goal.length) { this.done = true; const st = this.d.st; this.stars = this.t <= st[1] ? 3 : this.t <= st[0] ? 2 : 1; this.events.push('win'); }
+      if (this.si >= this.d.goal.length) { this.done = true; const st = this.d.st; this.stars = this.d.free ? (this.score >= st[1] ? 3 : this.score >= st[0] ? 2 : this.score >= this.d.min ? 1 : 0) : (this.t <= st[1] ? 3 : this.t <= st[0] ? 2 : 1); if (!this.stars) this.failed = 'score'; this.events.push(this.failed ? 'fail' : 'win'); }
       else this._startStep();
     }
   }
@@ -10426,14 +10639,14 @@ class GroundSim {
 const GameGround = {
   startGround(cfg) {
     this.stop();
-    const q = QUALITY[cfg.quality] || QUALITY.mid, drill = GROUND_BY_ID[cfg.drillId], map = MAP_BY_ID[drill.map];
+    const q = QUALITY[cfg.quality] || QUALITY.mid, drill = cfg.drill || GROUND_BY_ID[cfg.drillId], map = MAP_BY_ID[drill.map];
     this.cfg = cfg; this.mode = 'ground'; this.mission = null; this.map = map; this.drill = drill;
-    const wing = this._gear(cfg), seed = U.hash(drill.id + ':boden') >>> 0;
+    const wing = this._gear(cfg), seed = U.hash(drill.id + ':boden' + (drill.daily ? cfg.dayKey : '')) >>> 0;
     this.hour = 11; this.over = false; this.paused = false; this.result = null; this.t = 0; this.endT = 0; this.resultShown = false;
     const world = this._buildWorld(map, seed, seed, q, false);
     world.setTime(this.hour); world.softDay = false;
     const L = world.landing || world.launch;
-    const sim = this.ground = new GroundSim(drill, U.hash(drill.id + ':sim:' + (cfg.attempt || 0)) >>> 0);
+    const sim = this.ground = new GroundSim(drill, U.hash(drill.daily ? 'daily:' + cfg.dayKey : drill.id + ':sim:' + (cfg.attempt || 0)) >>> 0);
     sim.x = sim.hx = L.x; sim.z = sim.hz = L.z;
     // Schirm und Pilot als ein Modell (Wurzel = Pilot, Kappe über ihm); Aufbau wie im Flug
     this.gmodel = buildGliderModel(wing, { design: this._look.design, harness: this._look.harness, color: null, lines: this._look.extra.lines, winglet: this._look.extra.winglet });
@@ -10442,6 +10655,7 @@ const GameGround = {
     this.gst = { lay: sim.f > 0.5 ? 0 : 1, defl: 1 - sim.f, stride: 0, hv: sim.h, camH: sim.h, bob: 0, y: world.groundAt(L.x, L.z) };
     this.gdf = {};
     world.buildAllChunks(L.x, L.z);
+    this._groundProps(L);
     this._groundPose(0);
     this._groundCamera(1, true);
     this._prewarm();
@@ -10465,6 +10679,7 @@ const GameGround = {
     for (let i = 0; i < n; i++) this._groundStep(dt / n);
     this._groundPose(dt);
     this._groundCamera(dt, false);
+    this._groundPropsUpdate(dt);
     const W = this.world, p = this.gpv;
     W.update(dt, this.camera, sim.x, p.y, sim.z);
     this.gshadow.update(p, W);
@@ -10487,7 +10702,8 @@ const GameGround = {
     for (const e of sim.events) this._groundEvent(e);
     if (sim.done && !this.over) {
       this.over = true; this._gEnded = true; this.endT = 0;
-      this.result = { drillId: this.drill.id, success: !sim.failed, stars: sim.stars, time: sim.t, failed: sim.failed, collapses: sim.collapses, turns: sim.turns, sway: sim.swayN };
+      this.result = { drillId: this.drill.id, success: !sim.failed, stars: sim.stars, time: sim.t, failed: sim.failed, collapses: sim.collapses, turns: sim.turns, sway: sim.swayN,
+        score: sim.score, bestChain: sim.bestChain, figs: JSON.parse(JSON.stringify(sim.figs)), bestFig: sim.bestFig, caught: sim.caught, gustMissed: sim.gustMissed, dayKey: this.cfg.dayKey };
       this.audio[sim.failed ? 'fail' : 'fanfare']();
     }
   },
@@ -10496,6 +10712,8 @@ const GameGround = {
     if (e === 'inflate') a.whoosh(); else if (e === 'collapse') a.collapse(); else if (e === 'pullFail') a.fail();
     else if (e === 'step') { a.chime(); if (this.ground.step) ui.toast('Aufgabe geschafft'); }
     else if (e === 'gate' || e === 'sway') a.pop(); else if (e === 'turn') a.click(); else if (e === 'kill') a.thump();
+    else if (e === 'fig') { const c = this.ground.chain; a.tone(520 + Math.min(c, 9) * 70, 0.16, 'triangle', 0.2); setTimeout(() => a.tone(780 + Math.min(c, 9) * 90, 0.2, 'sine', 0.16), 90); }
+    else if (e === 'caught') a.chime(); else if (e === 'chainEnd') a.click();
   },
 
   /* Modell an Zustand: Kappe am Seil um den Piloten, Pilot steht und läuft unter ihr */
@@ -10503,10 +10721,10 @@ const GameGround = {
     const sim = this.ground, m = this.gmodel, ud = m.userData, S = this.gst, W = this.world;
     const gy = W.groundAt(sim.x, sim.z); S.y += (gy - S.y) * Math.min(1, dt * 12 + (dt ? 0 : 1)); const y = S.y;
     // Pilot: Beine laufen mit der Geschwindigkeit, Oberkörper neigt sich in die Laufrichtung
-    S.stride += sim.speed * dt * 2.3; const amp = U.clamp(sim.speed / 2.6, 0, 0.7), swing = Math.sin(S.stride) * amp;
+    const sp = Math.max(sim.speed, sim.jog || 0); S.stride += sp * dt * 2.3; const amp = U.clamp(sp / 2.6, 0, 0.7), swing = Math.sin(S.stride) * amp;
     S.hv = sim.h;
-    const bob = sim.speed > 0.3 ? (0.04 + 0.012 * sim.speed) * Math.abs(Math.cos(S.stride)) : 0;
-    poseBody(ud, 1, swing, -0.22 * U.clamp(sim.speed / 2.5, 0, 1) - 0.1 * U.clamp((sim.bLw + sim.bRw) * 0.5, 0, 1), 0, this.input.brakeL, this.input.brakeR, 0);
+    const bob = sp > 0.3 ? (0.04 + 0.012 * sp) * Math.abs(Math.cos(S.stride)) : 0;
+    poseBody(ud, 1, swing, -0.22 * U.clamp(sp / 2.5, 0, 1) - 0.1 * U.clamp((sim.bLw + sim.bRw) * 0.5, 0, 1), 0, this.input.brakeL, this.input.brakeR, 0);
     ud.upper.rotation.y = -0.1 * Math.sin(S.stride) * amp;
     m.position.set(sim.x, y + STAND_H + bob, sim.z);
     m.rotation.y = -sim.h; m.rotation.x = 0; m.rotation.z = 0;
@@ -10569,7 +10787,63 @@ const GameGround = {
     });
     for (let i = sim.gates.length; i < this.ggMesh.length; i++) this.ggMesh[i].visible = false;
   },
+  /* Kulisse zum Lesen des Windes: Windsack, Fähnchen, Windmesser – und bei wechselhaftem Wind ein Vorboten-Fähnchen weit draußen, das 2,5 s früher weht */
+  _groundProps(L) {
+    const sim = this.ground, W = this.world, g = new THREE.Group(), mat = (c) => new THREE.MeshLambertMaterial({ color: c });
+        const pole = (h, c) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, h, 6).translate(0, h / 2, 0), mat(c || 0xd9dde2)); return m; };
+    const P = this.gprop = { sock: null, flags: [], cups: null, far: null, place: [], L, anchor: 0, fade: 1, fadeDir: 0 };
+    // Windsack: vier Ringe rot/weiß, zeigt nach Lee und hängt bei wenig Wind herab
+    { const grp = new THREE.Group(); P.place.push({ grp, d: 17, r: -5.6 }); grp.add(pole(5.2));
+      const piv = new THREE.Group(); piv.position.y = 5.2; const hub = new THREE.Group(); piv.add(hub);
+      let off = 0; for (let i = 0; i < 4; i++) { const r0 = 0.34 - i * 0.055, r1 = r0 - 0.055, len = 0.62, m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r0, len, 10, 1, true).rotateX(Math.PI / 2).translate(0, 0, -(off + len / 2)), new THREE.MeshLambertMaterial({ color: i % 2 ? 0xf5f5f5 : 0xe8532c, side: THREE.DoubleSide })); hub.add(m); off += len; }
+      grp.add(piv); g.add(grp); P.sock = { piv, hub }; }
+    // zwei Fähnchen am Mast (dreiteilig, flattern)
+    { const grp = new THREE.Group(); P.place.push({ grp, d: 11, r: 4.8 }); grp.add(pole(4.2));
+      for (const [h, c, w] of [[3.9, 0xffc24b, 1.5], [3.1, 0x4fa3e8, 1.2]]) {
+        const root = new THREE.Group(); root.position.y = h; grp.add(root); let par = root; const segs = [];
+        for (let i = 0; i < 3; i++) { const sg = new THREE.Group(); sg.position.z = i ? -w / 3 : 0; const m = new THREE.Mesh(new THREE.PlaneGeometry(w / 3, 0.5 - i * 0.12).rotateY(Math.PI / 2).translate(0, 0, -w / 6), new THREE.MeshLambertMaterial({ color: c, side: THREE.DoubleSide })); sg.add(m); par.add(sg); par = sg; segs.push(sg); }
+        P.flags.push({ root, segs }); }
+      g.add(grp); }
+    // Windmesser: drei Schalen, drehen sich schneller bei mehr Wind
+    { const grp = new THREE.Group(); P.place.push({ grp, d: 6, r: -3.4 }); grp.add(pole(2.4));
+      const rot = new THREE.Group(); rot.position.y = 2.45; for (let i = 0; i < 3; i++) { const a = i * 2.094, arm = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.03, 0.03).translate(0.25, 0, 0), mat(0x9aa4ad)), cup = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 6, 0, Math.PI).rotateY(-Math.PI / 2).translate(0.5, 0, 0), mat(0xe8453c)); const arm2 = new THREE.Group(); arm2.rotation.y = a; arm2.add(arm, cup); rot.add(arm2); }
+      grp.add(rot); g.add(grp); P.cups = rot; }
+    // Vorboten-Fähnchen weit vor dir im Wind: zeigt den Wind von in 2,5 Sekunden
+    const wd = sim.d.wind;
+    if (wd.events || wd.pulse || wd.flip) {
+      const grp = new THREE.Group(); P.place.push({ grp, d: 38, r: 7 }); grp.add(pole(7, 0xffffff));
+      const root = new THREE.Group(); root.position.y = 6.6; grp.add(root); let par = root; const segs = [];
+      for (let i = 0; i < 3; i++) { const sg = new THREE.Group(); sg.position.z = i ? -0.8 : 0; const m = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 1.0 - i * 0.25).rotateY(Math.PI / 2).translate(0, 0, -0.4), new THREE.MeshLambertMaterial({ color: 0xff6a1f, side: THREE.DoubleSide })); sg.add(m); par.add(sg); par = sg; segs.push(sg); }
+      g.add(grp); P.far = { root, segs }; }
+    this.scene.add(g); this.gprops = g; P.t = 0; this._propsPlace(this.gst.camH + 0.8);
+  },
+  /* Die Kulisse steht dort, wohin die Kamera blickt (sonst wäre sie im Hochformat nie im Bild) und wandert mit, wenn sich die Blickrichtung dauerhaft ändert */
+  _propsPlace(angle) {
+    const P = this.gprop, W = this.world, F = GH_VEC(angle), R = [Math.cos(angle), Math.sin(angle)], L = P.L; P.anchor = angle;
+    for (const o of P.place) { const x = L.x + F[0] * o.d + R[0] * o.r, z = L.z + F[1] * o.d + R[1] * o.r; o.grp.position.set(x, W.groundAt(x, z), z); }
+  },
+  _flagSet(fl, from, s, t, ph) {
+    fl.root.rotation.y = -(from + Math.PI);
+    const k = U.clamp(s / 8, 0.05, 1.2), amp = 0.1 + 0.55 * k, droop = (1 - U.smoothstep(0.8, 5, s)) * 1.2;
+    for (let i = 0; i < fl.segs.length; i++) { const sg = fl.segs[i]; sg.rotation.y = Math.sin(t * (4 + 5 * k) - i * 1.6 + ph) * amp * (0.5 + i * 0.3); sg.rotation.x = i === 0 ? -droop : -droop * 0.25; }
+  },
+  _groundPropsUpdate(dt) {
+    const sim = this.ground, P = this.gprop; if (!sim || !P) return; P.t += dt; const t = P.t;
+    const want = this.gst.camH + 0.8;
+    if (!P.fadeDir && Math.abs(U.wrapAngle(want - P.anchor)) > 1.3 && Math.abs(U.wrapAngle(this.gst.camH - sim.h)) < 0.12) P.fadeDir = -1;
+    if (P.fadeDir) {
+      P.fade = U.clamp(P.fade + P.fadeDir * dt * 4, 0, 1);
+      if (P.fadeDir < 0 && P.fade <= 0) { this._propsPlace(want); P.fadeDir = 1; } else if (P.fadeDir > 0 && P.fade >= 1) P.fadeDir = 0;
+      for (const o of P.place) o.grp.scale.setScalar(Math.max(0.001, P.fade));
+    }
+    if (P.sock) { P.sock.piv.rotation.y = -(sim.from + Math.PI); const droop = (1 - U.smoothstep(1.2, 7.5, sim.s)) * 1.3; P.sock.hub.rotation.x = -droop + 0.07 * Math.sin(t * 3.1) * U.clamp(sim.s / 6, 0.2, 1); P.sock.hub.rotation.y = 0.09 * Math.sin(t * 2.3 + 1) * U.clamp(sim.s / 6, 0.2, 1); }
+    for (let i = 0; i < P.flags.length; i++) this._flagSet(P.flags[i], sim.from, sim.s, t, i * 1.7);
+    if (P.cups) P.cups.rotation.y -= dt * (0.4 + sim.s * 1.5);
+    if (P.far) this._flagSet(P.far, sim.pre.from, sim.pre.s, t, 0.5);
+  },
   _groundStop() {
+    if (this.gprops && typeof disposeTree === 'function') { try { disposeTree(this.gprops); } catch (e) { } }
+    this.gprops = null; this.gprop = null;
     this.ground = null; this.gmodel = null; this.ggates = null; this.ggMesh = null; this.gpv = null; this._gEnded = false; this.drill = null;
     if (this.ui && this.ui.groundHide) this.ui.groundHide();
   },
@@ -10587,6 +10861,10 @@ const GH_ICON = {
   wind: '<path d="M3 9h11a3 3 0 1 0-3-3"/><path d="M3 14h15a3 3 0 1 1-3 3"/>', gust: '<path d="M3 8h9a3 3 0 1 0-3-3M3 13h14M3 18h8a3 3 0 1 1-3 3"/>', storm: '<path d="M7 15a4.5 4.5 0 0 1 .6-9 6 6 0 0 1 11 2.2A3.6 3.6 0 0 1 18 15"/><path d="M12.5 12 9.5 18h3.5l-1.5 4"/>',
   shift: '<path d="M4 12a8 8 0 0 1 14-5"/><path d="M18 3v4h-4"/><path d="M20 12a8 8 0 0 1-14 5"/><path d="M6 21v-4h4"/>', sway: '<path d="M4 18c2-9 6-12 8-12s6 3 8 12"/><path d="M12 6V3"/><circle cx="12" cy="20" r="1.4"/>',
   cobra: '<path d="M5 20V9c0-4 6-6 8-3 2 3-2 4-2 7v7"/><path d="M3 20h18"/>', heli: '<path d="M3 8h18M12 8v4"/><circle cx="12" cy="16" r="3"/><path d="M8 20h8"/>', gates: '<circle cx="7" cy="14" r="3.5"/><circle cx="17" cy="9" r="3.5"/><path d="M3 20h18"/>',
+  slope: '<path d="M3 19 14 6l7 13"/><path d="M3 11h9m-9 4h6" />', calm: '<path d="M4 9h10a3 3 0 1 0-3-3"/><circle cx="12" cy="17" r="3.2"/><path d="M12 14v-1"/>', rotor: '<path d="M5 10a7 7 0 0 1 12-2"/><path d="M17 4v4h-4"/><path d="M19 14a7 7 0 0 1-12 2"/><path d="M7 20v-4h4"/><path d="M12 10v4"/>',
+  front: '<path d="M3 18h18"/><path d="M5 18c0-4 3-7 7-7s7 3 7 7"/><path d="M8 8l-2-3m6 3V4m4 4 2-3"/>', wingover: '<path d="M3 17c4-12 14-12 18 0"/><path d="M8 8l-3-4m7 3V3m5 6 3-4"/><circle cx="12" cy="20" r="1.3"/>',
+  circle: '<path d="M12 4a8 8 0 1 0 8 8"/><path d="M12 1.5 15 4l-3 2.5"/><text x="12" y="15" font-size="7" fill="currentColor" stroke="none" text-anchor="middle">360</text>', rave: '<path d="M4 14c3-8 7-8 8 0s5 8 8 0"/><path d="M12 14v6"/>', toprave: '<circle cx="9" cy="12" r="5"/><circle cx="15" cy="12" r="5"/><path d="M12 3v3"/>',
+  combo: '<path d="M4 18 9 8l4 6 3-4 4 8"/><path d="M12 3v2m6 1-1 1.5M6 6l1 1.5"/>', daily: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4m6-4v4"/><path d="m12 13 1 2.2 2.4.3-1.8 1.6.5 2.4-2.1-1.2-2.1 1.2.5-2.4-1.8-1.6 2.4-.3Z"/>',
   timer: '<circle cx="12" cy="13" r="7.5"/><path d="M12 8.5V13l3 2M9.5 3h5"/>', master: '<path d="m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-3-5.4 3 1.1-6L3.2 9.4l6.1-.8Z"/>',
 };
 function ghIcon(k) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + (GH_ICON[k] || GH_ICON.up) + '</svg>'; }
@@ -10595,7 +10873,7 @@ const UIGround = {
   /* ---------- Spielstand ---------- */
   groundDrills() { return GROUND; },
   groundRec(id) { return (this.save.ground && this.save.ground[id]) || { stars: 0, best: 0 }; },
-  groundUnlocked(i) { return this.testMode || i === 0 || this.groundRec(GROUND[i - 1].id).stars > 0; },
+  groundUnlocked(i) { const d = GROUND[i]; return this.testMode || i === 0 || this.groundRec(d.after || GROUND[i - 1].id).stars > 0; },
   groundNext() { for (let i = 0; i < GROUND.length; i++) if (this.groundUnlocked(i) && !this.groundRec(GROUND[i].id).stars) return i; return null; },
 
   /* ---------- Übungsliste ---------- */
@@ -10609,18 +10887,18 @@ const UIGround = {
         el('div', {}, [el('b', { class: 'num', text: total + ' / ' + GROUND_MAX_STARS }), el('span', { text: ' Sterne' })]),
         el('div', {}, [el('b', { class: 'num', text: skill + ' %' }), el('span', { text: ' leichterer Start im Flug' })]),
       ]),
-      el('p', { class: 'small', text: 'Steuerung: linker und rechter Daumen = linke und rechte Bremse · Wisch nach oben = Schirm aufziehen · schnell nach unten = abziehen · zur Seite wischen = eindrehen. Der Pilot läuft von selbst unter den Schirm.' }),
+      el('p', { class: 'small', text: 'Steuerung: linker und rechter Daumen = linke und rechte Bremse · Wisch nach oben = Schirm aufziehen · schnell nach unten = abziehen · zur Seite wischen = eindrehen. Der Pilot läuft von selbst unter den Schirm. Im Windlabor lernst du, den Wind zu lesen (Windsack, Fähnchen); im Freestyle zählen Figuren und Kombos.' }),
     ];
     let block = null;
     GROUND.forEach((d, i) => {
       if (d.block !== block) { block = d.block; parts.push(el('div', { class: 'eyebrow gblock', text: block })); }
-      const ok = this.groundUnlocked(i), rec = this.groundRec(d.id);
+      const ok = this.groundUnlocked(i), rec = this.groundRec(d.id), dd = d.daily ? groundDaily(d, U.dayKey()) : d, dayRec = this.save.groundDay || {};
       parts.push(el('div', { class: 'gcard' + (ok ? '' : ' locked') + (i === ni ? ' next' : ''), id: 'grow_' + d.id }, [
         el('div', { class: 'gico', html: ok ? ghIcon(d.icon) : MISSION_ICON.lock }),
         el('div', { class: 'gtxt' }, [
           el('b', { text: d.name }),
-          el('small', { text: ok ? d.blurb : 'Erst die Übung davor schaffen.' }),
-          el('div', { class: 'gmeta' }, [el('span', { class: 'stars', html: starStr(rec.stars) }), el('span', { text: ok ? (d.wind.s * 3.6).toFixed(0) + ' km/h Wind' + (rec.best ? ' · Bestzeit ' + U.fmtTime(rec.best) : '') : '' })]),
+          el('small', { text: ok ? d.blurb : 'Erst „' + GROUND_BY_ID[d.after || GROUND[i - 1].id].name + '“ schaffen.' }),
+          el('div', { class: 'gmeta' }, [el('span', { class: 'stars', html: starStr(rec.stars) }), el('span', { text: ok ? (dd.wind.s * 3.6).toFixed(0) + ' km/h Wind' + (d.free ? (rec.best ? ' · Bestwert ' + U.fmtInt(rec.best) + ' P' : '') + (d.daily && dayRec.day === U.dayKey() ? ' · heute ' + U.fmtInt(dayRec.best) + ' P' : '') : (rec.best ? ' · Bestzeit ' + U.fmtTime(rec.best) : '')) : '' })]),
         ]),
         ok ? el('button', { class: 'btn primary gbtn', id: 'gstart_' + d.id, onclick: () => { this.click(); this.startGround(d.id); } }, [el('span', { text: rec.stars ? 'Nochmal' : 'Üben' })]) : null,
       ]));
@@ -10632,8 +10910,8 @@ const UIGround = {
 
   /* ---------- Start und Anzeigen im Spiel ---------- */
   startGround(id, attempt) {
-    const d = GROUND_BY_ID[id], H = this.currentHarness();
-    const cfg = { mode: 'ground', drillId: id, attempt: attempt || 0, quality: this.save.set.quality, wingId: this.save.wing, design: this.currentDesign().id, designDef: this.currentDesign(),
+    const dayKey = U.dayKey(), d = GROUND_BY_ID[id].daily ? groundDaily(GROUND_BY_ID[id], dayKey) : GROUND_BY_ID[id], H = this.currentHarness();
+    const cfg = { mode: 'ground', drillId: id, drill: d, dayKey, attempt: attempt || 0, quality: this.save.set.quality, wingId: this.save.wing, design: this.currentDesign().id, designDef: this.currentDesign(),
       tune: this.tuneOf(this.save.wing), perks: this.activePerks(), harness: H.id, harnessColor: this.harnessColor(H), lineCols: this.lineColors(), winglet: this.wingletMode() };
     this.lastGround = id;
     this.newStack('loading', () => {
@@ -10665,6 +10943,11 @@ const UIGround = {
         el('div', { class: 'gcompass' }, [el('svg', { viewBox: '-20 -20 40 40', id: 'gArrow', html: '<circle r="17" fill="none" stroke="rgba(166,196,232,.35)"/><path d="M0 -13 L5 -2 L1.6 -2 L1.6 12 L-1.6 12 L-1.6 -2 L-5 -2Z" fill="#5fb2f0"/>' })]),
         el('div', { class: 'gwv' }, [el('b', { id: 'gWs', text: '' }), el('small', { id: 'gWg', text: '' })]),
       ]),
+      el('div', { class: 'hpanel', id: 'gScore', hidden: 'hidden' }, [
+        el('div', { class: 'row1' }, [el('b', { class: 'num', id: 'gSc' }), el('span', { id: 'gCombo' })]),
+        el('div', { class: 'bar' }, [el('div', { id: 'gChainBar' })]),
+      ]),
+      el('div', { id: 'gFig' }, [el('b', { id: 'gFigN' }), el('span', { id: 'gFigP' })]),
       el('div', { id: 'gMsg' }), el('div', { id: 'gHint' }),
       el('div', { id: 'gFill', class: 'hpanel' }, [el('span', { text: 'Schirm' }), el('i', {}, [el('b', { id: 'gFillB' })])]),
       el('div', { id: 'gRails' }, [rail('L'), rail('R')]),
@@ -10677,13 +10960,31 @@ const UIGround = {
     this.showGame(); this.hud.hidden = true;
     const gh = this._ghBuild(); gh.hidden = false; this.$('gOver').hidden = true; this.$('gOver').innerHTML = '';
     for (const sd of ['L', 'R']) this.$('thumb' + sd).hidden = true;
-    this._gK = {}; this._gHintT = 0;
+    this._gK = {}; this._gHintT = 0; this._gGhostOff = {};
     this._txt('gTtl', g.drill.name);
-    this.hint(null);
-    const g0 = g.drill.goal[0].type, lay = g.drill.start === 'lay';
-    this.groundHint(lay ? 'Wisch nach oben, um den Schirm aufzuziehen' : g0 === 'hold' ? 'Halte den Schirm mit den Bremsen über dir' : g0 === 'sway' ? 'Zieh abwechselnd links und rechts eine Bremse, bis die Kappe weit ausschwingt'
-      : g0 === 'cobra' ? 'Zieh eine Bremse etwa zur Hälfte durch und halte sie: die Kappe kippt zur Seite' : g0 === 'turn' ? 'Wisch zur Seite, um dich unter dem Schirm einzudrehen'
-      : g0 === 'gates' ? 'Kipp die Kappe mit einer Bremse zur Seite: der Pilot läuft ihr nach' : 'Wisch schnell nach unten, um den Schirm abzuziehen', 6);
+    this.hint(null); this.ghost(null);
+    this.$('gScore').hidden = !g.drill.free; this.$('gFig').classList.remove('show');
+    const d = g.drill, g0 = d.goal[0], lay = d.start === 'lay';
+    const FH = { pendel: 'Zieh abwechselnd links und rechts eine Bremse: die Kappe schwingt weit aus', wingover: 'Zieh abwechselnd links und rechts eine Bremse fest durch und lass im Schwung los: die Kappe steht fast quer', rave: 'Beide Bremsen kräftig durch, die Kappe geht zurück – im richtigen Moment loslassen, sie schießt nach vorn', kreis: 'Führ die Kappe im Kreis: links, zurück, rechts, vor – immer weiter im Kreis', toprave: 'Zwei Kreise in Folge in dieselbe Richtung, ohne die Kappe zu verlieren' };
+    const wind = d.wind.events || d.wind.pulse || d.wind.flip ? ' Das orange Fähnchen weit draußen zeigt dir den Wind von gleich.' : '';
+    const h = lay ? 'Wisch nach oben, um den Schirm aufzuziehen' + (d.wind.s < 3 ? ' – bei Flaute kräftig!' : '') : g0.type === 'hold' ? 'Halte den Schirm mit den Bremsen über dir.' + wind : g0.type === 'sway' ? 'Zieh abwechselnd links und rechts eine Bremse, bis die Kappe weit ausschwingt'
+      : g0.type === 'cobra' ? 'Zieh eine Bremse etwa zur Hälfte durch und halte sie: die Kappe kippt zur Seite' : g0.type === 'turn' ? 'Wisch zur Seite, um dich unter dem Schirm einzudrehen'
+      : g0.type === 'gates' ? 'Kipp die Kappe mit einer Bremse zur Seite: der Pilot läuft ihr nach' : g0.type === 'catch' ? 'Eine Böe kommt: sobald das Fähnchen weit draußen flattert, beide Bremsen leicht anziehen.'
+      : g0.type === 'fig' ? FH[g0.fig] : g0.type === 'free' ? 'Reihe Figuren aneinander: jede neue Figur in Folge erhöht den Kombo-Faktor. Pendeln, Cobra, Eindrehen, Wing-Over, 360°, Rave …' : 'Wisch schnell nach unten, um den Schirm abzuziehen';
+    this.groundHint(h, 7);
+  },
+  /* Geisterdaumen-Anleitung: solange die Übung noch keinen Stern hat, zeigt ein weißer Daumen die nächste Bewegung */
+  _groundGhost(g, sim) {
+    const rec = this.groundRec(g.drill.id); if (rec.stars > 0 || g.drill.daily) { if (this._ghostOwner === 'ground') this.ghost(null); return; }
+    const st = sim.step, sp = sim.sp, O = this._gGhostOff, t = sim.t; let m = null, lbl = '';
+    if (sim.done) m = null;
+    else if (sim.needsPull() && !sim.pull && st && st.type !== 'kill') { m = 'up'; lbl = 'Aufziehen'; }
+    else if (st && st.type === 'kill' && sim.f > 0.6 && !O.kill) { m = 'down'; lbl = 'Abziehen'; }
+    else if (st && (st.type === 'sway' || (st.type === 'fig' && (st.fig === 'pendel' || st.fig === 'wingover'))) && sim.f > 0.5 && (st.type === 'sway' ? sp.n < 2 : sim.figCount(st.fig) - sp.fig0 < 1)) { m = Math.floor(t / 1.15) % 2 ? 'R' : 'L'; lbl = Math.floor(t / 1.15) % 2 ? 'Rechts ziehen' : 'Links ziehen'; }
+    else if (st && (st.type === 'cobra') && sim.f > 0.5 && sp.acc < 0.4) { m = 'L'; lbl = 'Eine Seite halten'; }
+    else if (st && st.type === 'fig' && st.fig === 'rave' && sim.f > 0.5 && sim.figCount('rave') - sp.fig0 < 1) { m = Math.floor(t / 1.6) % 2 ? null : 'LR'; lbl = 'Beide ziehen'; }
+    else if (st && st.type === 'catch' && sim.warn && sim.warn.kind === 'gust') { m = 'LR'; lbl = 'Bremsen an!'; }
+    if (m) this.ghost(m, lbl, 'ground'); else if (this._ghostOwner === 'ground') this.ghost(null);
   },
   groundHide() { if (this.gh) this.gh.hidden = true; },
   groundHint(t, sec) { const h = this.$('gHint'); if (!h) return; h.textContent = t || ''; h.classList.toggle('show', !!t); clearTimeout(this._gHt); if (t) this._gHt = setTimeout(() => h.classList.remove('show'), (sec || 3.5) * 1000); },
@@ -10698,12 +10999,27 @@ const UIGround = {
     set('gBar', 'pr', pr, (e, v) => { e.style.width = v + '%'; });
     const ws = Math.round(sim.s * 3.6);
     set('gWs', 'ws', ws, (e, v) => { e.textContent = v + ' km/h'; });
-    set('gWg', 'wg', sim.gustAmp > 0.4 ? (sim.gustNow > 0.5 ? 'Böe!' : 'böig') : sim.gustAmp > 0.2 ? 'leicht böig' : 'ruhig', (e, v) => { e.textContent = v; });
     // Windrichtung: Pfeil zeigt, wohin der Wind weht, gedreht zur Kamera
     const rot = Math.round(U.deg(sim.from + Math.PI - g.gst.camH) / 4) * 4;
     set('gArrow', 'ar', rot, (e, v) => { e.style.transform = 'rotate(' + v + 'deg)'; });
     set('gFillB', 'fi', Math.round(sim.f * 50), (e, v) => { e.style.width = v * 2 + '%'; e.parentNode.parentNode.classList.toggle('low', sim.f < 0.5); });
     for (const sd of ['L', 'R']) { const v = Math.round((sd === 'L' ? g.input.brakeL : g.input.brakeR) * 50); set('grail' + sd + 'F', 'r' + sd, v, (e, x) => { e.style.height = x * 2 + '%'; }); }
+    this._groundGhost(g, sim);
+    // Vorwarnung vor Böe, Drehung oder Wetterwechsel
+    const wt = sim.warn ? (sim.warn.kind === 'gust' ? 'Böe in ' + Math.ceil(sim.warn.left) + ' s' : sim.warn.kind === 'turn' ? 'Wind dreht' : 'Wetterwechsel') : null;
+    set('gWg', 'wg', wt || (sim.inGust ? 'Böe!' : sim.gustAmp > 0.4 ? (sim.gustNow > 0.5 ? 'Böe!' : 'böig') : sim.gustAmp > 0.2 ? 'leicht böig' : 'ruhig'), (e, v) => { e.textContent = v; });
+    set('gWind', 'wwarn', !!wt, (e, v) => { e.classList.toggle('warn', v); });
+    if (g.drill.free) {
+      set('gSc', 'sc', sim.score, (e, v) => { e.textContent = U.fmtInt(v) + ' P'; });
+      set('gCombo', 'cb', sim.chain + ':' + sim.mult, (e) => { e.textContent = sim.chain > 1 ? 'Kombo ×' + U.fmtDec(sim.mult, 2) + ' · ' + sim.chain + 'er' : sim.chain === 1 ? 'Kombo ×1' : 'ohne Kombo'; });
+      const left = sim.chain > 0 ? U.clamp(1 - (sim.t - sim.fx.prevEnd - 1.0) / (GROUND_COMBO_GAP + 0.5), 0, 1) : 0;
+      set('gChainBar', 'cbar', Math.round(left * 50), (e, v) => { e.style.width = v * 2 + '%'; });
+      const lf = sim.lastFig;
+      if (lf && K.fig !== lf.t) { K.fig = lf.t; this.$('gFigN').textContent = lf.name; this.$('gFigP').textContent = (g.drill.free ? '+' + lf.pts + (lf.mult > 1 ? ' ×' + U.fmtDec(lf.mult, 2) : '') : ''); const f = this.$('gFig'); f.classList.remove('show'); void f.offsetWidth; f.classList.add('show'); }
+    } else {
+      const lf = sim.lastFig;
+      if (lf && K.fig !== lf.t) { K.fig = lf.t; this.$('gFigN').textContent = lf.name; this.$('gFigP').textContent = ''; const f = this.$('gFig'); f.classList.remove('show'); void f.offsetWidth; f.classList.add('show'); }
+    }
     if (sim.msgT > 0 && K.msg !== sim.msg) { K.msg = sim.msg; const m = this.$('gMsg'); m.textContent = sim.msg; m.classList.remove('show'); void m.offsetWidth; m.classList.add('show'); }
     // Hinweise je nach Lage (einmal je Übung)
     if (!sim.done && sim.t - this._gHintT > 6) {
@@ -10736,11 +11052,24 @@ const UIGround = {
     const gain = r.success ? this._applyGround(r) : null;
     const next = GROUND.findIndex(x => x.id === d.id) + 1, nd = GROUND[next];
     const o = this.$('gOver'); o.hidden = false; o.innerHTML = '';
-    const good = r.success;
+    const good = r.success, free = !!d.free;
+    // Aufschlüsselung der Figuren (Freestyle und Figurenschule)
+    const rows = GROUND_FIG_ORDER.filter(k => r.figs && r.figs[k]).map(k => el('div', { class: 'grow' }, [el('span', { text: GROUND_FIGS[k].name + ' × ' + r.figs[k].n }), el('b', { class: 'num', text: U.fmtInt(r.figs[k].pts) })]));
+    let head;
+    if (free) head = U.fmtInt(r.score) + ' Punkte' + (r.stars >= 3 ? ' · Bestnote' : ' · für ' + (r.stars + 1) + ' Sterne ab ' + U.fmtInt(r.stars === 0 ? d.min : d.st[r.stars - 1]));
+    else head = good ? 'Zeit ' + U.fmtTime(r.time) + (r.stars < 3 ? ' · für ' + (r.stars + 1) + ' Sterne unter ' + U.fmtTime(d.st[2 - r.stars]) : ' · Bestnote') : 'Das schaffst du. Versuch es nochmal: Zieh den Schirm früh an und steuere gegen, bevor die Kappe wegkippt.';
+    const rec = this.groundRec(d.id), dayRec = this.save.groundDay || {};
     o.appendChild(el('div', { class: 'panel gpanel result' }, [
-      el('div', { class: 'eyebrow', text: good ? 'Übung geschafft' : 'Zeit abgelaufen' }), el('h2', { text: d.name }),
+      el('div', { class: 'eyebrow', text: good ? (free ? 'Runde geschafft' : 'Übung geschafft') : (r.failed === 'score' ? 'Zu wenig Punkte' : 'Zeit abgelaufen') }), el('h2', { text: d.name }),
       good ? el('div', { class: 'bigstars', html: starStr(r.stars) }) : null,
-      el('p', { text: good ? 'Zeit ' + U.fmtTime(r.time) + (r.stars < 3 ? ' · für ' + (r.stars + 1) + ' Sterne unter ' + U.fmtTime(d.st[2 - r.stars]) : ' · Bestnote') : 'Das schaffst du. Versuch es nochmal: Zieh den Schirm früh an und steuere gegen, bevor die Kappe wegkippt.' }),
+      el('p', { text: head }),
+      free || rows.length ? el('div', { class: 'gbreak' }, [
+        ...rows,
+        free ? el('div', { class: 'grow sub' }, [el('span', { text: 'Längste Kombo' }), el('b', { class: 'num', text: r.bestChain + ' Figuren' })]) : null,
+        free && r.bestFig ? el('div', { class: 'grow sub' }, [el('span', { text: 'Beste Figur' }), el('b', { class: 'num', text: r.bestFig.name + ' · ' + r.bestFig.pts })]) : null,
+        free ? el('div', { class: 'grow sub' }, [el('span', { text: d.daily ? 'Tagesbestwert' : 'Bestwert' }), el('b', { class: 'num', text: U.fmtInt(d.daily ? (dayRec.day === r.dayKey ? dayRec.best : r.score) : rec.best) + ' P' + (gain && gain.record ? ' · neu!' : '') })]) : null,
+      ]) : null,
+      !free && d.goal.some(x => x.type === 'catch') ? el('p', { class: 'small', text: 'Böen abgefangen: ' + r.caught + (r.gustMissed ? ' · verpasst: ' + r.gustMissed : '') }) : null,
       gain && (gain.xp || gain.coins) ? el('div', { class: 'unlock', html: '+' + gain.xp + ' XP · +' + gain.coins + COIN + (gain.skill ? ' · Start im Flug jetzt ' + gain.skill + ' % leichter' : '') }) : null,
       ...(gain && gain.chal ? gain.chal.map(c => el('div', { class: 'unlock chal-new', html: '<b>' + c.c.name + '</b> ' + CHALLENGE_TIERS[c.tier].name + ' · +' + c.coins + COIN })) : []),
       good && nd && this.groundUnlocked(next) ? el('button', { class: 'btn primary', id: 'gNext', onclick: () => { this.click(); this.startGround(nd.id); } }, [el('span', { text: 'Nächste Übung' }), el('span', { class: 'meta', text: nd.name })]) : null,
@@ -10752,12 +11081,22 @@ const UIGround = {
   _applyGround(r) {
     const sv = this.save, d = GROUND_BY_ID[r.drillId]; if (!sv.ground) sv.ground = {};
     const rec = sv.ground[d.id] || (sv.ground[d.id] = { stars: 0, best: 0 }), old = rec.stars, skill0 = Math.round(groundSkill(sv) * 35);
-    const xp = r.stars > old ? Math.round(d.reward * (GH_STARS[r.stars] - GH_STARS[old])) : Math.round(d.reward * 0.1), coins = Math.round(xp / 3);
-    rec.stars = Math.max(old, r.stars); rec.best = rec.best ? Math.min(rec.best, Math.round(r.time)) : Math.round(r.time);
+    let xp = r.stars > old ? Math.round(d.reward * (GH_STARS[r.stars] - GH_STARS[old])) : Math.round(d.reward * 0.1), record = false;
+    if (d.free) {                                                     // Punkterunde: Bestwert = Punkte
+      record = r.score > (rec.best || 0); rec.best = Math.max(rec.best || 0, Math.round(r.score));
+      if (d.daily) {                                                  // Tageswertung: Prämie je Tag und Stern einmal, Bestwert des Tages
+        const day = (sv.groundDay && typeof sv.groundDay === 'object') ? sv.groundDay : (sv.groundDay = { day: 0, best: 0, stars: 0 });
+        if (day.day !== r.dayKey) { day.day = r.dayKey; day.best = 0; day.stars = 0; }
+        record = r.score > day.best; day.best = Math.max(day.best, Math.round(r.score));
+        xp = r.stars > day.stars ? Math.round(d.reward * (GH_STARS[r.stars] - GH_STARS[day.stars]) * 0.6) : 0; day.stars = Math.max(day.stars, r.stars);
+      }
+    } else rec.best = rec.best ? Math.min(rec.best, Math.round(r.time)) : Math.round(r.time);
+    const coins = Math.round(xp / 3);
+    rec.stars = Math.max(old, r.stars);
     sv.xp += xp; sv.coins += coins;
     const chal = this.claimChallenges(); this.store();
     const skill = Math.round(groundSkill(sv) * 35);
-    return { xp, coins, chal, skill: skill > skill0 ? skill : 0 };
+    return { xp, coins, chal, record, skill: skill > skill0 ? skill : 0 };
   },
 };
 Object.assign(UI.prototype, UIGround);
