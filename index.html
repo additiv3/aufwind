@@ -436,6 +436,12 @@ h1, h2, h3 { font-family: var(--font-d); text-wrap: balance; margin: 0; }
 /* Werkstatt, Perks, Design-Werkstatt */
 .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .trio .mode { min-height: 58px; }
+.trio.four { grid-template-columns: repeat(2, 1fr); }
+.dcard .sw.lines { width: 64px; height: 52px; background: linear-gradient(180deg, #2b3a52, #3d5578); }
+.dcard .sw.lines svg { width: 58px; height: 46px; }
+.dcard.locked .sw { opacity: 0.6; }
+.linelegend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink-2); justify-content: center; }
+.linelegend i { display: inline-block; width: 18px; height: 4px; border-radius: 2px; background: var(--c); margin-right: 5px; vertical-align: middle; box-shadow: 0 0 0 1px rgba(255,255,255,.18); }
 .sw.big { width: 84px; height: 84px; border-radius: 16px; background: linear-gradient(180deg, #2f6fb8, #7fb5e6); display: grid; place-items: center; flex-shrink: 0; }
 .sw.big svg { width: 76px; height: 76px; }
 .tunetop { display: flex; gap: 14px; align-items: center; } .tunetop .wbars { flex: 1; grid-template-columns: 1fr; }
@@ -480,7 +486,7 @@ button.pslot:not(.on) .pn.free { color: var(--wind); font-weight: 700; }
 .swatches { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; }
 .swc { aspect-ratio: 1; border-radius: 50%; background: var(--c); border: 2px solid rgba(255, 255, 255, 0.18); min-width: 0; }
 .swc.on { border-color: var(--sun); box-shadow: 0 0 0 2px var(--night), 0 0 0 4px var(--sun); }
-@media (max-width: 420px) { .patgrid { grid-template-columns: repeat(4, 1fr); } .trio .mode small { font-size: 10.5px; } .pslot .pn { font-size: 12.5px; } }
+@media (max-width: 420px) { .geartabs button { font-size: 10.5px; padding: 8px 1px; letter-spacing: 0; } .patgrid { grid-template-columns: repeat(4, 1fr); } .trio .mode small { font-size: 10.5px; } .pslot .pn { font-size: 12.5px; } }
 
 /* Ausrüstung: Reiter über Hangar, Gurtzeug, Werkstatt, Perks und Design */
 .geartabs { display: flex; gap: 4px; padding: 3px; border-radius: 12px; background: var(--night-2); border: 1px solid var(--line); }
@@ -623,6 +629,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 /* Notfall-Hinweis (main.js): Grafik verloren oder Fehlerserie */
 #rescue { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(6,14,28,.92); color: #fff; text-align: center; padding: 24px; }
 #rescue p { margin: 10px 0 18px; opacity: .8; }
+.srow.cup b { margin-left: auto; color: var(--sun); }
 
 </style>
 </head>
@@ -638,7 +645,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = {"v": "4.6.31", "t": "00:44 02.10.2026", "c": "b40c868"};
+window.AUFWIND_BUILD = {"v": "4.7.32", "t": "09:59 02.10.2026", "c": "c88bad7"};
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -902,33 +909,34 @@ const LUFTBILD = {"luesen": {"A": {"x0": -12000, "z0": -10000, "x1": 12000, "z1"
    agility   wie schnell er auf die Bremse reagiert
    stability Klapper-Widerstand (höher = gutmütiger)
    unlockXP  ab dieser Erfahrung frei, price  vorher im Laden für so viele Münzen
+   under/trim  Farbe von Untersegel und Hinterkante, winglets  Flügelspitzen mit Winglets (im Hangar umstellbar)
 */
 const WINGS = [
-  { id: 'schul', name: 'Alpenlehrling', cls: 'EN-A', color: 0xff7a3d, stripe: 0xfff1e6,
+  { id: 'schul', name: 'Alpenlehrling', cls: 'EN-A', color: 0xff7a3d, stripe: 0xfff1e6, under: 0xe9ddd0, trim: 0xfff1e6,
     vMinSink: 8.0, sMin: 1.20, vTrim: 9.7, glide: 8.0, vMax: 12.0, bank: 44, agility: 0.95, stability: 1.4, unlockXP: 0, price: 0,
     desc: 'Gutmütiger Schulschirm. Verzeiht fast alles, gleitet aber wie ein Backstein. Perfekt für die ersten Bärte.' },
-  { id: 'fuchs', name: 'Thermikfuchs', cls: 'EN-B', color: 0x2fb7d6, stripe: 0xffffff,
+  { id: 'fuchs', name: 'Thermikfuchs', cls: 'EN-B', color: 0x2fb7d6, stripe: 0xffffff, under: 0xcfe6ee, trim: 0x1b6f87,
     vMinSink: 8.5, sMin: 1.05, vTrim: 10.3, glide: 9.3, vMax: 13.3, bank: 50, agility: 1.05, stability: 1.15, unlockXP: 250, price: 60,
     desc: 'Der Allrounder. Dreht eng und sauber in der Thermik und hat schon eine ordentliche Gleitzahl.' },
-  { id: 'tandem', name: 'Doppeldecker', cls: 'Tandem', color: 0xf4c542, stripe: 0x1f2a44,
+  { id: 'tandem', name: 'Doppeldecker', cls: 'Tandem', color: 0xf4c542, stripe: 0x1f2a44, under: 0xdad4c0, trim: 0x1f2a44,
     vMinSink: 8.5, sMin: 1.10, vTrim: 10.0, glide: 8.8, vMax: 12.5, bank: 38, agility: 0.65, stability: 1.6, unlockXP: 550, price: 120, scoreMul: 1.5,
     desc: 'Träge wie ein Bus, dafür stabil wie ein Fels. Passagier an Bord: alle Punkte und XP zählen 1,5-fach.' },
-  { id: 'adler', name: 'Bergadler', cls: 'EN-C', color: 0x6ee07a, stripe: 0x0f2d1a,
+  { id: 'adler', name: 'Bergadler', cls: 'EN-C', color: 0x6ee07a, stripe: 0x0f2d1a, under: 0xcfe5d4, trim: 0x0f2d1a,
     vMinSink: 8.8, sMin: 1.00, vTrim: 10.8, glide: 10.3, vMax: 14.5, bank: 54, agility: 1.12, stability: 0.9, unlockXP: 850, price: 180,
     desc: 'Sportklasse. Bessere Gleitzahl, schnellerer Beschleuniger, aber im Lee wird er nervös.' },
-  { id: 'zwerg', name: 'Zwergfalke', cls: 'Miniwing', color: 0xff3d7f, stripe: 0xffe2ec,
+  { id: 'zwerg', name: 'Zwergfalke', cls: 'Miniwing', color: 0xff3d7f, stripe: 0xffe2ec, under: 0xf3d7e0, trim: 0xffe2ec,
     vMinSink: 11.0, sMin: 1.80, vTrim: 14.0, glide: 6.0, vMax: 19.0, bank: 64, agility: 1.8, stability: 1.25, unlockXP: 1200, price: 250,
     desc: 'Winzig, giftig schnell, dreht auf der Stelle. Gleitet kaum – dafür bist du überall zuerst.' },
-  { id: 'falke', name: 'Sturmfalke', cls: 'EN-D', color: 0x9b6bff, stripe: 0xf3ecff,
+  { id: 'falke', name: 'Sturmfalke', cls: 'EN-D', color: 0x9b6bff, stripe: 0xf3ecff, under: 0xcbc0e6, trim: 0xf3ecff, winglets: true,
     vMinSink: 9.0, sMin: 0.95, vTrim: 11.2, glide: 11.2, vMax: 15.5, bank: 56, agility: 1.2, stability: 0.7, unlockXP: 1900, price: 400,
     desc: 'Hochleister mit Gleitzahl 11, eine echte Streckenmaschine. Turbulenz? Halt dich fest.' },
-  { id: 'acro', name: 'Wirbelwind', cls: 'Acro', color: 0xffffff, stripe: 0xff2e2e,
+  { id: 'acro', name: 'Wirbelwind', cls: 'Acro', color: 0xffffff, stripe: 0xff2e2e, under: 0x2b2b30, trim: 0xff2e2e,
     vMinSink: 9.0, sMin: 1.30, vTrim: 11.0, glide: 7.5, vMax: 15.0, bank: 76, agility: 2.1, stability: 1.0, unlockXP: 2600, price: 550,
     desc: 'Acro-Schirm. Querlage bis 76°, Steilspiralen mit 14 m/s Sinken. Dreht wie eine Waschmaschine.' },
-  { id: 'komet', name: 'Kometenjäger', cls: 'CCC', color: 0x101828, stripe: 0xffc24b,
+  { id: 'komet', name: 'Kometenjäger', cls: 'CCC', color: 0x101828, stripe: 0xffc24b, under: 0x1d2433, trim: 0xffc24b, winglets: true,
     vMinSink: 9.3, sMin: 0.90, vTrim: 11.7, glide: 12.3, vMax: 16.7, bank: 56, agility: 1.3, stability: 0.5, unlockXP: 3800, price: 800,
     desc: 'Wettkampf-Zweileiner. Gleitzahl über 12, brutal schnell. Klappt beim kleinsten Fehler – nur für Profis.' },
-  { id: 'schwan', name: 'Himmelsschwan', cls: 'Ultraleicht', color: 0xf3f0e6, stripe: 0x3aa0ff,
+  { id: 'schwan', name: 'Himmelsschwan', cls: 'Ultraleicht', color: 0xf3f0e6, stripe: 0x3aa0ff, under: 0xffffff, trim: 0x3aa0ff,
     vMinSink: 8.2, sMin: 0.80, vTrim: 10.6, glide: 10.8, vMax: 13.8, bank: 50, agility: 1.0, stability: 1.0, unlockXP: 5200, price: 900,
     desc: 'Hauchdünnes Tuch, das geringste Sinken aller Schirme: In schwacher Thermik steigt er, wo andere absaufen, und Top-Landungen auf der Alm gelingen leichter. Dafür nur mittlere Endgeschwindigkeit.' },
 ];
@@ -1309,27 +1317,43 @@ const BADGES = [
 const BADGE_BY_ID = Object.fromEntries(BADGES.map(b => [b.id, b]));
 
 /* ---------- Kappen-Designs (Laden, gelten für jeden Schirm) ----------
-   main/stripe ersetzen die Werksfarben, cells färbt die Zellen reihum von links nach rechts. */
+   Wie bei echten Schirmen: Obersegel in Zellfarben, dazu eigene Farben für die Eintrittskante (le), die Hinterkante (trim),
+   die Flügelspitzen (tip) und das Untersegel (under).
+   main/stripe ersetzen die Werksfarben, cells färbt die Zellen reihum von links nach rechts (16 Felder, je zwei Zellen eines).
+   fade [Farbe, Tiefe]: Farbverlauf von der Nase nach hinten · chord: 'karo' | 'diagonal': Muster auch in Tiefenrichtung
+   (cells = [Farbe 1, Farbe 2]). winglets: true/false erzwingt Winglets, sonst entscheidet der Schirm. */
 const DESIGNS = [
   { id: 'werk', name: 'Werksfarben', price: 0, desc: 'Die Originalfarben des jeweiligen Schirms.' },
-  { id: 'gletscher', name: 'Gletscher', price: 150, main: 0xe4f4ff, stripe: 0x2f86d0, desc: 'Eisweiß mit Gletscherblau.' },
-  { id: 'abendrot', name: 'Abendrot', price: 200, main: 0xff7043, stripe: 0x6a2c91, desc: 'Für die letzte Thermik des Tages.' },
-  { id: 'bergwald', name: 'Bergwald', price: 200, main: 0x2e6b3c, stripe: 0xe0b64a, desc: 'Tannengrün mit Lärchengold.' },
-  { id: 'weissblau', name: 'Weiß-Blau', price: 300, cells: [0xffffff, 0x2a7fd4], desc: 'Der Himmel über dem Alpenvorland.' },
-  { id: 'nachtflug', name: 'Nachtflug', price: 350, main: 0x1a1d2c, stripe: 0x3dff8f, desc: 'Schwarz mit Leuchtgrün.' },
-  { id: 'feuervogel', name: 'Feuervogel', price: 450, cells: [0xd7261e, 0xff7a1a, 0xffc93c, 0xff7a1a], desc: 'Glut von Spitze zu Spitze.' },
-  { id: 'regenbogen', name: 'Regenbogen', price: 600, cells: [0xe53935, 0xfb8c00, 0xfdd835, 0x43a047, 0x1e88e5, 0x5e35b1, 0x8e24aa], desc: 'Nicht zu übersehen.' },
-  { id: 'gold', name: 'Goldstück', price: 1000, main: 0xe8b73a, stripe: 0x151515, desc: 'Für echte Adleraugen.' },
+  { id: 'gletscher', name: 'Gletscher', price: 150, main: 0xe4f4ff, stripe: 0x2f86d0, le: 0x2f86d0, trim: 0x2f86d0, under: 0xc9d8e6, desc: 'Eisweiß mit Gletscherblau.' },
+  { id: 'abendrot', name: 'Abendrot', price: 200, main: 0xff7043, stripe: 0x6a2c91, tip: 0x6a2c91, trim: 0x6a2c91, under: 0x5a3a6a, fade: [0xffc93c, 0.42], desc: 'Für die letzte Thermik des Tages.' },
+  { id: 'bergwald', name: 'Bergwald', price: 200, main: 0x2e6b3c, stripe: 0xe0b64a, le: 0x1e4a2a, trim: 0xe0b64a, under: 0x223a2a, desc: 'Tannengrün mit Lärchengold.' },
+  { id: 'weissblau', name: 'Weiß-Blau', price: 300, cells: [0xffffff, 0x2a7fd4], le: 0x1a4f9c, trim: 0x1a4f9c, under: 0xb9cbe2, desc: 'Der Himmel über dem Alpenvorland.' },
+  { id: 'nachtflug', name: 'Nachtflug', price: 350, main: 0x1a1d2c, stripe: 0x3dff8f, tip: 0x3dff8f, trim: 0x3dff8f, under: 0x0e1018, desc: 'Schwarz mit Leuchtgrün.' },
+  { id: 'feuervogel', name: 'Feuervogel', price: 450, cells: [0xd7261e, 0xff7a1a, 0xffc93c, 0xff7a1a], fade: [0x16181f, 0.18], trim: 0x16181f, under: 0x3b1a14, desc: 'Glut von Spitze zu Spitze.' },
+  { id: 'regenbogen', name: 'Regenbogen', price: 600, cells: [0xe53935, 0xfb8c00, 0xfdd835, 0x43a047, 0x1e88e5, 0x5e35b1, 0x8e24aa], under: 0x20242c, desc: 'Nicht zu übersehen.' },
+  { id: 'gold', name: 'Goldstück', price: 1000, main: 0xe8b73a, stripe: 0x151515, le: 0x151515, trim: 0x151515, tip: 0x151515, under: 0x3a3326, desc: 'Für echte Adleraugen.' },
+  // Wettkampf-Optik
+  { id: 'rennstreifen', name: 'Rennstreifen', price: 400, cells: [0xf6f6f2, 0xf6f6f2, 0xf6f6f2, 0xf6f6f2, 0xd7261e, 0xd7261e, 0xf6f6f2, 0xf6f6f2], le: 0x16181f, trim: 0xd7261e, tip: 0x16181f, under: 0x3a3f48, desc: 'Zwei rote Rennstreifen, schwarze Nase.' },
+  { id: 'hai', name: 'Haifisch', price: 500, cells: [0x8a9099], fade: [0xf6f6f2, 0.4], tip: 0x2a2f38, trim: 0x2a2f38, under: 0xf6f6f2, desc: 'Grau mit heller Haifisch-Nase.' },
+  { id: 'schachbrett', name: 'Schachbrett', price: 550, cells: [0x16181f, 0xf6f6f2], chord: 'karo', trim: 0xd7261e, under: 0xaeb4bd, desc: 'Karo in Spann- und Tiefenrichtung.' },
+  { id: 'pfeil', name: 'Pfeilspitze', price: 600, cells: [0xff7a1a, 0x16181f], chord: 'diagonal', le: 0x16181f, trim: 0xff7a1a, under: 0x2a2a2a, desc: 'Diagonale Streifen wie ein Wettkampfschirm.' },
+  { id: 'sonnenaufgang', name: 'Sonnenaufgang', price: 650, cells: [0xd7261e, 0xff4f2a], fade: [0xffc93c, 0.62], tip: 0x6a2c91, under: 0x4a2a34, desc: 'Gelb an der Nase, Rot nach hinten.' },
+  { id: 'nordlicht', name: 'Nordlicht', price: 700, cells: [0x20b8b0, 0x20b8b0, 0x2a8fd4, 0x3a6ad4, 0x5a4ac0, 0x6a3fc0, 0x6a3fc0, 0x6a3fc0], fade: [0x9bf5c0, 0.3], trim: 0x1a2a5c, under: 0x1a2a3c, desc: 'Grün über Blau bis Violett.' },
+  { id: 'tarn', name: 'Tarnmuster', price: 450, cells: [0x4a5a32, 0x6b7a45, 0x3a4226, 0x7a6a45], chord: 'karo', trim: 0x3a4226, under: 0x59603f, desc: 'Fleckig wie der Bergwald von oben.' },
+  { id: 'stealth', name: 'Stealth', price: 750, main: 0x16181f, stripe: 0xd7261e, le: 0xd7261e, tip: 0xd7261e, under: 0x0c0d12, winglets: true, desc: 'Schwarz mit roter Nase, immer mit Winglets.' },
+  { id: 'ozean', name: 'Ozean', price: 350, cells: [0x1a5fa8, 0x2a8fd4, 0x20b8b0, 0x2a8fd4], fade: [0xe4f4ff, 0.2], trim: 0xe4f4ff, under: 0x9ec4de, desc: 'Tiefblau bis Türkis, die Nase wie Gischt.' },
 ];
 const DESIGN_BY_ID = Object.fromEntries(DESIGNS.map(d => [d.id, d]));
 
 /* ---------- Eigene Designs (Design-Werkstatt) ----------
-   Ein eigenes Design ist { id: 'eigen', pat, c: [Farbe 1, 2, 3], nose }. Muster färben die 16 Zellen von
-   links nach rechts; nose färbt die Eintrittskante in Farbe 3. Muster mit price kosten einmal Münzen. */
+   Ein eigenes Design ist { id: 'eigen', pat, c: [Farbe 1, 2, 3], nose, trim }. Muster färben die 16 Zellen von
+   links nach rechts; nose färbt die Eintrittskante, trim die Hinterkante in Farbe 3. Muster mit price kosten einmal Münzen. */
 const DESIGN_PATTERNS = [
   { id: 'uni', name: 'Einfarbig', price: 0 }, { id: 'mitte', name: 'Mittelstreifen', price: 0 }, { id: 'spitzen', name: 'Spitzen', price: 0 },
   { id: 'bloecke', name: 'Blöcke', price: 80 }, { id: 'streifen', name: 'Nadelstreifen', price: 80 }, { id: 'fluegel', name: 'Zwei Flügel', price: 120 },
   { id: 'dreifarbig', name: 'Trikolore', price: 120 }, { id: 'verlauf', name: 'Verlauf', price: 180 },
+  { id: 'karo', name: 'Karo', price: 150 }, { id: 'diagonal', name: 'Diagonal', price: 150 }, { id: 'flamme', name: 'Flamme', price: 200 },
+  { id: 'doppel', name: 'Doppelstreifen', price: 100 }, { id: 'sprenkel', name: 'Sprenkel', price: 160 },
 ];
 const DESIGN_COLORS = [0xf6f6f2, 0x8a9099, 0x16181f, 0xd7261e, 0xff7a1a, 0xffc93c, 0xe8b73a, 0x9bd13a, 0x2e9b4a, 0x1e5b34,
   0x20b8b0, 0x3aa0ff, 0x2a5fd4, 0x1a2a5c, 0x6a3fc0, 0xb0268a, 0xff4f9a, 0x7a4a2a];
@@ -1337,11 +1361,20 @@ function mixHex(a, b, t) {
   const f = (s) => Math.round(((a >> s) & 255) * (1 - t) + ((b >> s) & 255) * t);
   return (f(16) << 16) | (f(8) << 8) | f(0);
 }
+/* Winglets: Schirm-Eigenschaft, im Hangar (Design) für alle Schirme auf „an“ oder „aus“ stellbar; ein Design kann sie erzwingen */
+function wingletOn(wing, mode, design) {
+  if (mode === 'an') return true;
+  if (mode === 'aus') return false;
+  if (design && design.winglets != null) return !!design.winglets;
+  return !!wing.winglets;
+}
 /* Farben der N Zellen einer Kappe (links → rechts) für Werksfarben, Laden-Designs und eigene Designs.
-   main: Grundfarbe (Leuchten der Kappe), le: Farbe der Eintrittskante oder null. */
+   Rückgabe: cells (Grundfarbe je Zelle), main (Grundfarbe, Leuchten der Kappe), le/trim/tip/under (Farben von Nase, Hinterkante,
+   Flügelspitzen, Untersegel oder null), at(i, x) = Farbe des Obersegels in Zelle i bei Tiefe x (0 Nase … 1 Hinterkante). */
 function designCells(wing, d, N) {
   N = N || 16; const cells = new Array(N), h = N / 2;
   d = d && d.id !== 'werk' ? d : null;
+  const o = { cells, main: 0, le: null, trim: null, tip: null, under: null, fade: null, chord: null, a: 0, b: 0 };
   if (d && d.pat) {
     const [a, b, c] = d.c;
     for (let i = 0; i < N; i++) {
@@ -1356,22 +1389,59 @@ function designCells(wing, d, N) {
         case 'fluegel': col = (i === h - 1 || i === h) ? c : (i < h ? a : b); break;
         case 'dreifarbig': col = i < Math.round(N / 3) ? a : (i < N - Math.round(N / 3) ? b : c); break;
         case 'verlauf': col = mixHex(a, b, m / (h - 1)); break;
+        case 'karo': col = a; o.chord = 'karo'; break;
+        case 'diagonal': col = a; o.chord = 'diagonal'; break;
+        case 'flamme': col = a; o.fade = [b, 0.58]; break;
+        case 'doppel': col = (m === 2 || m === 4) ? b : a; break;
+        case 'sprenkel': col = ((i * 7 + 3) % 5 < 2) ? b : a; break;
       }
       cells[i] = col;
     }
-    return { cells, main: a, le: d.nose ? c : null };
+    Object.assign(o, { main: a, a, b, le: d.nose ? c : null, trim: d.trim ? c : null, under: mixHex(0xa4acb6, a, 0.3) });
+  } else if (d && d.cells) {
+    for (let i = 0; i < N; i++) cells[i] = d.cells[i % d.cells.length];
+    Object.assign(o, { main: d.cells[0], a: d.cells[0], b: d.cells[1 % d.cells.length] });
+  } else {
+    const main = d && d.main != null ? d.main : wing.color, stripe = d && d.stripe != null ? d.stripe : wing.stripe;
+    const pattern = Math.max(0, WINGS.findIndex(x => x.id === wing.id)) % 4;
+    for (let i = 0; i < N; i++) {
+      if (pattern === 0) cells[i] = (i < 2 || i >= N - 2) ? stripe : main;
+      else if (pattern === 1) cells[i] = (i % 3 === 1) ? stripe : main;
+      else if (pattern === 2) cells[i] = (i >= 6 && i <= 9) ? stripe : main;
+      else cells[i] = (i < N / 2) ? main : stripe;
+    }
+    Object.assign(o, { main, a: main, b: stripe });
   }
-  if (d && d.cells) { for (let i = 0; i < N; i++) cells[i] = d.cells[i % d.cells.length]; return { cells, main: d.cells[0], le: null }; }
-  const main = d && d.main != null ? d.main : wing.color, stripe = d && d.stripe != null ? d.stripe : wing.stripe;
-  const pattern = Math.max(0, WINGS.findIndex(x => x.id === wing.id)) % 4;
-  for (let i = 0; i < N; i++) {
-    if (pattern === 0) cells[i] = (i < 2 || i >= N - 2) ? stripe : main;
-    else if (pattern === 1) cells[i] = (i % 3 === 1) ? stripe : main;
-    else if (pattern === 2) cells[i] = (i >= 6 && i <= 9) ? stripe : main;
-    else cells[i] = (i < N / 2) ? main : stripe;
-  }
-  return { cells, main, le: null };
+  if (d && !d.pat) for (const k of ['le', 'trim', 'tip', 'under', 'fade', 'chord']) if (d[k] != null) o[k] = d[k];
+  if (!d) { o.under = wing.under != null ? wing.under : null; o.trim = wing.trim != null ? wing.trim : null; }
+  o.at = (i, x) => {
+    let c = cells[i];
+    if (o.chord === 'karo') c = ((i + (x > 0.5 ? 1 : 0)) & 1) ? o.b : o.a;
+    else if (o.chord === 'diagonal') c = (((i + Math.floor(x * 4)) >> 1) & 1) ? o.b : o.a;
+    if (o.fade) c = mixHex(o.fade[0], c, U.smoothstep(0, o.fade[1], x));
+    if (o.tip != null && (i === 0 || i === N - 1)) c = o.tip;
+    if (o.le != null && x < 0.125) c = o.le;
+    if (o.trim != null && x > 0.9) c = o.trim;
+    return c;
+  };
+  return o;
 }
+
+/* ---------- Leinen (Hangar → Leinen, gelten für jeden Schirm) ----------
+   cols = Farben der A-, B-, C-Leinen und der Bremsleine (wie am echten Schirm: Ebenen farbig, damit man sie im Gewirr
+   unterscheidet). Sets mit price kosten einmal Münzen; „Eigene Leinen“ schaltet die Einzelwahl je Leine frei. */
+const LINE_SETS = [
+  { id: 'werk', name: 'Werksleinen', price: 0, cols: [0xa8453a, 0xc49a45, 0x4a6a92, 0xd98236], desc: 'Gedeckt: rot, gelb, blau, Bremse orange.' },
+  { id: 'signal', name: 'Signal', price: 60, cols: [0xe53935, 0xfdd835, 0x1e88e5, 0xff7a1a], desc: 'Kräftige Ebenen – im Gewirr sofort zu lesen.' },
+  { id: 'schwarz', name: 'Schwarz-Weiß', price: 70, cols: [0x16181f, 0xf6f6f2, 0x8a9099, 0xd7261e], desc: 'Schlicht, die Bremse als roter Faden.' },
+  { id: 'neon', name: 'Neon', price: 120, cols: [0xff4f9a, 0x9bd13a, 0x20e0f0, 0xffc93c], desc: 'Leuchtet im Gegenlicht.' },
+  { id: 'eis', name: 'Eis', price: 140, cols: [0xdff2ff, 0x7cc4ff, 0x2f86d0, 0xffffff], desc: 'Gletscherblau in drei Stufen.' },
+  { id: 'glut', name: 'Glut', price: 160, cols: [0xffc93c, 0xff7a1a, 0xd7261e, 0x16181f], desc: 'Von Gelb über Orange zu Rot.' },
+  { id: 'gold', name: 'Goldfaden', price: 300, cols: [0xe8b73a, 0xf6e7a0, 0xb07a1c, 0x16181f], desc: 'Für den Schirm mit Anspruch.' },
+  { id: 'eigen', name: 'Eigene Leinen', price: 120, cols: [0xd7261e, 0xffc93c, 0x2a5fd4, 0xff7a1a], desc: 'A, B, C und Bremse in eigenen Farben.' },
+];
+const LINE_SET_BY_ID = Object.fromEntries(LINE_SETS.map(l => [l.id, l]));
+const LINE_NAMES = ['A-Leinen', 'B-Leinen', 'C-Leinen', 'Bremsleinen'];
 
 /* ---------- Werkstatt: Verbesserungen je Schirm (3 Stufen) und Trimmer ----------
    Preis je Stufe = UPGRADE_COST × (1 + 0,12 × Rang des Schirms), auf 5 Münzen gerundet. */
@@ -1602,9 +1672,33 @@ BONUS.push(
   { id: 'b11', name: 'Goldene Stunde', map: 'luesen', reward: 150, coins: 50, hour: 19, startAGL: 350, quest: { kind: 'peaks', n: 3 }, starTime: [600, 400],
     brief: 'Die Abendsonne liegt auf den Lüsner Bergen. Grüße drei Gipfelkreuze im letzten Licht – die Thermik schläft schon, also nutz jeden Hang und jeden Meter Höhe.' },
 );
+/* Landecup: mehrere Landungen hintereinander in einem Flug (series.rounds). Nach jeder Landung geht es kurz darauf von einem neuen
+   Luftstart gegen den Wind zurück zum Landeplatz. Punkte je Runde: bis 100 nach Abstand zum Zielkreuz (0 ab 45 m), dazu perfekt +25,
+   gut +10, Hang −20, hart −10, Absturz 0 (perfectOnly: nur perfekte Landungen zählen). Sterne nach der Summe (series.pts [★★, ★★★]).
+   Zeitquests (group 'zeit'): Aufgabe in begrenzter Zeit (timeLimit), sonst wie die übrigen Bonus-Level. */
+BONUS.push(
+  { id: 'c01', group: 'cup', name: 'Zielscheibe', map: 'voralpen', reward: 150, coins: 45, startAGL: 330, series: { rounds: 3, pts: [170, 240] },
+    brief: 'Drei Landungen, drei Anflüge: Nach jeder Landung geht es von einem neuen Luftstart gegen den Wind zurück zum Zielkreuz. Je näher am Kreuz und je weicher, desto mehr Punkte – ab 45 m Abstand gibt es keine mehr.' },
+  { id: 'c02', group: 'cup', name: 'Seewind-Cup', map: 'kueste', reward: 170, coins: 50, startAGL: 330, series: { rounds: 3, pts: [160, 230] },
+    brief: 'An der Küste weht es kräftig: Der Anflug gegen den Wind ist langsam, der Schirm steht fast in der Luft. Teil dir die Höhe ein und setz dreimal nah am Kreuz auf.' },
+  { id: 'c03', group: 'cup', name: 'Bergcup', map: 'luesen', reward: 180, coins: 55, startAGL: 330, series: { rounds: 3, pts: [160, 230] },
+    brief: 'Lüsen: Der Landeplatz liegt klein im Tal, rundherum Hang und Wald. Drei Anflüge mit wechselndem Wind – im Lee wird es unruhig, also früh in den Gegenwind eindrehen.' },
+  { id: 'c04', group: 'cup', name: 'Butterweich-Serie', map: 'wasserkuppe', reward: 200, coins: 60, startAGL: 330, series: { rounds: 3, pts: [100, 200], perfectOnly: true, min: 50 },
+    brief: 'Hier zählen nur perfekte Landungen: Nur wer etwa 2 m über dem Boden beide Bremsen voll durchzieht und leise aufsetzt, bekommt Punkte. Dreimal hintereinander ist die Kunst.' },
+  { id: 'c05', group: 'cup', name: 'Großer Preis', map: 'voralpen', reward: 260, coins: 80, startAGL: 330, series: { rounds: 5, pts: [300, 440] },
+    brief: 'Fünf Landungen, fünf Anflüge: der Wettbewerb für Landekünstler. Wer die Höhe nicht richtig einteilt, verliert Punkte – oder landet im Acker.' },
+  { id: 'z01', group: 'zeit', name: 'Blitzringe', map: 'voralpen', reward: 110, coins: 35, timeLimit: 260, quest: { kind: 'rings', n: 6 }, starTime: [210, 160],
+    brief: 'Sechs Ringe in höchstens 260 Sekunden – dann ist die Zeit um. Nimm den Beschleuniger und flieg die Ringe auf dem kürzesten Weg.' },
+  { id: 'z02', group: 'zeit', name: 'Ballon-Blitz', map: 'luesen', reward: 130, coins: 40, startAGL: 450, timeLimit: 600, quest: { kind: 'collect', n: 4, r: 800 }, starTime: [480, 340],
+    brief: 'Vier Ballons in zehn Minuten. Sie hängen verstreut über dem Tal – plan die Reihenfolge, bevor du losfliegst.' },
+  { id: 'z03', group: 'zeit', name: 'Gipfel-Express', map: 'dolomiten', reward: 170, coins: 55, startAGL: 450, timeLimit: 720, quest: { kind: 'peaks', n: 3, high: true }, starTime: [600, 430],
+    brief: 'Drei Gipfelkreuze in zwölf Minuten. Ohne passende Thermik wird es knapp – schau, wo die Sonne auf den Hang steht.' },
+  { id: 'z04', group: 'zeit', name: 'Post-Express', map: 'wasserkuppe', reward: 140, coins: 45, startAGL: 300, timeLimit: 420, quest: { kind: 'drop', item: 'post', n: 2 }, starTime: [330, 240],
+    brief: 'Zwei Höfe warten auf die Eilpost – ihr habt sieben Minuten. Tief drüber, Päckchen raus, weiter zum nächsten.' },
+);
 for (const b of BONUS) {
   b.bonus = true;
-  b.objectives = b.quest ? [{ type: 'quest', text: questText(b.quest) }, { type: 'land', text: 'Sicher landen' }]
+  b.objectives = b.series ? [{ type: 'series', text: 'Landecup: ' + b.series.rounds + ' Landungen, so nah wie möglich am Zielkreuz' }] : b.quest ? [{ type: 'quest', text: questText(b.quest) }, { type: 'land', text: 'Sicher landen' }]
     : [{ type: 'landAt', value: b.landR, text: (b.landTop === 'gipfel' ? 'Auf der Wiese oben landen (' : 'Auf der Alm landen (') + b.landR + ' m)' }];
 }
 function questText(q) {
@@ -1898,7 +1992,6 @@ class Input {
     L.idle += dt;
     if (L.idle > 0.9) { const k = Math.exp(-dt * 2.6); L.yaw *= k; L.pitch *= k; if (Math.abs(L.yaw) + Math.abs(L.pitch) < 0.004) L.yaw = L.pitch = 0; }
   }
-  get looking() { const L = this.look; return L.on || Math.abs(L.yaw) + Math.abs(L.pitch) > 0.02; }
   _amount(p) {
     if (!p.grab && this.brakeDelay && performance.now() - p.ts < this.brakeDelay * 1000) return 0;
     return U.clamp((p.y - p.y0) / this.rangeFor(p), 0, 1);
@@ -4100,6 +4193,7 @@ class World {
     const fieldCol = new THREE.Color(this.map.palette.grassHi).lerp(new THREE.Color(0x8fc25a), this.map.id === 'wueste' ? 0 : 0.35), padCol = new THREE.Color(this.map.palette.grass).multiplyScalar(0.95);
     P.push([new THREE.CircleGeometry(L.pad || 120, 28).rotateX(-Math.PI / 2).translate(L.x, L.h + 0.6, L.z), fieldCol]);
     for (const [r0, r1] of [[26, 34], [58, 62]]) P.push([new THREE.RingGeometry(r0, r1, 36).rotateX(-Math.PI / 2).translate(L.x, L.h + 0.66, L.z), 0xffffff]);
+    for (const [r0, r1, c] of [[2.6, 3.1, 0xffffff], [7.6, 8.1, 0xffffff], [14.6, 15.1, 0xffffff]]) P.push([new THREE.RingGeometry(r0, r1, 28).rotateX(-Math.PI / 2).translate(L.x, L.h + 0.69, L.z), c]);   // Zielringe 3, 8, 15 m
     P.push([box(40, 0.1, 5, L.x, L.h + 0.67, L.z), 0xff7a3d], [box(5, 0.1, 40, L.x, L.h + 0.68, L.z), 0xff7a3d]);
     if (L.top) {      // Top-Landung: Almhütte mit Bank, Brunnen und Holzzaun statt Kiosk
       const hx = L.x - 70, hz = L.z + 40, hh = H(hx, hz), ang = Math.atan2(L.x - hx, -(L.z - hz));
@@ -4458,10 +4552,10 @@ const RIG = 7.45;
    Nase, Untersegel ab der Einlasslippe). Je Zelle drei Stationen: Rippe, Zellmitte (bauchig), Rippe. */
 const CANOPY = {
   NC: 32, B: 6.0, arc: 1.5, arcP: 1.6, c0: 2.75,
-  XU: [0, 0.015, 0.05, 0.11, 0.2, 0.32, 0.46, 0.62, 0.8, 1],
+  XU: [0, 0.015, 0.05, 0.11, 0.125, 0.2, 0.32, 0.46, 0.62, 0.8, 0.9, 0.925, 1],      // 0,125 und 0,9 / 0,925: scharfe Kanten für Nase und Hinterkante
   XL: [0.07, 0.12, 0.3, 0.45, 0.62, 0.8, 1],
 };
-/* Leinen: Farben der Ebenen A, B, C, Bremse und der Tragegurte; Aufhängepunkte je Ebene (Index im Untersegel) */
+/* Leinen: Werksfarben der Ebenen A, B, C, Bremse und der Tragegurte (Auswahl im Hangar: LINE_SETS in data.js); Aufhängepunkte je Ebene (Index im Untersegel) */
 const LINE_COL = [0xa8453a, 0xc49a45, 0x4a6a92, 0xd98236, 0x24282e];
 const LINE_ROWS = [1, 2, 4];
 
@@ -4473,13 +4567,13 @@ const LINE_ROWS = [1, 2, 4];
 function buildGliderModel(wing, opts) {
   opts = opts || {};
   const root = new THREE.Group(); root.rotation.order = 'YXZ';
-  const rig = new THREE.Group(); root.add(rig);
+  const rig = new THREE.Group(); rig.rotation.order = 'YXZ'; root.add(rig);   // Gieren (Kappe fällt zur Seite) außen, dann Kippen, innen Rollen
   const canopy = new THREE.Group(); canopy.position.y = RIG; rig.add(canopy);
   const C = CANOPY, NC = C.NC, S = 2 * NC + 1, XU = C.XU, XL = C.XL, KU = XU.length, KL = XL.length, KP = KU + KL;
-  // Zellfarben aus Werksfarben, Laden-Design oder eigenem Design (designCells in data.js, 16 Felder)
-  const dc = designCells(wing, opts.design, 16), main = new THREE.Color(opts.color != null ? opts.color : dc.main);
-  const cells = dc.cells.map(c => new THREE.Color(c)), nose = dc.le != null && opts.color == null ? new THREE.Color(dc.le) : null;
-  const cellColor = (ci) => opts.color != null ? main : cells[Math.min(15, Math.floor(ci * 16 / NC))];
+  // Farben aus Werksfarben, Laden-Design oder eigenem Design (designCells in data.js, 16 Felder, dazu Nase, Hinterkante, Spitzen, Untersegel)
+  const dc = designCells(wing, opts.design, 16), plain = opts.color != null, main = new THREE.Color(plain ? opts.color : dc.main), cc = new THREE.Color(), cu = new THREE.Color();
+  const field = (ci) => Math.min(15, Math.floor(ci * 16 / NC)), tone = (ci) => 1 + 0.07 * (((Math.sin(ci * 12.9898) * 43758.5453) % 1 + 1) % 1 - 0.5);      // jede Zelle ein Hauch anders
+  const winglets = !opts.ai && wingletOn(wing, opts.winglet, opts.design);
 
   // ---- Stationen der ungestörten Kappe: Bogen (ax, ay) mit Normale (anx, any), Nase z, Tiefe, Dicke
   const u = new Float32Array(S), ax = new Float32Array(S), ay = new Float32Array(S), anx = new Float32Array(S), any = new Float32Array(S);
@@ -4505,11 +4599,11 @@ function buildGliderModel(wing, opts) {
   const thick = (x) => 5 * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x * x * x - 0.1036 * x * x * x * x);
   const PY = new Float32Array(S * KP), PT = new Float32Array(S * KP);   // Wölbung und Dicke je Station und Punkt
   for (let j = 0; j < S; j++) {
-    const mid = j % 2 === 1, bal = mid ? 1.12 : 1;
+    const mid = j % 2 === 1, bal = mid ? 1.28 : 1;       // Zellmitte bauchig: die Zellen zeichnen sich ab
     for (let k = 0; k < KP; k++) {
       const up = k < KU, x = up ? XU[k] : XL[k - KU], t = th[j] * thick(x) * bal;
       PY[j * KP + k] = camber(x) * (th[j] / 0.155);
-      PT[j * KP + k] = (up ? t : -t) + (mid && up ? 0.006 * Math.sin(Math.PI * x) : 0);
+      PT[j * KP + k] = (up ? t : -t) + (mid && up ? 0.014 * Math.sin(Math.PI * x) : 0);
     }
   }
 
@@ -4518,16 +4612,19 @@ function buildGliderModel(wing, opts) {
   const wpos = new Float32Array(NV * 3), wnor = new Float32Array(NV * 3), wcol = new Float32Array(NV * 3), idx = [];
   const vref = new Int32Array(NV), vsurf = new Int8Array(NV);        // Punkt (Station·KP + k) und Fläche (0 oben, 1 unten, 2 Einlass)
   for (let ci = 0; ci < NC; ci++) {
-    const c = cellColor(ci), tip = ci === 0 || ci === NC - 1;
+    const tip = ci === 0 || ci === NC - 1, fi = field(ci), tv = plain ? 1 : tone(ci), under = !plain && dc.under != null;
     for (let q = 0; q < 3; q++) {
       const j = 2 * ci + q, base = (ci * 3 + q) * VS, rib = q !== 1;
       for (let k = 0; k < VS; k++) {
-        const v = base + k; let col = c, f, surf, ref;
-        if (k < KU) { surf = 0; ref = j * KP + k; if (nose && XU[k] < 0.13) col = nose; f = rib ? 0.9 : 1; }
-        else if (k < KP) { surf = 1; ref = j * KP + k; if (nose && XL[k - KU] < 0.13) col = nose; f = rib ? 0.64 : 0.8; }   // unten: Rippen dunkel
-        else { surf = 2; ref = j * KP + (k === KP ? 0 : KU); f = tip ? 0.62 : 0.16; }                                      // Einlass dunkel, Stabilo zu
+        const v = base + k; let f, surf, ref;
+        if (k < KU) { surf = 0; ref = j * KP + k; f = (rib ? 0.72 : 1.02) * tv; if (plain) cc.copy(main); else cc.setHex(dc.at(fi, XU[k])); }   // Rippen als dunkle Nähte
+        else if (k < KP) {                                                                           // unten: Untersegel in eigener Farbe, Rippen dunkel
+          surf = 1; ref = j * KP + k; f = (rib ? 0.62 : 0.8) * tv;
+          cc.setHex(plain ? dc.main : dc.at(fi, 0.5));
+          if (under) { cc.lerp(cu.setHex(dc.under), 0.8); f = (rib ? 0.7 : 0.97) * tv; } else if (plain) cc.copy(main);
+        } else { surf = 2; ref = j * KP + (k === KP ? 0 : KU); f = tip ? 0.62 : 0.16; if (plain) cc.copy(main); else cc.setHex(dc.at(fi, 0)); }   // Einlass dunkel, Stabilo zu
         vref[v] = ref; vsurf[v] = surf;
-        wcol[v * 3] = col.r * f; wcol[v * 3 + 1] = col.g * f; wcol[v * 3 + 2] = col.b * f;
+        wcol[v * 3] = cc.r * f; wcol[v * 3 + 1] = cc.g * f; wcol[v * 3 + 2] = cc.b * f;
       }
     }
     for (let q = 0; q < 2; q++) {
@@ -4549,11 +4646,28 @@ function buildGliderModel(wing, opts) {
   wingMesh.frustumCulled = false;
   canopy.add(wingMesh);
 
+  // ---- Winglets: kleine Flossen an den Flügelspitzen (Schirm-Eigenschaft, im Hangar umstellbar), folgen dem Tuch in deform()
+  let fins = null;
+  if (winglets) {
+    const FV = 2 * KU, fpos = new Float32Array(2 * FV * 3), fnor = new Float32Array(2 * FV * 3), fcol = new Float32Array(2 * FV * 3), fidx = [];
+    for (let sd = 0; sd < 2; sd++) {
+      cc.setHex(plain ? dc.main : dc.at(sd ? 15 : 0, 0.5));
+      for (let k = 0; k < KU; k++) for (let r = 0; r < 2; r++) { const o = (sd * FV + r * KU + k) * 3, f = r ? 0.85 : 0.72; fcol[o] = cc.r * f; fcol[o + 1] = cc.g * f; fcol[o + 2] = cc.b * f; }
+      for (let k = 0; k < KU - 1; k++) { const a = sd * FV + k, b = a + 1, c2 = sd * FV + KU + k + 1, d = sd * FV + KU + k; fidx.push(a, b, c2, a, c2, d); }
+    }
+    const fg = new THREE.BufferGeometry();
+    fg.setAttribute('position', new THREE.BufferAttribute(fpos, 3)); fg.setAttribute('normal', new THREE.BufferAttribute(fnor, 3)); fg.setAttribute('color', new THREE.BufferAttribute(fcol, 3)); fg.setIndex(fidx);
+    const finMesh = new THREE.Mesh(fg, new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide, shininess: 22, specular: 0x2a2a2a, emissive: main.clone().multiplyScalar(0.22) }));
+    finMesh.frustumCulled = false; canopy.add(finMesh);
+    fins = { fpos, fnor, fg, FV };
+  }
+
   // ---- Leinen: Punkte (Kappe, Gabeln, Tragegurte, Karabiner, Hände) und Segmente [a, b, Farbe, Galerie?]
   const PTS = [], SEG = [];
   const pt = (o) => { PTS.push(o); return PTS.length - 1; };
   const ribJ = (s, r) => NC + s * 2 * r;                             // Station der Rippe r (1 … NC/2) auf Seite s
-  const LC = LINE_COL.map(c => [new THREE.Color(c), new THREE.Color(c).lerp(new THREE.Color(0xbcc4cd), 0.45)]);
+  const lineCols = opts.lines && opts.lines.length === 4 ? opts.lines.concat(LINE_COL[4]) : LINE_COL;      // A, B, C, Bremse (eigene Wahl) + Tragegurt
+  const LC = lineCols.map(c => [new THREE.Color(c), new THREE.Color(c).lerp(new THREE.Color(0xbcc4cd), 0.3)]);   // Stammleine, dünnere Galerieleine heller
   for (const s of [-1, 1]) {
     const hand = pt({ t: 'h', s }), carab = pt({ t: 'k', s }), ml = [0, 1, 2].map(row => pt({ t: 'm', s, row }));
     for (let row = 0; row < 3; row++) {
@@ -4586,14 +4700,14 @@ function buildGliderModel(wing, opts) {
   const lg = new THREE.BufferGeometry();
   lg.setAttribute('position', new THREE.BufferAttribute(lpos, 3));
   lg.setAttribute('color', new THREE.BufferAttribute(lcol, 3));
-  const lines = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.6 }));
+  const lines = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.72 }));
   lines.frustumCulled = false;
   canopy.add(lines);
 
   // ---- Pilot: Gurtzeug (Sitz an der Hüfte, Rückenteil am Oberkörper), Oberkörper mit Helm und Instrumenten,
   //      Arme an den Bremsgriffen, Beine mit Knie. Ursprung = Aufhängung auf Hüfthöhe.
   const body = new THREE.Group(), lam = new THREE.MeshLambertMaterial({ vertexColors: true });
-  const jacket = opts.color != null ? opts.color : cells[1].getHex(), helmet = opts.ai ? 0xf2f2f2 : 0xffc24b, skin = 0xe0ac86, glove = 0x22262c, pants = 0x2b3140;
+  const jacket = opts.color != null ? opts.color : dc.cells[1], helmet = opts.ai ? 0xf2f2f2 : 0xffc24b, skin = 0xe0ac86, glove = 0x22262c, pants = 0x2b3140;
   const hn = opts.harness || {}, look = opts.ai ? 'schule' : (hn.look || 'schule');
   const hcol = opts.ai ? 0x333a44 : (hn.color != null ? hn.color : 0x1f2a44), hacc = opts.ai ? 0x444a55 : (hn.acc != null ? hn.acc : 0xff7a3d);
   const pod = new THREE.Mesh(harnessGeo(look, hcol, hacc), lam);
@@ -4636,6 +4750,7 @@ function buildGliderModel(wing, opts) {
     let c, s;
     if (!rigSpace) {
       c = Math.cos(bx); s = Math.sin(bx); const y1 = y * c - z * s, z1 = y * s + z * c; y = y1; z = z1;
+      c = Math.cos(-rig.rotation.y); s = Math.sin(-rig.rotation.y); const x0 = x * c + z * s, z0 = -x * s + z * c; x = x0; z = z0;
       c = Math.cos(-rig.rotation.x); s = Math.sin(-rig.rotation.x); const y2 = y * c - z * s, z2 = y * s + z * c; y = y2; z = z2;
       c = Math.cos(-rig.rotation.z); s = Math.sin(-rig.rotation.z); const x3 = x * c - y * s, y3 = x * s + y * c; x = x3; y = y3;
     }
@@ -4647,6 +4762,7 @@ function buildGliderModel(wing, opts) {
     const bL = st.bL || 0, bR = st.bR || 0, flat = st.flat || 0, defl = st.deflate || 0, stall = st.stall || 0;
     const cs = st.collapseSide || 0, ca = st.collapseAmt || 0, cu = 0.66 - 0.36 * (st.collapseSev || 0.8);
     const ears = st.ears || 0, ts = st.threatSide || 0, ta = st.threatAmt || 0;
+    const dl = st.dL || 0, dr = st.dR || 0, crum = st.crumple || 0;     // Landung: jede Seite sackt einzeln zusammen, das Tuch knittert
     for (let j = 0; j < S; j++) {
       const uu = u[j], a = Math.abs(uu), sg = uu < 0 ? -1 : 1, c = ch[j];
       // Bogen, am Boden flach ausgelegt (Hufeisen zum Piloten hin)
@@ -4654,8 +4770,9 @@ function buildGliderModel(wing, opts) {
       let nx = U.lerp(anx[j], 0, flat), ny = U.lerp(any[j], 1, flat); const nl = Math.hypot(nx, ny) || 1; nx /= nl; ny /= nl;
       const z0 = zle[j] - 0.9 * flat * uu * uu;
       // Dicke: entleert am Boden, im Stall weich, in der gefalteten Außenseite zusammengefallen
-      let tk = (1 - 0.88 * defl) * (1 - 0.35 * stall);
-      const brake = (sg < 0 ? bL : bR) * (0.25 + 0.95 * U.smoothstep(0.08, 0.95, a)) * (1 - defl);
+      const dj = Math.max(defl, Math.min(1, (sg < 0 ? dl : dr) * (0.55 + 0.9 * a)));   // die Spitzen sacken zuerst
+      let tk = (1 - 0.88 * dj) * (1 - 0.35 * stall);
+      const brake = (sg < 0 ? bL : bR) * (0.25 + 0.95 * U.smoothstep(0.08, 0.95, a)) * (1 - dj);
       // Falten: Klapper (eine Seite), Ohren (beide Enden), Vorwarnung (Spitze flattert); Achse entlang der Profiltiefe
       let fold = 0, fu = 0;
       // Winkel so, dass die Außenseite nach unten und unter die Kappe fällt (die Spitze hängt schon schräg nach unten)
@@ -4674,6 +4791,7 @@ function buildGliderModel(wing, opts) {
         let h = (PY[i] + PT[i] * tk) * c, z = z0 + x * c;
         if (x > 0.5 && brake > 0) { const d = (x - 0.5) / 0.5; h -= brake * 0.44 * c * d * d; z -= brake * 0.06 * c * d * d; }
         if (stall > 0 && x > 0.6) h -= stall * 0.12 * c * Math.sin(x * 9 + j * 0.7);
+        if (crum > 0) h += crum * c * (0.07 + 0.1 * (0.5 + 0.5 * Math.sin(j * 0.37 + 1.1)) * (0.6 + 0.4 * Math.sin(x * 4.5 + j * 0.13)) + 0.05 * (0.5 + 0.5 * Math.sin(j * 0.71 + x * 2.6 + 0.7)) * (1 - 0.5 * x) + 0.04 * x * Math.sin(j * 0.52 + 2));   // weiche Falten im liegenden Tuch, nie unter den Boden
         let X = px + nx * h, Y = py + ny * h;
         if (fold > 0) {
           const dx = X - fx, dy = Y - fy;
@@ -4711,6 +4829,23 @@ function buildGliderModel(wing, opts) {
       else { wnor[w] = NB[r]; wnor[w + 1] = NB[r + 1]; wnor[w + 2] = NB[r + 2]; }
     }
     wg.attributes.position.needsUpdate = true; wg.attributes.normal.needsUpdate = true;
+    if (fins) {                                                        // Winglet: Spitzenprofil nach außen unten verlängert, hinten zusammengezogen
+      const FV = fins.FV, fp = fins.fpos, fn = fins.fnor;
+      for (let sd = 0; sd < 2; sd++) {
+        const sgn = sd ? 1 : -1, jt = sd ? S - 1 : 0, jn = sd ? S - 5 : 4, a = (jt * KP + 6) * 3, b = (jn * KP + 6) * 3;
+        let tx = P[a] - P[b], ty = P[a + 1] - P[b + 1], tz = P[a + 2] - P[b + 2]; const tl = Math.hypot(tx, ty, tz) || 1;
+        tx = tx / tl + sgn * 0.55; ty /= tl; tz /= tl; const t2 = Math.hypot(tx, ty, tz) || 1; tx /= t2; ty /= t2; tz /= t2;
+        const zc = P[(jt * KP + 7) * 3 + 2], L = 0.95 * (1 - 0.5 * (st.flat || 0));
+        let nx = ty, ny = -tx; if (nx * sgn < 0) { nx = -nx; ny = -ny; }
+        for (let k = 0; k < KU; k++) {
+          const i = (jt * KP + k) * 3, o = (sd * FV + k) * 3, o2 = (sd * FV + KU + k) * 3, sh = 1 - k / (KU - 1) * 0.0;
+          fp[o] = P[i]; fp[o + 1] = P[i + 1]; fp[o + 2] = P[i + 2];
+          fp[o2] = P[i] + tx * L * sh; fp[o2 + 1] = P[i + 1] + ty * L * sh; fp[o2 + 2] = zc + (P[i + 2] - zc) * 0.45 + tz * L * sh - 0.12;
+          fn[o] = fn[o2] = nx; fn[o + 1] = fn[o2 + 1] = ny; fn[o + 2] = fn[o2 + 2] = 0;
+        }
+      }
+      fins.fg.attributes.position.needsUpdate = true; fins.fg.attributes.normal.needsUpdate = true;
+    }
     // Leinen: Kappenpunkte, Maillons und Umlenkrolle (hängen im Rig über dem Piloten), Karabiner und Hände aus dem
     // Oberkörper, dann die Gabeln zwischen ihrem Ansatz und der Mitte ihrer Leinen – in der Reihenfolge wie angelegt
     const bx = body.rotation.x + upper.rotation.x;
@@ -4887,7 +5022,7 @@ const STAND_H = 0.95, SIT_H = 0.32;
 class Pilot {
   /* scene = null: nur Physik, ohne 3D-Modell (Probeflug bei der Startplatzwahl).
      Sichtbare Piloten stehen auf der gezeichneten Geländefläche (groundAt), Probeflüge rechnen mit height(). */
-  constructor(wing, world, scene, design, harness) {
+  constructor(wing, world, scene, design, harness, extra) {
     this.wing = wing; this.world = world; this.scene = scene;
     this.rand = Math.random;
     this._fwd = { x: 0, z: 0 };
@@ -4898,7 +5033,7 @@ class Pilot {
     // Gewichtsverlagerung, Ausleiten der Spirale (Anteil der Rollrate), Klapper am Beschleuniger
     this.mods = { lift: 1, turb: 1, land: 1, run: 1, angel: false, ws: 1, spiral: 0.35, bar: 1 };
     this.lapse = 1;                             // Zeitraffer-Faktor für die sanftere Lenkung (Game._step)
-    this.model = scene ? buildGliderModel(wing, { design, harness }) : null; if (scene) scene.add(this.model);
+    this.model = scene ? buildGliderModel(wing, Object.assign({ design, harness }, extra)) : null; if (scene) scene.add(this.model);
     this._df = {};                              // Zustand fürs Verformen der Kappe (wiederverwendet)
     this.setWing(wing);
     this.reset(0, 1000, 0, 0, 'fly');
@@ -4906,9 +5041,9 @@ class Pilot {
   /* Schirmwerte (auch im Flug, Pause → Ausrüstung): Polare neu berechnen */
   setWing(w) { this.wing = w; const sTrim = w.vTrim / w.glide; this.k = (sTrim - w.sMin) / Math.pow(w.vTrim - w.vMinSink, 2); }
   /* Aussehen im Flug wechseln (Design, Gurtzeug): Modell neu bauen, Lage übernehmen */
-  setLook(design, harness) {
+  setLook(design, harness, extra) {
     if (!this.scene) return;
-    const old = this.model; this.model = buildGliderModel(this.wing, { design, harness }); this.scene.add(this.model);
+    const old = this.model; this.model = buildGliderModel(this.wing, Object.assign({ design, harness }, extra)); this.scene.add(this.model);
     if (old) {
       this.model.userData.rig.rotation.copy(old.userData.rig.rotation); this.model.userData.canopy.scale.copy(old.userData.canopy.scale);
       this.scene.remove(old); disposeTree(old);
@@ -4937,6 +5072,8 @@ class Pilot {
     this.standB = this.seated ? 0 : 1; this.stride = 0; this.runOut = 0; this.failKind = null;
     this.man = { t: 0, E: 0, pitch: -85, pv: 0, roll: 0, rv: 0, g: 0, ok: 0, runV: 0, dist: 0, x0: x, z0: z, tapSeen: 0, lastSide: '', lastQ: 0, lastEarly: false, steps: 0, strideT: 0, fails: 0, fell: false, air: 0, vT: 7 };
     this.airRunT = 0;
+    this.landT = 0; this.fallDir = 0; this.fallGs = 0;   // Landung: Zeit seit dem Aufsetzen, Seite, zu der die Kappe fällt (−1 links … 1 rechts)
+    this._lf = this._lf || { rx: 0, rz: 0, ry: 0, lay: 0, defl: 0, dL: 0, dR: 0, cs: 0, ca: 0, ears: 0, crum: 0 };
   }
   get flying() { return this.phase === 'fly'; }
   get launching() { return this.phase === 'inflate' || this.phase === 'control' || this.phase === 'run'; }
@@ -5260,6 +5397,9 @@ class Pilot {
     if (msg && this.mods.angel && !W.isWater(this.x, this.z)) { msg = null; quality = 'hart'; this.mods.angel = false; this.stall = this.spin = null; ev.push('angel'); }
     else if (!msg) { const k = this.mods.land; quality = slope > 0.62 ? 'hang' : (impact < 1.0 * k && this.gs < 9 ? 'perfekt' : (impact < 2.2 * k ? 'gut' : 'hart')); }
     this.touchdown = { impact, gs: this.gs, slope, quality };
+    // Die Kappe fällt zu der Seite, die gebremst bleibt (und in Richtung der Querlage beim Aufsetzen)
+    this.landT = 0; this.fallGs = this.gs;
+    this.fallDir = U.clamp((this.brakeR - this.brakeL) * 1.6 + this.bank * 1.2, -1, 1);
     this.y = this.gnd(this.x, this.z);                       // ab jetzt auf der sichtbaren Fläche
     if (msg) { this.phase = 'crashed'; this.crashed = msg; ev.push('crashed'); }
     else { this.phase = 'landed'; this.runOut = Math.min(this.gs, 7); ev.push('landed'); }
@@ -5276,9 +5416,30 @@ class Pilot {
 
   /* Kappe hinter dem Piloten auf den Boden legen: Rig so weit nach hinten kippen, dass die Hinterkante auf dem
      Gelände 7,5 m hinter ihm liegt (am Hang steiler, in der Ebene fast waagrecht) */
-  _layRx() {
-    const f = this.forward(), dh = this.gnd(this.x - f.x * 7.5, this.z - f.z * 7.5) - this.gnd(this.x, this.z);
+  _layRx(yaw) {
+    const a = (yaw || 0) - this.heading, dh = this.gnd(this.x + Math.sin(a) * 7.5, this.z + Math.cos(a) * 7.5) - this.gnd(this.x, this.z);
     return Math.acos(U.clamp((dh - 0.85) / 7.69, -0.9, 0.9)) - 0.253;
+  }
+  /* Nach der Landung fällt die Kappe: Sie kippt erst zur gebremsten Seite, die Spitzen und die tiefere Seite sacken
+     zuerst weg, die Außenseite klappt unter die Kappe, dann legt sie sich schräg hinter den Piloten (zur gehaltenen
+     Bremse hin) und knittert. Wer beide Bremsen hält, lässt sie gerade nach hinten fallen. Ergebnis in this._lf. */
+  _landFall(dt) {
+    const F = this._lf, crash = this.phase === 'crashed';
+    this.landT += dt;
+    if (this.landT < 3) {                                      // die Seite folgt dem Daumen, solange die Kappe noch fällt
+      const a = this.brakeR - this.brakeL, tgt = Math.abs(a) < 0.12 ? 0 : U.clamp(a * 1.6, -1, 1);
+      this.fallDir += (tgt - this.fallDir) * Math.min(1, dt * 5);
+    }
+    const fd = this.fallDir, af = Math.abs(fd), T = crash ? 1.5 : 2.7, p = U.clamp(this.landT / T, 0, 1), e = p * p * (3 - 2 * p);
+    const yaw = fd * 0.85 * U.smoothstep(0.1, 1, p), surge = -0.2 * Math.sin(Math.PI * U.clamp(p * 2.5, 0, 1)) * U.clamp(this.fallGs / 8, 0.3, 1);
+    const bump = Math.sin(Math.PI * U.clamp(p * 1.12, 0, 1));
+    F.ry = yaw; F.rx = this._layRx(fd * 0.85) * e + surge; F.rz = -fd * 0.95 * bump;
+    F.lay = U.smoothstep(0.3, 1, p); F.defl = U.smoothstep(0.55, 1, p);
+    F.dR = U.smoothstep(0, 0.85, p * (1 + 0.8 * fd)); F.dL = U.smoothstep(0, 0.85, p * (1 - 0.8 * fd));
+    F.cs = fd > 0 ? 1 : -1; F.ca = af > 0.3 ? 0.95 * bump * Math.min(1, (af - 0.3) * 3) : 0;      // gebremste Seite klappt unter die Kappe
+    F.ears = 0.75 * bump * (1 - Math.min(1, af * 2));                                             // beide gehalten: die Spitzen kippen weg
+    F.crum = U.smoothstep(0.35, 1, p);
+    return F;
   }
   /* Modell an den Flugzustand anpassen */
   _pose(dt, inp) {
@@ -5318,6 +5479,7 @@ class Pilot {
     const offY = lying ? 0.5 : U.lerp(SIT_H, STAND_H, Math.min(1, this.standB)) + (ph === 'run' ? (0.05 + 0.012 * runV) * Math.abs(Math.cos(this.stride)) : 0);   // Laufen federt
     m.position.set(this.x, this.y + offY, this.z);
     m.rotation.y = -this.heading;
+    if (rest) this.bank -= this.bank * Math.min(1, dt * 5);   // nach der Landung richtet er sich auf
     m.rotation.z = -this.bank;
     const sym = Math.min(this.brakeL, this.brakeR);
     let pT = 0.14 * sym - 0.08 * (inp.barV || 0) - 0.4 * this.surge;
@@ -5329,29 +5491,33 @@ class Pilot {
     m.rotation.x = this.pitchVis + this.pend;
     // Kappe: am Boden flach und schlaff ausgelegt (lay: um die Hinterkante flach gelegt), beim Aufziehen steigt sie
     // und füllt sich, im Stall fällt sie nach hinten, nach der Landung sinkt sie hinter dem Piloten zusammen
-    let rigX = 0, rigZ = 0, rate = 4, lay = 0, defl = 0;
+    let rigX = 0, rigZ = 0, rate = 4, lay = 0, defl = 0, land = null;
     if (ph === 'ready') { rigX = this._layRx(); lay = 1; defl = 1; rate = M.fell ? 2.5 : 20; }
     else if (this.launching) {
       rigX = -U.rad(M.pitch) * 0.957 + (ph === 'run' ? 0.018 * Math.sin(2 * this.stride) : 0); rigZ = -U.rad(M.roll); rate = 16;   // die Kappe pumpt bei jedem Schritt
       if (ph === 'inflate') { lay = 1 - U.smoothstep(0, 0.7, M.t); defl = 1 - U.smoothstep(0.1, 1.0, M.t); }
     }
     else if (ph === 'launch') { rigX = 1.42 * (1 - U.smoothstep(0, 1.5, this.launchT)); lay = 1 - U.smoothstep(0, 0.6, this.launchT); defl = 1 - U.smoothstep(0, 1.0, this.launchT); rate = 10; }
-    else if (ph === 'landed' || lying) { rigX = this._layRx(); lay = 1; defl = 1; rate = 1.5; }
+    else if (ph === 'landed' || lying) { land = this._landFall(dt); rigX = land.rx; rigZ = land.rz; lay = land.lay; defl = land.defl; rate = 14; }
     else if (this.stall) rigX = 0.6 + 0.12 * Math.sin(this.stall.t * 5);
     const kr = Math.min(1, dt * rate);
     ud.rig.rotation.x += (rigX - ud.rig.rotation.x) * kr;
     ud.rig.rotation.z += (rigZ - ud.rig.rotation.z) * kr;
-    this.layVis += (lay - this.layVis) * kr; this.deflVis += (defl - this.deflVis) * Math.min(1, dt * (defl > this.deflVis ? rate * 0.6 : 3));
+    ud.rig.rotation.y += ((land ? land.ry : 0) - ud.rig.rotation.y) * Math.min(1, dt * 14);
+    if (land) { this.layVis = lay; this.deflVis = defl; }
+    else { this.layVis += (lay - this.layVis) * kr; this.deflVis += (defl - this.deflVis) * Math.min(1, dt * (defl > this.deflVis ? rate * 0.6 : 3)); }
     const al = this.layVis * 1.5, tz = ud.teZ;
     ud.canopy.rotation.x = -al; ud.canopy.position.set(0, RIG - tz * Math.sin(al), tz - tz * Math.cos(al));
-    const sx = this.stall ? 0.72 : 1;
+    const sx = land ? 1 - 0.2 * land.crum : this.stall ? 0.72 : 1;      // gelandet rückt das Tuch zusammen
     ud.canopy.scale.x += (sx - ud.canopy.scale.x) * Math.min(1, dt * 5);
     this.earsVis += ((ph === 'fly' && inp.ears ? 1 : 0) - this.earsVis) * Math.min(1, dt * 5);
     const c = this.collapse, T = this.threat, D = this._df;
-    D.bL = this.brakeL; D.bR = this.brakeR; D.ears = this.earsVis; D.flat = this.layVis; D.deflate = this.deflVis;
+    D.bL = this.brakeL; D.bR = this.brakeR; D.ears = Math.max(this.earsVis, land ? land.ears : 0); D.flat = this.layVis; D.deflate = this.deflVis;
+    D.dL = land ? land.dL : 0; D.dR = land ? land.dR : 0; D.crumple = land ? land.crum : 0;
     D.stall = this.stall ? U.clamp(this.stall.t / 0.6, 0, 1) : 0;
     D.collapseSide = c ? c.side : 0; D.collapseSev = c ? c.sev : 0.8;
     D.collapseAmt = c ? (0.6 + 0.4 * c.sev) * Math.min(1, (c.t0 - c.t) / 0.25 + 0.3) * Math.min(1, c.t / 0.8) : 0;
+    if (land && land.ca > 0) { D.collapseSide = land.cs; D.collapseSev = 0.9; D.collapseAmt = land.ca; }
     D.threatSide = T ? T.side : 0; D.threatAmt = T ? (0.55 + 0.45 * Math.sin(T.t * 38)) * U.smoothstep(0, 0.15, T.t) : 0;
     ud.deform(D);
   }
@@ -6151,7 +6317,7 @@ class Game {
 
     const L = world.launch;
     const airAGL = (mission && mission.startAGL) || (L.airOnly ? 300 : 0);
-    this.pilot = new Pilot(wing, world, this.scene, this._look.design, this._look.harness);
+    this.pilot = new Pilot(wing, world, this.scene, this._look.design, this._look.harness, this._look.extra);
     this._mods(this.pilot);
     if (airAGL) this.pilot.reset(L.x, L.h + airAGL, L.z, L.heading, 'fly');
     else this.pilot.reset(L.x, L.h, L.z, L.heading, 'ready');
@@ -6181,6 +6347,7 @@ class Game {
     this.man = { last: null, dir: 0, acc: 0, back: 0, backT: 0, t0: 0, prev: null, ears: false }; this.herdsSeen = new Set();
 
     this._setupQuests(cfg);
+    this._setupSeries();
     this._setupObjectives();
     this._setupEvents();
     if (this.mode === 'endless') { world.startFront(L.x, L.z, L.heading, 2600); world.strengthMul = 1.15; }
@@ -6206,8 +6373,9 @@ class Game {
     const perks = this.perks = (cfg.perks || []).slice(), H = this.harness = HARNESS_BY_ID[cfg.harness] || HARNESSES[0];
     this.wingDef = tunedWing(WING_BY_ID[cfg.wingId], cfg.tune, perks, H);
     this.cloudMax = H.id === 'expedition' ? 12 : 7;                 // Wärmeschutz: länger in der Wolke
-    this._look = { design: cfg.designDef || DESIGN_BY_ID[cfg.design] || null, harness: { look: H.look, color: cfg.harnessColor != null ? cfg.harnessColor : H.color, acc: H.acc } };
-    this._gearKey = JSON.stringify([cfg.tune || null, perks, H.id, cfg.harnessColor == null ? null : cfg.harnessColor, cfg.designDef || cfg.design || null]);
+    this._look = { design: cfg.designDef || DESIGN_BY_ID[cfg.design] || null, harness: { look: H.look, color: cfg.harnessColor != null ? cfg.harnessColor : H.color, acc: H.acc },
+      extra: { lines: cfg.lineCols || null, winglet: cfg.winglet || 'werk' } };       // Leinenfarben und Winglets (Hangar → Leinen, Design)
+    this._gearKey = JSON.stringify([cfg.tune || null, perks, H.id, cfg.harnessColor == null ? null : cfg.harnessColor, cfg.designDef || cfg.design || null, this._look.extra]);
     return this.wingDef;
   }
   /* Perks und Gurtzeug in die Flugphysik: Thermik, Turbulenz, Landetoleranz, Anlauf, Schutzengel, Gewichtsverlagerung,
@@ -6225,11 +6393,11 @@ class Game {
   applyGear(o) {
     const p = this.pilot, c = this.cfg; if (!p || !c || this.over || this.mode === 'attract') return false;
     const key0 = this._gearKey, look0 = JSON.stringify(this._look);
-    const c2 = Object.assign({}, c, { tune: o.tune, perks: o.perks, harness: o.harness, harnessColor: o.harnessColor, designDef: o.designDef });
+    const c2 = Object.assign({}, c, { tune: o.tune, perks: o.perks, harness: o.harness, harnessColor: o.harnessColor, designDef: o.designDef, lineCols: o.lineCols, winglet: o.winglet });
     const w = this._gear(c2);
     if (this._gearKey === key0) return false;
     this.cfg = c2; p.setWing(w); this._mods(p);
-    if (JSON.stringify(this._look) !== look0) p.setLook(this._look.design, this._look.harness);
+    if (JSON.stringify(this._look) !== look0) p.setLook(this._look.design, this._look.harness, this._look.extra);
     return true;
   }
   /* Automatischer Startlauf (Knopf „Starten“, Eingabetaste, Tests). Beim Start von Hand nur mit auto = true. */
@@ -6619,6 +6787,7 @@ const GameRules = {
     for (const ai of this.ais) { const e = ai.update(dt, { px: p.x, pz: p.z, t: this.t }); if (e) this._onAIEvent(ai, e); }
     for (const st of this.storms) st.update(dt);
     this._tutorial(dt);
+    if (this.series && this.series.wait > 0) { this.series.wait -= dt; if (this.series.wait <= 0) this._seriesNext(); }
     if (!p.flying) return;
 
     const distStart = U.dist2(p.x, p.z, this.startPos.x, this.startPos.z);
@@ -6666,7 +6835,7 @@ const GameRules = {
     const act = this._activeObj();
     // Nächstes Ziel eines offenen Auftrags; im freien Flug hat es Vorrang vor dem Landeplatz (Abwürfe gehen nur tief)
     const qn = !act || act.def.type === 'quest' ? this._questNav() : null;
-    const landNow = (act && (act.def.type === 'land' || act.def.type === 'landAt')) || (!this.mission && p.agl < 450 && !qn);
+    const landNow = (act && (act.def.type === 'land' || act.def.type === 'landAt' || act.def.type === 'series')) || (!this.mission && p.agl < 450 && !qn);
     this.navTarget = landNow ? W.landing : qn;
     if (!this.navTarget && act && act.def.type === 'photo') {
       let best = null, bd = Infinity;
@@ -6679,7 +6848,9 @@ const GameRules = {
       if (this.cloudT > 1.5) this.ui.warn('IN DER WOLKE – RAUS!', 1);
       if (this.cloudT > this.cloudMax) { this._finish('cloud', 'In der Wolke verschwunden. Das ist nicht nur verboten, es ist auch lebensgefährlich.'); return; }
     } else { this.cloudT = Math.max(0, this.cloudT - dt * 2); this.ui.cloudFx(false); }
-    if (this.mission && this.mission.timeLimit && this.t > this.mission.timeLimit) this._finish('timeout', 'Zeit abgelaufen.');
+    // Zeitlimit: bei Zeitquests nur bis der Auftrag erledigt ist, danach darf man in Ruhe landen
+    const tq = this.mission && this.mission.bonus && this.quests ? this.quests[0] : null;
+    if (this.mission && this.mission.timeLimit && this.t > this.mission.timeLimit && !(tq && tq.done)) this._finish('timeout', 'Zeit abgelaufen.');
   },
 
   _onPilotEvent(e) {
@@ -6713,11 +6884,12 @@ const GameRules = {
       case 'spiralDone': this.maneuvers.spiral = true; this.chRun.spirale++; ui.toast('Spirale ausgeleitet'); this._maneuverBonus('Steilspirale'); break;
       case 'landed': {
         au.thump();
+        if (this.series && this._seriesRound('landed')) break;
         const q = p.touchdown.quality;
         this._finish('landed', this.flags.angel ? 'Schutzengel! Der Absturz wurde zur harten Landung – Glück gehabt.' : q === 'perfekt' ? 'Butterweich gelandet!' : q === 'gut' ? 'Sauber gelandet.' : q === 'hang' ? 'Am Hang gelandet – nicht elegant, aber heil.' : 'Etwas hart aufgesetzt – kurz vor dem Boden abfangen.');
         break;
       }
-      case 'crashed': au.thump(); this.camShake = 1; this._finish('crashed', p.crashed); break;
+      case 'crashed': au.thump(); this.camShake = 1; if (this.series && this._seriesRound('crashed')) break; this._finish('crashed', p.crashed); break;
     }
   },
   _onAIEvent(ai, e) {
@@ -6741,6 +6913,7 @@ const GameRules = {
       case 'birdThermals': act.prog = this.birdThermalsDone.size / d.value; if (this.birdThermalsDone.size >= d.value) this._completeObj(act); break;
       case 'soar': act.prog = this.soarTime / d.value; if (this.soarTime >= d.value) this._completeObj(act); break;
       case 'maneuver': act.prog = 0; if (this.maneuvers[d.kind] || (d.kind === 'ears' && p.earsT > 5)) this._completeObj(act); break;
+      case 'series': act.prog = this.series ? this.series.rounds.length / this.series.n : 0; break;
       case 'quest': { const q = this.quests[0]; act.prog = q ? q.got / q.n : 0; if (q && q.done) this._completeObj(act); break; }
       case 'photo': { const n = d.targets.filter(id => { const l = this.landmarks.get(id); return l && l.photographed; }).length; act.prog = n / d.targets.length; if (n >= d.targets.length) this._completeObj(act); break; }
       case 'turnpoints': {
@@ -6990,6 +7163,41 @@ const GameRules = {
     }
   },
 
+  /* ---------------- Landecup: mehrere Landungen in einem Flug ---------------- */
+  _setupSeries() {
+    const m = this.mission, S = m && m.series;
+    this.series = !S ? null : { n: S.rounds, pts: S.pts, perfectOnly: !!S.perfectOnly, min: S.min || 50, rounds: [], total: 0, wait: 0, base: this.world.windExtra || 0 };
+  },
+  /* Eine Landung gewertet. true = der Cup geht weiter (gleich kommt der nächste Luftstart), false = das war die letzte Runde */
+  _seriesRound(kind) {
+    const S = this.series, p = this.pilot, L = this.world.landing, td = p.touchdown, ui = this.ui;
+    const dist = U.dist2(p.x, p.z, L.x, L.z), q = kind === 'landed' && td ? td.quality : 'absturz';
+    let pts = 0;
+    if (kind === 'landed') {
+      pts = Math.round(100 * Math.max(0, 1 - dist / 45)) + (q === 'perfekt' ? 25 : q === 'gut' ? 10 : q === 'hang' ? -20 : -10);
+      pts = Math.max(0, pts); if (S.perfectOnly && q !== 'perfekt') pts = 0;
+    }
+    S.rounds.push({ dist, q, pts }); S.total += pts;
+    if (S.rounds.length >= S.n) return false;
+    const names = { perfekt: 'perfekt', gut: 'gut', hart: 'hart', hang: 'am Hang', absturz: 'Absturz' };
+    ui.toast('Landung ' + S.rounds.length + ' von ' + S.n + ': ' + pts + ' Punkte (' + U.fmtDec(dist) + ' m, ' + names[q] + ')');
+    this.audio[pts >= 80 ? 'chime' : 'thump']();
+    S.wait = 4.2;                                                    // so lange sieht man die Kappe fallen
+    return true;
+  },
+  /* Neuer Luftstart gegen den Wind vor dem Landeplatz, Wind und Böen wechseln */
+  _seriesNext() {
+    const S = this.series, p = this.pilot, W = this.world, L = W.landing, r = Math.random;
+    const a = W.wind.from + (r() - 0.5) * 1.1, d = 650 + r() * 250, x = L.x + Math.sin(a) * d, z = L.z - Math.cos(a) * d;
+    const stats = p.stats, hd = U.bearing(x, z, L.x, L.z);
+    p.reset(x, W.height(x, z) + 330, z, hd, 'fly'); p.stats = stats;
+    const ud = p.model && p.model.userData; if (ud) { ud.rig.rotation.set(0, 0, 0); ud.canopy.scale.x = 1; }
+    W.windExtra = S.base + r() * 3.5;
+    this.speedup = 1; this.input.releaseAll(); this.climbRun = 0; this.cloudT = 0;
+    const f = p.forward(); this.camPos.set(p.x - f.x * 20, p.y + 6, p.z - f.z * 20); this.lookPos.set(p.x + f.x * 20, p.y, p.z + f.z * 20);
+    this.ui.toast('Runde ' + (S.rounds.length + 1) + ' von ' + S.n + ' – Wind ' + Math.round(W.wind.speed * 3.6) + ' km/h');
+  },
+
   /* ---------------- Ende und Wertung ---------------- */
   _finish(kind, msg) {
     if (this.over) return;
@@ -7012,7 +7220,9 @@ const GameRules = {
         if (o.def.type === 'land' && kind === 'landed') o.done = true;
         else if (o.def.type === 'landAt' && kind === 'landed' && landDist <= o.def.value) o.done = true;
       }
-      success = kind === 'landed' && this.objs.every(o => o.done);
+      const S = this.series;
+      if (S) for (const o of this.objs) if (o.def.type === 'series') o.done = S.rounds.length >= S.n && S.total >= S.min;
+      success = (S ? S.rounds.length >= S.n : kind === 'landed') && this.objs.every(o => o.done);
       if (success) {
         stars = 1;
         // Bonus-Level: gewertet wird die Zeit bis der Auftrag erledigt war
@@ -7020,8 +7230,9 @@ const GameRules = {
         if (m.starTime) { if (tq <= m.starTime[1]) stars = 3; else if (tq <= m.starTime[0]) stars = 2; }
         if (m.starLand) { if (landDist <= m.starLand[1]) stars = Math.max(stars, 3); else if (landDist <= m.starLand[0]) stars = Math.max(stars, 2); else stars = Math.min(stars, 1); }
         if (this.race) stars = this.race.place === 1 ? 3 : (this.race.place <= 3 ? 2 : 1);
-        if (!m.starTime && !m.starLand && !this.race) stars = p.stats.collapses === 0 ? 3 : 2;
+        if (!m.starTime && !m.starLand && !this.race && !this.series) stars = p.stats.collapses === 0 ? 3 : 2;
         if (m.starNoCollapse && p.stats.collapses > 0) stars = Math.min(stars, 2);
+        if (S) stars = S.total >= S.pts[1] ? 3 : S.total >= S.pts[0] ? 2 : 1;
       }
       if (success && this.storms.length) this.flags.stormEscaped = true;
     } else success = kind === 'landed';
@@ -7049,6 +7260,7 @@ const GameRules = {
       base: this.map.base, track: this.track.slice(), launch: { x: W.launch.x, z: W.launch.z }, landing: { x: W.landing.x, z: W.landing.z },
       tps: W.turnpoints.map(t => ({ x: t.x, z: t.z, r: t.r, goal: t.goal })),
       ch: Object.assign({}, this.chRun),
+      series: this.series ? { rounds: this.series.rounds.slice(), total: this.series.total, n: this.series.n } : null,
     };
     if (success) this.audio.fanfare(); else this.audio.fail();
     if (this.minimap) this.minimap.draw(this);
@@ -7560,20 +7772,40 @@ function el(tag, props, kids) {
   if (kids) for (const c of [].concat(kids)) if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
   return e;
 }
-function wingSvg(w, d) {
+/* Aktuelle Leinenfarben und Winglet-Wahl für die Vorschaubilder (UI._syncLook) */
+const SVG_LOOK = { lines: null, winglet: 'werk' };
+/* Kappe von vorn als kleines Bild: 16 Zellen mit Nähten, je sechs Bänder in Tiefenrichtung (Nase, Verläufe, Hinterkante),
+   Winglets an den Spitzen, die vier Leinenebenen in ihren Farben */
+function wingSvg(w, d, lc, wl) {
   const N = 16, dc = designCells(w, d, N), f = (p) => p[0].toFixed(1) + ' ' + p[1].toFixed(1);
-  const bz = (y1, t) => [3 + 42 * t, (1 - t) * (1 - t) * 21 + 2 * (1 - t) * t * y1 + t * t * 21];   // Obersegel y1 = 4, Unterkante 15
+  const lcol = (lc || SVG_LOOK.lines || LINE_SETS[0].cols).map(U.hex), win = wingletOn(w, wl || SVG_LOOK.winglet, d);
+  const bz = (y1, t) => [3 + 42 * t, (1 - t) * (1 - t) * 21 + 2 * (1 - t) * t * y1 + t * t * 21];   // Nase y1 = 4, Hinterkante y1 = 15
+  const X = [0, 0.125, 0.3, 0.55, 0.8, 0.9, 1], yy = (x) => 4 + 11 * x;
   let cells = '';
   for (let i = 0; i < N; i++) {
     const t0 = i / N, t1 = (i + 1) / N;
-    cells += `<path d="M${f(bz(4, t0))} L${f(bz(4, t1))} L${f(bz(15, t1))} L${f(bz(15, t0))}Z" fill="${U.hex(dc.cells[i])}"/>`;
+    for (let b = 0; b < X.length - 1; b++) {
+      const xm = (X[b] + X[b + 1]) / 2;
+      cells += `<path d="M${f(bz(yy(X[b]), t0))} L${f(bz(yy(X[b]), t1))} L${f(bz(yy(X[b + 1]), t1))} L${f(bz(yy(X[b + 1]), t0))}Z" fill="${U.hex(dc.at(i, xm))}" stroke="rgba(0,0,0,.22)" stroke-width=".22"/>`;
+    }
   }
-  const jacket = U.hex(dc.le != null ? dc.le : dc.cells[N - 1 - Math.floor(N / 4)]);
-  return `<svg viewBox="0 0 48 48" aria-hidden="true">${cells}
-    ${dc.le != null ? `<path d="M3 21 Q24 4 45 21" fill="none" stroke="${U.hex(dc.le)}" stroke-width="1.5"/>` : ''}
+  const fin = win ? `<path d="M3 21 L1.2 27 L5 23.4Z" fill="${U.hex(dc.at(0, 0.5))}" stroke="rgba(0,0,0,.3)" stroke-width=".3"/><path d="M45 21 L46.8 27 L43 23.4Z" fill="${U.hex(dc.at(N - 1, 0.5))}" stroke="rgba(0,0,0,.3)" stroke-width=".3"/>` : '';
+  const jacket = U.hex(dc.cells[N - 1 - Math.floor(N / 4)]), cd = (c, x1, y1, x2, y2) => `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="${c}" stroke-width=".9" stroke-linecap="round"/>`;
+  return `<svg viewBox="0 0 48 48" aria-hidden="true">${fin}${cells}
     <path d="M3 21 Q24 4 45 21 Q24 15 3 21 Z" fill="none" stroke="rgba(0,0,0,.3)" stroke-width=".6"/>
-    <path d="M7 20 L22 32 M41 20 L26 32 M15 17 L23 32 M33 17 L25 32" stroke="rgba(230,238,248,.5)" stroke-width=".8"/>
+    ${cd(lcol[0], 20, 15.6, 23.4, 32)}${cd(lcol[0], 28, 15.6, 24.6, 32)}${cd(lcol[1], 14.5, 17, 23, 32)}${cd(lcol[1], 33.5, 17, 25, 32)}${cd(lcol[2], 8.5, 19.2, 22.6, 32)}${cd(lcol[2], 39.5, 19.2, 25.4, 32)}
+    ${cd(lcol[3], 4, 22, 21.4, 33.4)}${cd(lcol[3], 44, 22, 26.6, 33.4)}
     <circle cx="24" cy="35" r="3.4" fill="${jacket}"/><circle cx="24" cy="31.6" r="1.6" fill="#ffc24b"/></svg>`;
+}
+/* Leinen von vorn: Kappe oben, darunter die Ebenen A, B, C (je drei Leinen im Fächer) und die Bremsleine in ihren Farben */
+function linesSvg(cols) {
+  const c = cols.map(U.hex), hx = (x, y) => x.toFixed(1) + ' ' + y.toFixed(1);
+  let s = '<path d="M4 13 Q24 1 44 13 Q24 9 4 13Z" fill="#c9d3df" opacity=".85"/>';
+  const rows = [[0, 17, 6.5], [1, 22, 4.6], [2, 27, 2.8]];                       // Ebene, Ansatz an der Kappe, Breite
+  for (const [i, x0, w] of rows) for (const k of [-1, 0, 1]) s += `<path d="M${hx(24, 38)} L${hx(24 + k * w * 0.6, 24)} L${hx(x0 + (k + 1) * 3.2 - 3, 9 + i * 0.6)}" stroke="${c[i]}" stroke-width="1.1" fill="none" stroke-linecap="round"/>`;
+  s += `<path d="M${hx(24, 38)} L${hx(41, 23)} L${hx(43, 13)}" stroke="${c[3]}" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M${hx(24, 38)} L${hx(7, 23)} L${hx(5, 13)}" stroke="${c[3]}" stroke-width="1.3" fill="none" stroke-linecap="round"/>`;
+  s += '<circle cx="24" cy="39" r="2.2" fill="#d9e2ee"/>';
+  return `<svg viewBox="0 0 48 44" aria-hidden="true">${s}</svg>`;
 }
 /* Gurtzeug von der Seite: sitzender Pilot, darunter die Form des Gurtzeugs (look) in seiner Farbe */
 function harnessSvg(h, col) {
@@ -7614,7 +7846,7 @@ function starStr(n, max = 3) { let s = ''; for (let i = 0; i < max; i++) s += i 
 
 class UI {
   constructor() {
-    this.save = this.load();
+    this.save = this.load(); this._syncLook();
     this.game = null; this.audio = null; this.input = null;
     this.screens = {}; this.cur = null; this.pickMode = 'xc';
     this.nav = []; this.page = null;                 // Seitenstapel für „Zurück“ (go, back)
@@ -7626,10 +7858,11 @@ class UI {
     const def = {
       xp: 0, missions: {}, bestXC: {}, bestEndless: {}, flights: 0, totalKm: 0, totalClimb: 0, airtime: 0,
       wing: 'schul', map: 'voralpen', badges: {}, photos: {}, daily: { key: 0, stars: 0, best: 0 }, bestSpot: null,
-      coins: 0, design: 'werk', owned: { wings: {}, maps: {}, designs: {}, pats: {}, harness: {} }, chal: { c: {}, b: {}, t: {} },
+      coins: 0, design: 'werk', owned: { wings: {}, maps: {}, designs: {}, pats: {}, harness: {}, lines: {} }, chal: { c: {}, b: {}, t: {} },
       // Werkstatt je Schirm { up: { glide, climb, speed, handling, safety }, trim }, Perks, eigenes Design
-      tune: {}, perks: { own: {}, on: [], slots: 2 }, custom: { pat: 'mitte', c: [0x2fb7d6, 0xf6f6f2, 0xffc93c], nose: false },
+      tune: {}, perks: { own: {}, on: [], slots: 2 }, custom: { pat: 'mitte', c: [0x2fb7d6, 0xf6f6f2, 0xffc93c], nose: false, trim: false },
       // Gurtzeug und seine Farbe je Gurtzeug; Auftragsbrett des Tages; Bonus-Level { id: { stars, best } }
+      lines: 'werk', lineCustom: LINE_SET_BY_ID.eigen.cols.slice(), winglet: 'werk',
       harness: 'schule', harnessCol: {}, quests: { day: 0, list: [], swaps: 0, chest: false }, bonus: {},
       set: { tiltWS: false, sens: 1.0, invert: false, muted: false, vario: true, quality: 'mid', hints: true, unlockAll: false, launch: 'manual', softSteer: true, center: 'tips', hud: HUD_DEFAULT(), brake: { len: BRAKE_LEN.def, size: 'm', lock: true } },
     };
@@ -7678,7 +7911,7 @@ class UI {
     const num = (v, lo, hi, d) => (typeof v === 'number' && isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d);
     for (const k of ['xp', 'flights', 'totalKm', 'totalClimb', 'airtime', 'coins']) o[k] = num(o[k], 0, 1e9, 0);
     for (const k of ['missions', 'bestXC', 'bestEndless', 'badges', 'photos', 'tune', 'harnessCol', 'bonus']) if (!obj(o[k])) o[k] = {};
-    for (const k of ['wings', 'maps', 'designs', 'pats', 'harness']) if (!obj(o.owned[k])) o.owned[k] = {};
+    for (const k of ['wings', 'maps', 'designs', 'pats', 'harness', 'lines']) if (!obj(o.owned[k])) o.owned[k] = {};
     for (const k of ['c', 'b', 't']) if (!obj(o.chal[k])) o.chal[k] = {};
     if (!obj(o.perks.own)) o.perks.own = {};
     if (!Array.isArray(o.perks.on)) o.perks.on = [];
@@ -7689,12 +7922,17 @@ class UI {
     if (typeof o.map !== 'string' || !MAP_BY_ID[o.map]) o.map = 'voralpen';
     if (typeof o.harness !== 'string' || !HARNESSES.some(h => h.id === o.harness)) o.harness = 'schule';
     if (typeof o.design !== 'string') o.design = 'werk';
+    if (typeof o.lines !== 'string' || !LINE_SET_BY_ID[o.lines]) o.lines = 'werk';
+    if (!['werk', 'an', 'aus'].includes(o.winglet)) o.winglet = 'werk';
+    if (!Array.isArray(o.lineCustom) || o.lineCustom.length !== 4 || o.lineCustom.some(c => typeof c !== 'number' || !isFinite(c) || c < 0 || c > 0xffffff)) o.lineCustom = def.lineCustom.slice();
     const st = o.set;
     if (!['low', 'mid', 'high'].includes(st.quality) && !(typeof QUALITY === 'object' && QUALITY[st.quality])) st.quality = 'mid';
     st.sens = num(st.sens, 0.2, 4, 1);
     if (!Array.isArray(st.hud.ts)) st.hud.ts = HUD_DEFAULT().ts;
   }
-  store() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(this.save)); } catch (e) { /* privat oder voll */ } }
+  store() { this._syncLook(); try { localStorage.setItem(SAVE_KEY, JSON.stringify(this.save)); } catch (e) { /* privat oder voll */ } }
+  /* Vorschaubilder (wingSvg) sollen die gewählten Leinenfarben und Winglets zeigen */
+  _syncLook() { SVG_LOOK.lines = this.lineColors(); SVG_LOOK.winglet = this.wingletMode(); }
   level() { let i = 0; for (let k = 0; k < LEVELS.length; k++) if (this.save.xp >= LEVELS[k].xp) i = k; return i; }
   /* Frei ist, was genug Erfahrung hat, im Laden gekauft wurde oder im Testmodus sowieso */
   get testMode() { return !!this.save.set.unlockAll; }
@@ -7706,11 +7944,16 @@ class UI {
     if (this.save.design === 'eigen') return this.customDesign();
     const d = DESIGN_BY_ID[this.save.design]; return d && this.designAvailable(d) ? d : DESIGNS[0];
   }
-  customDesign() { const c = this.save.custom; return { id: 'eigen', name: 'Eigenes Design', pat: c.pat, c: c.c.slice(), nose: !!c.nose }; }
+  customDesign() { const c = this.save.custom; return { id: 'eigen', name: 'Eigenes Design', pat: c.pat, c: c.c.slice(), nose: !!c.nose, trim: !!c.trim }; }
   patternAvailable(p) { return this.testMode || !p.price || !!this.save.owned.pats[p.id]; }
   /* Werkstatt und Perks */
   tuneOf(wingId) { return this.save.tune[wingId] || (this.save.tune[wingId] = { up: {}, trim: 0 }); }
   tunedWingOf(w) { return tunedWing(w, this.tuneOf(w.id), this.activePerks(), this.currentHarness()); }
+  /* Leinen: gekaufte Sets, eigene Farben; Winglets: Werk (je Schirm), an oder aus */
+  linesOwned(l) { return this.testMode || !l.price || !!this.save.owned.lines[l.id]; }
+  currentLines() { const l = LINE_SET_BY_ID[this.save.lines]; return l && this.linesOwned(l) ? l : LINE_SETS[0]; }
+  lineColors(l) { l = l || this.currentLines(); return (l.id === 'eigen' ? this.save.lineCustom : l.cols).slice(); }
+  wingletMode() { return this.save.winglet || 'werk'; }
   /* Gurtzeug */
   harnessOwned(h) { return this.testMode || !h.price || !!this.save.owned.harness[h.id]; }
   currentHarness() { const h = HARNESS_BY_ID[this.save.harness]; return h && this.harnessOwned(h) ? h : HARNESSES[0]; }
@@ -7752,7 +7995,7 @@ class UI {
     window.addEventListener('resize', () => this.applyHudLayout());
     this.scrWrap = el('div', { id: 'screens' });
     root.appendChild(this.scrWrap);
-    for (const n of ['loading', 'title', 'missions', 'setup', 'wings', 'brief', 'settings', 'help', 'pause', 'result', 'stats', 'challenges', 'shop', 'tune', 'perks', 'designer', 'harness', 'quests']) {
+    for (const n of ['loading', 'title', 'missions', 'setup', 'wings', 'brief', 'settings', 'help', 'pause', 'result', 'stats', 'challenges', 'shop', 'tune', 'perks', 'designer', 'harness', 'lines', 'quests']) {
       const s = el('div', { class: 'screen', id: 'scr' + n[0].toUpperCase() + n.slice(1), hidden: 'hidden' });
       this.screens[n] = s; this.scrWrap.appendChild(s);
     }
@@ -8021,7 +8264,7 @@ class UI {
     this.lastCfg = cfg;
     const H = this.currentHarness();
     cfg = Object.assign({}, cfg, { quality: this.save.set.quality, hints: this.save.set.hints, unlockedMaps: this.unlockedMaps(), design: this.currentDesign().id, designDef: this.currentDesign(),
-      tune: this.tuneOf(cfg.wingId), perks: this.activePerks(), harness: H.id, harnessColor: this.harnessColor(H), softSteer: this.save.set.softSteer !== false, center: this.save.set.center || 'tips',
+      tune: this.tuneOf(cfg.wingId), perks: this.activePerks(), harness: H.id, harnessColor: this.harnessColor(H), lineCols: this.lineColors(), winglet: this.wingletMode(), softSteer: this.save.set.softSteer !== false, center: this.save.set.center || 'tips',
       quests: this.openQuests(), questDay: this.save.quests.day, autoLaunch: this.save.set.launch === 'auto',
       bonusKeep: cfg.mode === 'bonus' && this.save.bonus[cfg.missionId] ? this.save.bonus[cfg.missionId].keep || null : null });
     const mapName = cfg.mode === 'daily' ? 'Tagesaufgabe' : MAP_BY_ID[cfg.mapId].name;
@@ -8069,7 +8312,7 @@ class UI {
   _gearToFlight() {
     const g = this.game; if (!g.running || g.over || g.mode === 'attract' || !g.pilot || !g.cfg) return;
     const H = this.currentHarness();
-    if (g.applyGear({ tune: this.tuneOf(g.cfg.wingId), perks: this.activePerks(), harness: H.id, harnessColor: this.harnessColor(H), designDef: this.currentDesign() })) this.toast('Neue Ausrüstung angelegt');
+    if (g.applyGear({ tune: this.tuneOf(g.cfg.wingId), perks: this.activePerks(), harness: H.id, harnessColor: this.harnessColor(H), designDef: this.currentDesign(), lineCols: this.lineColors(), winglet: this.wingletMode() })) this.toast('Neue Ausrüstung angelegt');
   }
 
   /* ---------- Einblendungen ---------- */
@@ -8131,6 +8374,7 @@ class UI {
   updateHud(g) {
     const now = performance.now();
     if (now - this.lastHud < 66) return;
+    if (g.series) this._txt('taskTtl', 'Landecup · Runde ' + Math.min(g.series.n, g.series.rounds.length + 1) + ' von ' + g.series.n + ' · ' + g.series.total + ' P');
     this.lastHud = now;
     const p = g.pilot, W = g.world, inp = this.input, H = this.save.set.hud;
     // Instrumente
@@ -8290,7 +8534,7 @@ function buildText(long) {
   return 'Spielversion ' + b.v + ' · ' + b.t + (long && b.c ? ' · ' + b.c : '');
 }
 /* Reiter der Ausrüstung: Schlüssel = Name der Seite */
-const GEAR_TABS = [['wings', 'Schirme'], ['harness', 'Gurtzeug'], ['tune', 'Werkstatt'], ['perks', 'Perks'], ['designer', 'Design']];
+const GEAR_TABS = [['wings', 'Schirme'], ['harness', 'Gurtzeug'], ['tune', 'Werkstatt'], ['perks', 'Perks'], ['designer', 'Design'], ['lines', 'Leinen']];
 
 const UIScreens = {
   /* „Zurück“: eine Ebene zurück (Stapel in UI.go/back); ganz unten siehe UI.back (Pause: weiterfliegen, sonst Hauptmenü) */
@@ -8395,12 +8639,20 @@ const UIScreens = {
     ]));
   },
 
+  /* Landecup: Tabelle der Runden im Ergebnis */
+  _seriesTable(S) {
+    const names = { perfekt: 'perfekt', gut: 'gut', hart: 'hart', hang: 'am Hang', absturz: 'Absturz' };
+    const rows = S.rounds.map((x, i) => el('div', { class: 'srow cup' }, [el('span', { class: 'ss', text: String(i + 1) }), el('span', { text: U.fmtDec(x.dist) + ' m vom Kreuz · ' + names[x.q] }), el('b', { text: x.pts + ' P' })]));
+    return el('div', { class: 'starbox', id: 'seriesBox' }, [el('div', { class: 'eyebrow', text: 'Landecup · ' + S.total + ' Punkte' })].concat(rows));
+  },
+
   /* So gibt es Sterne (Briefing, Ergebnis): [Sterne, Bedingung] für ★, ★★, ★★★ und ein Tipp.
      Gleiche Regeln wie GameRules._finish: Zeit (Bonus-Level bis zum letzten Ziel), Landegenauigkeit, Rennplatz, sonst Klapper */
   starRules(m) {
     const T = (t) => U.fmtTime(t), base = m.race ? 'Rennstrecke abfliegen und landen' : 'Alle Aufgaben erfüllen und sicher landen';
     let r2, r3, tip;
     if (m.race) { r2 = 'Platz 2 oder 3'; r3 = 'Sieg'; tip = 'Die Gegner siehst du auf der Karte. Nimm nur starke Bärte und flieg zwischen ihnen mit Beschleuniger.'; }
+    else if (m.series) { r2 = 'mindestens ' + m.series.pts[0] + ' Punkte'; r3 = 'mindestens ' + m.series.pts[1] + ' Punkte'; tip = (m.series.perfectOnly ? 'Nur perfekte Landungen zählen: etwa 2 m über dem Boden beide Bremsen voll durchziehen. ' : '') + 'Je Runde bis 100 Punkte nach Abstand zum Kreuz (ab 45 m keine), dazu perfekt +25. Gegen den Wind anfliegen, Höhe in S-Kurven abbauen.'; }
     else if (m.starTime && m.bonus) { r2 = 'letztes Ziel nach höchstens ' + T(m.starTime[0]); r3 = 'letztes Ziel nach höchstens ' + T(m.starTime[1]); tip = 'Die Uhr läuft bis zum letzten Ziel, danach hast du Zeit zum Landen. Der Zeitraffer ändert an der Flugzeit nichts.'; }
     else if (m.starTime) { r2 = 'Landung nach höchstens ' + T(m.starTime[0]) + ' Flugzeit'; r3 = 'Landung nach höchstens ' + T(m.starTime[1]) + ' Flugzeit'; tip = 'Die Uhr läuft ab dem Start. Kurbel nur so hoch, wie du für das nächste Ziel brauchst, und flieg die Strecken mit Beschleuniger. Der Zeitraffer ändert an der Flugzeit nichts.'; }
     else if (m.starLand) { r2 = 'unter ' + m.starLand[0] + ' m vom Zielkreuz aufsetzen'; r3 = 'unter ' + m.starLand[1] + ' m vom Zielkreuz aufsetzen'; tip = 'Landeanflug gegen den Wind, die Höhe mit leichtem Bremsen einteilen und bei 2–3 m über dem Boden voll abfangen.'; }
@@ -8422,6 +8674,7 @@ const UIScreens = {
     if (!r.success) you = '';
     else if (m.race && r.race) you = 'du: Platz ' + r.race.place;
     else if (m.starTime) you = 'du: ' + U.fmtTime(m.bonus && r.questT != null ? r.questT : r.time) + (m.starNoCollapse && r.collapses ? ', ' + r.collapses + ' Klapper' : '');
+    else if (m.series && r.series) you = 'du: ' + r.series.total + ' Punkte';
     else if (m.starLand) you = 'du: ' + U.fmtInt(r.landDist) + ' m';
     else you = 'du: ' + r.collapses + ' Klapper';
     return 'Für ' + '★'.repeat(have + 1) + ': ' + rule[1] + (you ? ' (' + you + ')' : '') + '.';
@@ -8488,7 +8741,7 @@ const UIScreens = {
       o.compact ? el('span', { class: 'chev', text: o.onclick ? 'Wechseln' : '' }) : null,
     ]);
   },
-  /* ---------------- Ausrüstung: Schirme, Gurtzeug, Werkstatt, Perks, Design ----------------
+  /* ---------------- Ausrüstung: Schirme, Gurtzeug, Werkstatt, Perks, Design, Leinen ----------------
      openGear legt die Ausrüstung auf den Stapel. Die Reiter oben wechseln die Seite, ohne einen Rückweg anzulegen:
      „Zurück“ und X führen dorthin, woher man in die Ausrüstung kam – auch über den Laden und wieder zurück.
      ctx.mission: aus dem Briefing geöffnet – einen Schirm antippen wählt ihn für diese Mission.
@@ -8501,6 +8754,7 @@ const UIScreens = {
     else if (tab === 'harness') this.renderHarness();
     else if (tab === 'tune') this.renderTune(c.tuneWing || this._gearWing(c));
     else if (tab === 'perks') this.renderPerks();
+    else if (tab === 'lines') this.renderLines();
     else this.renderDesigner();
   },
   /* Schirm, für den die Werkstatt aufgeht: im Briefing der gewählte, in der Pause der geflogene, sonst der eigene */
@@ -8518,7 +8772,7 @@ const UIScreens = {
   /* Hinweis in der Ausrüstung, wenn sie aus der Pause geöffnet ist */
   _pauseNote() {
     if (!this.flightPaused) return null;
-    return el('div', { class: 'unlock quest-here', html: 'Flug pausiert: Werkstatt, Trimmer, Perks, Gurtzeug und Design gelten <b>beim Weiterfliegen</b>. Ein anderer Schirm gilt ab „Neu starten“.' });
+    return el('div', { class: 'unlock quest-here', html: 'Flug pausiert: Werkstatt, Trimmer, Perks, Gurtzeug, Design und Leinen gelten <b>beim Weiterfliegen</b>. Ein anderer Schirm gilt ab „Neu starten“.' });
   },
   /* Pause → Ausrüstung → anderer Schirm: gilt ab „Neu starten“ (in der Luft bleibt der Schirm) */
   _pauseWing(w) {
@@ -8869,6 +9123,7 @@ const UIScreens = {
         el('h2', { text: head }),
         ml && good ? el('div', { class: 'bigstars', html: starStr(r.stars) }) : null,
         el('p', { text: sub || '' }),
+        r.series ? this._seriesTable(r.series) : null,
         ml ? (() => { const t = this._starTip(r.mode === 'bonus' ? BONUS_BY_ID[r.missionId] : r.mode === 'daily' ? this.game.mission : MISSIONS.find(x => x.id === r.missionId), r); return t ? el('p', { class: 'small startip', id: 'resStarTip', text: t }) : null; })() : null,
       ]),
       el('div', { class: 'chartbox' }, [el('div', { class: 'ctitle', text: 'Barogramm' }), baro, el('div', { class: 'ctip', id: 'baroTip', hidden: 'hidden' })]),
@@ -8915,7 +9170,8 @@ const UIScreens = {
     // Bonus-Level: beste Sterne und Bestzeit, Sternprämie für jeden neu erreichten Stern
     if (r.mode === 'bonus' && r.success) {
       const B = BONUS_BY_ID[r.missionId], old = sv.bonus[r.missionId] || { stars: 0, best: null }, add = Math.max(0, r.stars - (old.stars || 0));
-      sv.bonus[r.missionId] = { stars: Math.max(old.stars || 0, r.stars), best: r.questT == null ? old.best : (old.best == null ? r.questT : Math.min(old.best, r.questT)) };
+      if (r.series) sv.bonus[r.missionId] = { stars: Math.max(old.stars || 0, r.stars), best: Math.max(old.best || 0, r.series.total) };   // Landecup: bester Punktestand
+      else sv.bonus[r.missionId] = { stars: Math.max(old.stars || 0, r.stars), best: r.questT == null ? old.best : (old.best == null ? r.questT : Math.min(old.best, r.questT)) };
       if (add) { xtraCoins += B.coins * add; extra.push('Sternprämie: <b>+' + add + ' ' + (add > 1 ? 'Sterne' : 'Stern') + '</b> · +' + B.coins * add + ' Münzen'); }
       if (old.best != null && r.questT != null && r.questT < old.best) unlocks.push('Neue Bestzeit: <b>' + U.fmtTime(r.questT) + '</b>');
     }
@@ -9072,6 +9328,7 @@ Object.assign(UI.prototype, UIScreens);
 const QUEST_ICON = {
   collect: '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="9" rx="5.5" ry="6.5"/><path d="M12 15.5 11 17h2l-1-1.5M12 17c0 2-1.5 3-1 5"/></svg>',
   rings: '<svg viewBox="0 0 24 24"><ellipse cx="8" cy="12" rx="3" ry="6.5"/><ellipse cx="17" cy="12" rx="2.4" ry="5"/><path d="M1.5 13h20"/></svg>',
+  cup: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="2"/></svg>',
   drop: '<svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0Z"/><path d="M6 8l5 7M18 8l-5 7"/><rect x="9.5" y="15" width="5" height="4.5" rx="1"/></svg>',
   search: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l6 6"/><path d="M10.5 7.5v3l2 1.5"/></svg>',
   peaks: '<svg viewBox="0 0 24 24"><path d="M2 20 9 7l4 6 3-4 6 11Z"/><path d="M9 7V3m0 0h4l-1 1.5L13 6H9"/></svg>',
@@ -9217,10 +9474,11 @@ const UIProgress = {
       el('p', { class: 'small', text: 'Münzen gibt es für jeden Flug (etwa ein Viertel der Erfahrung) und für jede Stufe einer Herausforderung.' }),
       this.testMode ? el('div', { class: 'unlock', text: 'Testmodus ist an: Schirme, Gebiete und Designs sind schon alle frei.' }) : null,
       el('div', { class: 'eyebrow', text: 'Ausrüstung verbessern' }),
-      el('div', { class: 'trio' }, [
+      el('div', { class: 'trio four' }, [
         el('button', { class: 'mode', id: 'shopTune', 'data-nav': 'tune', onclick: () => gear('tune') }, [el('b', { text: 'Werkstatt' }), el('small', { text: 'Tuning, Trimmer' })]),
         el('button', { class: 'mode', id: 'shopPerks', 'data-nav': 'perks', onclick: () => gear('perks') }, [el('b', { text: 'Perks' }), el('small', { text: this.activePerks().length + ' von ' + this.perkSlots() + ' aktiv' })]),
         el('button', { class: 'mode', id: 'shopHarness', 'data-nav': 'harness', onclick: () => gear('harness') }, [el('b', { text: 'Gurtzeug' }), el('small', { text: this.currentHarness().name })]),
+        el('button', { class: 'mode', id: 'shopLines', 'data-nav': 'lines', onclick: () => gear('lines') }, [el('b', { text: 'Leinen' }), el('small', { text: this.currentLines().name })]),
       ]),
       el('div', { class: 'eyebrow', text: 'Kappen-Designs · für jeden Schirm' }), designs,
       el('div', { class: 'eyebrow', text: 'Schirme früher freischalten' }),
@@ -9369,6 +9627,10 @@ const UIProgress = {
       el('div', { class: 'eyebrow', text: 'Farbe 3 · Akzent' }), swatches(2),
       el('div', { class: 'setting' }, [el('div', {}, [el('div', { class: 'sl', text: 'Nase in Farbe 3' }), el('small', { text: 'Färbt die Eintrittskante vorn an der Kappe.' })]),
         el('div', { class: 'seg', id: 'setNose' }, [[true, 'An'], [false, 'Aus']].map(([v, t]) => el('button', { class: !!C.nose === v ? 'on' : '', text: t, onclick: () => { this.click(); C.nose = v; this.store(); rer(); } })))]),
+      el('div', { class: 'setting' }, [el('div', {}, [el('div', { class: 'sl', text: 'Hinterkante in Farbe 3' }), el('small', { text: 'Ein Randstreifen an der Hinterkante, wie bei Wettkampfschirmen.' })]),
+        el('div', { class: 'seg', id: 'setTrim' }, [[true, 'An'], [false, 'Aus']].map(([v, t]) => el('button', { class: !!C.trim === v ? 'on' : '', text: t, onclick: () => { this.click(); C.trim = v; this.store(); rer(); } })))]),
+      el('div', { class: 'setting' }, [el('div', {}, [el('div', { class: 'sl', text: 'Winglets' }), el('small', { text: 'Kleine Flossen an den Flügelspitzen. „Werk“: nur Schirme, die sie ab Werk haben (Sturmfalke, Kometenjäger). Gilt für jeden Schirm.' })]),
+        el('div', { class: 'seg', id: 'setWinglet' }, [['werk', 'Werk'], ['an', 'An'], ['aus', 'Aus']].map(([v, t]) => el('button', { class: this.wingletMode() === v ? 'on' : '', text: t, onclick: () => { this.click(); sv.winglet = v; this.store(); rer(); } })))]),
       el('div', { class: 'row' }, [
         el('button', { class: 'btn', id: 'dsRandom', onclick: random }, [el('span', { text: 'Zufall' })]),
         el('button', { class: 'btn primary', id: 'dsApply', onclick: () => { this.click(); sv.design = 'eigen'; this.store(); this.toast('Eigenes Design aktiv'); rer(); } }, [el('span', { text: active ? 'Aktiv' : 'Übernehmen' })]),
@@ -9412,6 +9674,42 @@ const UIProgress = {
       el('div', { class: 'eyebrow', text: 'Farbe · ' + cur.name }), swatches,
       el('div', { class: 'row' }, [el('button', { class: 'btn', id: 'harnessReset', onclick: () => { this.click(); delete sv.harnessCol[cur.id]; this.store(); rer(); } }, [el('span', { text: 'Werksfarbe' })])]),
       el('div', { class: 'chsum' }, [el('div', {}, [el('span', { text: 'Dein Guthaben' })]), el('span', { class: 'coinchip big', html: COIN + U.fmtInt(sv.coins) })]),
+      this._gearBack(),
+    ]));
+  },
+
+  /* ---------------- Leinen: Farben für A, B, C und die Bremse ---------------- */
+  renderLines() {
+    const sv = this.save, s = this.screens.lines, cur = this.currentLines(), rer = () => this._keepScroll(s, () => this.renderLines());
+    const wing = WING_BY_ID[sv.wing] || WINGS[0], cols = this.lineColors(cur);
+    const cards = el('div', { class: 'dgrid' }, LINE_SETS.map(l => {
+      const own = this.linesOwned(l), act = cur.id === l.id;
+      return el('div', { class: 'dcard' + (act ? ' sel' : '') + (own ? '' : ' locked'), id: 'lines_' + l.id }, [
+        el('div', { class: 'sw lines', html: linesSvg(this.lineColors(l)) }),
+        el('div', { class: 'dn', text: l.name }), el('div', { class: 'dd', text: l.desc }),
+        act ? el('span', { class: 'buy on', text: 'Aktiv' })
+          : own ? el('button', { class: 'buy own', text: 'Wählen', onclick: () => { this.click(); sv.lines = l.id; this.store(); rer(); } })
+            : this._buyBtn(l.price, () => { sv.owned.lines[l.id] = 1; sv.lines = l.id; }, rer),
+      ]);
+    }));
+    const edit = cur.id === 'eigen' ? el('div', { id: 'lineEdit' }, [0, 1, 2, 3].map(k => el('div', {}, [
+      el('div', { class: 'eyebrow', text: LINE_NAMES[k] }),
+      el('div', { class: 'swatches', role: 'group', 'aria-label': 'Farbe der ' + LINE_NAMES[k] }, DESIGN_COLORS.map(c =>
+        el('button', { class: 'swc' + (sv.lineCustom[k] === c ? ' on' : ''), style: '--c:' + U.hex(c), 'aria-label': LINE_NAMES[k] + ': ' + U.hex(c), 'aria-pressed': String(sv.lineCustom[k] === c),
+          onclick: () => { this.click(); sv.lineCustom[k] = c; this.store(); rer(); } }))),
+    ]))) : null;
+    s.innerHTML = '';
+    s.appendChild(el('div', { class: 'panel wide' }, [
+      el('div', { class: 'eyebrow', text: 'Ausrüstung' }), el('h2', { text: 'Leinen' }),
+      this._gearTabs('lines'),
+      this._pauseNote(),
+      el('p', { text: 'Am echten Schirm tragen die Ebenen verschiedene Farben: A vorn, B in der Mitte, C hinten, dazu die Bremsleine. Wähle ein Set – mit „Eigene Leinen“ färbst du jede Ebene selbst. Gilt für jeden Schirm.' }),
+      el('div', { class: 'dprev' }, [el('div', { class: 'sw huge', html: wingSvg(wing, this.currentDesign(), cols) }), el('div', { class: 'small', text: cur.name + ' am ' + wing.name })]),
+      el('div', { class: 'linelegend' }, [0, 1, 2, 3].map(k => el('span', {}, [el('i', { style: '--c:' + U.hex(cols[k]) }), LINE_NAMES[k]]))),
+      edit,
+      el('div', { class: 'eyebrow', text: 'Leinen-Sets' }), cards,
+      el('div', { class: 'chsum' }, [el('div', {}, [el('span', { text: 'Dein Guthaben' })]), el('span', { class: 'coinchip big', html: COIN + U.fmtInt(sv.coins) })]),
+      this.testMode ? el('div', { class: 'unlock', text: 'Testmodus ist an: alle Leinen-Sets sind schon frei.' }) : null,
       this._gearBack(),
     ]));
   },
@@ -9474,16 +9772,23 @@ const UIProgress = {
         ]),
       ]);
     });
-    const bonus = BONUS.map(b => {
+    const bonusRow = (b) => {
       const map = MAP_BY_ID[b.map], ok = this.mapUnlocked(map), st = sv.bonus[b.id] || {};
       return el('button', { class: 'mrow bonusrow' + (ok ? '' : ' locked') + (st.stars ? ' done' : ''), id: 'bonus_' + b.id, 'data-nav': ok ? 'brief' : null, onclick: () => {
         if (!ok) { this.toast('Erst das Gebiet ' + map.name + ' freischalten'); return; }
         this.click(); this.go('brief', () => this.renderBrief(b));
       } }, [
-        el('span', { class: 'mno qicon', html: QUEST_ICON[b.quest ? b.quest.kind : 'land'] }),
-        el('span', { class: 'mbody' }, [el('span', { class: 'mname', text: b.name }), el('span', { class: 'mtags', text: map.name + ' · ' + (b.quest ? questText(b.quest) : b.landTop === 'gipfel' ? 'Landung über dem Start' : 'Landung auf der Alm') + (st.best != null ? ' · Bestzeit ' + U.fmtTime(st.best) : '') })]),
+        el('span', { class: 'mno qicon', html: QUEST_ICON[b.quest ? b.quest.kind : b.series ? 'cup' : 'land'] }),
+        el('span', { class: 'mbody' }, [el('span', { class: 'mname', text: b.name }), el('span', { class: 'mtags', text: map.name + ' · ' + (b.series ? 'Landecup · ' + b.series.rounds + ' Landungen' : b.quest ? questText(b.quest) : b.landTop === 'gipfel' ? 'Landung über dem Start' : 'Landung auf der Alm') + (st.best != null ? (b.series ? ' · Bestwert ' + st.best + ' P' : ' · Bestzeit ' + U.fmtTime(st.best)) : '') })]),
         el('span', { class: 'stars', html: ok ? starStr(st.stars || 0) : '<span class="lock">gesperrt</span>' }),
       ]);
+    };
+    const groups = [['quest', 'Bonus-Level', 'Kurze Flüge mit Stoppuhr: Die Zeit bis zum letzten Ziel gibt die Sterne, jeder neue Stern bringt eine Sternprämie.'],
+      ['cup', 'Landecup', 'Mehrere Landungen in einem Flug: nach jeder Landung ein neuer Luftstart gegen den Wind. Punkte nach Abstand zum Zielkreuz und Landegüte, die Summe gibt die Sterne.'],
+      ['zeit', 'Zeitquests', 'Aufgabe gegen die Uhr: Wer das Zeitlimit reißt, hat verloren. Je schneller, desto mehr Sterne.']];
+    const bonusEls = groups.map(([g, title, txt]) => {
+      const list = BONUS.filter(b => (b.group || 'quest') === g), st = list.reduce((a, b) => a + ((sv.bonus[b.id] || {}).stars || 0), 0);
+      return [el('div', { class: 'eyebrow', text: title + ' · ' + st + ' von ' + list.length * 3 + ' Sternen' }), el('p', { class: 'small', text: txt }), el('div', { class: 'mlist' }, list.map(bonusRow))];
     });
     const bStars = BONUS.reduce((a, b) => a + ((sv.bonus[b.id] || {}).stars || 0), 0);
     s.innerHTML = '';
@@ -9496,15 +9801,11 @@ const UIProgress = {
       ]),
       el('div', { class: 'cards' }, cards),
       el('p', { class: 'small', text: 'Der erste Tausch am Tag ist frei, danach kostet er ' + QUEST_SWAP + ' Münzen.' + (H.id === 'kurier' ? ' Kuriergurtzeug: Lohn schon mit Staufach-Bonus.' : '') }),
-      el('div', { class: 'eyebrow', text: 'Bonus-Level · ' + bStars + ' von ' + BONUS.length * 3 + ' Sternen' }),
-      el('p', { class: 'small', text: 'Kurze Flüge mit Stoppuhr: Die Zeit bis zum letzten Ziel gibt die Sterne, jeder neue Stern bringt eine Sternprämie.' }),
-      el('div', { class: 'mlist' }, bonus),
+      ...bonusEls.flat(),
       this._back(),
     ]));
   },
 
-  /* Kaufen mit zweitem Tipp zur Bestätigung (kein Browser-Dialog); after baut die Seite danach neu auf,
-     short: nur der Preis, verb: statt „Kaufen“ (z. B. „Tauschen“) */
   /* Aufträge im Flug (GameQuests._questKeep): eingesammelte Ballons und zugestellte Päckchen bleiben gespeichert.
      Bonus-Level: bonus[id].keep { got, t } bis zum geschafften Level; Brett: quests.list[i].got (nur am selben Tag) */
   questKeep(o) {
@@ -9514,6 +9815,8 @@ const UIProgress = {
     this.store();
   },
 
+  /* Kaufen mit zweitem Tipp zur Bestätigung (kein Browser-Dialog); after baut die Seite danach neu auf,
+     short: nur der Preis, verb: statt „Kaufen“ (z. B. „Tauschen“) */
   _buyBtn(price, onBuy, after, short, verb) {
     const label = (short ? '' : (verb || 'Kaufen') + ' · ') + U.fmtInt(price) + COIN;
     const b = el('button', { class: 'buy' + (this.save.coins < price ? ' poor' : ''), html: label });
