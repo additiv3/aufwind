@@ -631,6 +631,78 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 #rescue p { margin: 10px 0 18px; opacity: .8; }
 .srow.cup b { margin-left: auto; color: var(--sun); }
 
+/* ---------------- Kampagnenpfad (Missionsmenü) ---------------- */
+.campsum { display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 14px; background: linear-gradient(90deg, rgba(255, 194, 75, 0.12), var(--night-2) 75%); border: 1px solid rgba(255, 194, 75, 0.25); }
+.campsum .ring { --p: 0; width: 54px; height: 54px; flex: none; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--sun) calc(var(--p) * 1%), rgba(166, 196, 232, 0.18) 0); position: relative; }
+.campsum .ring::before { content: ''; position: absolute; inset: 5px; border-radius: 50%; background: var(--night-2); }
+.campsum .ring b { position: relative; font-family: var(--font-d); font-size: 15px; color: var(--cloud); }
+.campsum .ring small { font-size: 9px; color: var(--ink-3); }
+.campsum .cs { flex: 1; min-width: 0; }
+.campsum .cs1 { font-family: var(--font-d); font-weight: 700; font-size: 14px; white-space: nowrap; color: var(--cloud); }
+.campsum .cs2 { font-size: 12.5px; white-space: nowrap; color: var(--sun); display: flex; align-items: center; gap: 4px; }
+.campsum .cs2 svg, .regprog svg { width: 13px; height: 13px; fill: var(--sun); stroke: none; flex: none; }
+.trail { display: flex; flex-direction: column; align-items: stretch; margin-top: 4px; }
+.reg { border-radius: 18px; overflow: hidden; background: rgba(8, 22, 42, 0.55); border: 1px solid var(--line); }
+.reg.finale { border-color: rgba(255, 194, 75, 0.45); box-shadow: 0 0 0 1px rgba(255, 194, 75, 0.12), 0 8px 30px rgba(255, 194, 75, 0.08); }
+.regban { position: relative; height: 104px; overflow: hidden; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; padding: 10px 14px; color: #fff; }
+.regart { position: absolute; inset: 0; }
+.regart svg { display: block; width: 100%; height: 100%; }
+.regban::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5, 14, 28, 0) 25%, rgba(5, 14, 28, 0.72) 100%); }
+.regtxt, .regside { position: relative; z-index: 1; min-width: 0; }
+.regside { text-align: right; flex: none; }
+.regno { font-family: var(--font-d); font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sun-2); }
+.reg.finale .regno { color: var(--sun); }
+.regban .rname { font-family: var(--font-d); font-weight: 700; font-size: 22px; line-height: 1.1; letter-spacing: 0.02em; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6); }
+.regban .rmeta { font-size: 12px; color: #dbe7f5; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6); }
+.regprog { font-family: var(--font-d); font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; background: rgba(5, 14, 28, 0.6); }
+.regside .rlock { font-family: var(--font-d); font-size: 11.5px; color: var(--sun-2); display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; background: rgba(5, 14, 28, 0.7); }
+.regside .rlock svg { width: 13px; height: 13px; fill: none; stroke: var(--sun-2); stroke-width: 1.8; }
+.regwx { font-size: 10.5px; color: #cfdcec; margin-top: 4px; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7); }
+.reg.locked .regart { filter: grayscale(0.85) brightness(0.7); }
+.path { position: relative; width: 100%; max-width: 420px; margin: 4px auto 0; }
+.pline { position: absolute; inset: 0; pointer-events: none; }
+.pline svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.pline .seg { fill: none; stroke: rgba(166, 196, 232, 0.28); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 1 9; }
+.pline .seg.done { stroke: var(--sun); stroke-width: 5; stroke-dasharray: none; filter: drop-shadow(0 0 5px rgba(255, 194, 75, 0.55)); }
+.node { position: absolute; width: 56px; height: 56px; transform: translate(-50%, -50%); padding: 0; border-radius: 50%; color: var(--ink); }
+.node .disc { position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, var(--night-3), var(--night-2)); border: 2px solid rgba(166, 196, 232, 0.45); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4); }
+.node .disc svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.node .nno { position: absolute; left: -4px; top: -4px; min-width: 22px; height: 22px; padding: 0 4px; display: grid; place-items: center; border-radius: 11px; background: var(--night); border: 1px solid var(--line); font-family: var(--font-d); font-weight: 700; font-size: 11px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.node.done .disc { background: radial-gradient(circle at 35% 30%, #ffe19a, #e9a92f); border-color: #fff0c4; color: #3a2600; box-shadow: 0 0 0 3px rgba(255, 194, 75, 0.22), 0 4px 16px rgba(255, 194, 75, 0.4); }
+.node.done .nno { background: #3a2600; border-color: var(--sun); color: var(--sun-2); }
+.node.open .disc { border-color: var(--wind); color: #cfe8ff; }
+.node.next .disc { border-color: var(--climb); color: var(--climb); background: radial-gradient(circle at 35% 30%, #1d4a52, var(--night-2)); animation: nodepulse 1.8s ease-out infinite; }
+.node.next .nno { background: var(--climb); color: #052a12; border-color: var(--climb); }
+.node.locked .disc { color: var(--ink-3); border-style: dashed; border-color: rgba(166, 196, 232, 0.25); background: var(--night); box-shadow: none; }
+.node.locked { opacity: 0.7; }
+.node:active .disc { transform: scale(0.94); }
+@keyframes nodepulse { 0% { box-shadow: 0 0 0 0 rgba(124, 252, 154, 0.55), 0 4px 14px rgba(0, 0, 0, 0.4); } 80%, 100% { box-shadow: 0 0 0 16px rgba(124, 252, 154, 0), 0 4px 14px rgba(0, 0, 0, 0.4); } }
+@media (prefers-reduced-motion: reduce) { .node.next .disc { animation: none; } }
+.nlab { position: absolute; top: 50%; transform: translateY(-50%); width: 150px; display: flex; flex-direction: column; gap: 1px; text-align: left; pointer-events: none; }
+.node.lr .nlab { left: calc(100% + 10px); }
+.node.ll .nlab { right: calc(100% + 10px); text-align: right; align-items: flex-end; }
+.nlab .mname { font-size: 14px; line-height: 1.15; color: var(--cloud); }
+.nlab .mtags { font-size: 11px; white-space: normal; }
+.nlab .stars { font-size: 13px; }
+.node.locked .nlab .mname { color: var(--ink-3); }
+.nflag { position: absolute; left: 50%; bottom: -13px; transform: translateX(-50%); padding: 1px 8px; border-radius: 999px; background: var(--climb); color: #052a12; font-family: var(--font-d); font-weight: 700; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+.bonusrowline { padding: 8px 12px 12px; border-top: 1px solid var(--line); background: rgba(5, 14, 28, 0.35); }
+.bonusrowline .bl { font-family: var(--font-d); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; gap: 5px; margin-bottom: 6px; }
+.bonusrowline .bl svg { width: 12px; height: 12px; fill: var(--ink-3); }
+.bchips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; touch-action: pan-x; }
+.bchips::-webkit-scrollbar { display: none; }
+.bchip { flex: none; width: 92px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 6px 6px; border-radius: 12px; background: var(--night-2); border: 1px solid var(--line); text-align: center; }
+.bchip .bi { width: 26px; height: 26px; color: var(--wind); }
+.bchip .bi svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.bchip .bn { font-family: var(--font-d); font-weight: 700; font-size: 11.5px; line-height: 1.15; color: var(--cloud); min-height: 27px; display: grid; align-items: center; }
+.bchip .stars { font-size: 11px; }
+.bchip.done { border-color: rgba(255, 194, 75, 0.5); }
+.bchip.done .bi { color: var(--sun); }
+.bchip.locked { opacity: 0.45; }
+.regtie { align-self: center; width: 4px; height: 26px; margin: 2px 0; border-radius: 2px; background: repeating-linear-gradient(180deg, rgba(166, 196, 232, 0.35) 0 4px, transparent 4px 10px); }
+.regtie.done { background: var(--sun); box-shadow: 0 0 8px rgba(255, 194, 75, 0.5); }
+@media (max-width: 360px) { .nlab { width: 130px; } .regban .rname { font-size: 19px; } }
+
 </style>
 </head>
 <body>
@@ -645,7 +717,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = {"v": "4.7.32", "t": "09:59 02.10.2026", "c": "c88bad7"};
+window.AUFWIND_BUILD = {"v": "4.8.33", "t": "12:29 02.10.2026", "c": "0167a9e"};
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -1140,6 +1212,30 @@ const MAPS = [
       const island = U.smoothstep(9000, 4500, r);
       return -60 + island * (120 + volcano + 260 * N.fbm(x / 900, z / 900, 4) + 420 * Math.max(0, N.fbm(x / 2500 + 3, z / 2500 + 9, 3)));
     } },
+  { id: 'canyon', name: 'Canyonlands', region: 'Utah · USA', unlockXP: 3800, price: 750, seed: 7117,
+    desc: 'Rote Mesas, Felsbögen und Schluchten bis in den Horizont. Die Plateaus heizen sich auf und liefern kräftige Thermik, aber in den Canyons dazwischen wirbelt der Wind. Hier fliegt man zwischen den Wänden.',
+    water: null, base: 3300, snowLine: 9000, treeLine: 2600, rockSlope: [0.42, 0.75],
+    thermals: { sMin: 1.9, sMax: 4.8, rMin: 100, rMax: 190, density: 0.34, lifeMin: 340, lifeMax: 700 },
+    clouds: true, wind: { from: 250, speed: 3.8, gust: 1.4 }, lee: 1.25,
+    sky: { top: 0x2467c6, horizon: 0xf0d9b8, fog: 0xecd3b0 }, sun: { az: 190, el: 62 },
+    palette: { grass: 0xc8935a, grassHi: 0xe0b274, forest: 0x6f7a3c, rock: 0xb4532e, snow: 0xffffff, sand: 0xe6bf84, water: 0x2fa4b8, tree: 0x5f7436 },
+    start: { x: 0, z: 0, heading: 70 },
+    decor: { trees: [['pinie', 0.65], ['akazie', 0.35]], forestThr: 0.28, lone: 0.1, bush: 'strauch', rocks: 1.0, dunes: true,
+      lakes: { n: 1, color: 0x2fa4b8 }, animals: [['ziege', 'rock', 3, 6, 1], ['oryx', 'flat', 3, 7, 1]], specials: ['ballon', 'see'] },
+    landmarks: [
+      { id: 'bogen', type: 'bogen', name: 'Felsbogen', dist: 2300, brg: 40, snap: 'summit' },
+      { id: 'zeuge', type: 'zeuge', name: 'Zeugenberg Rote Nadel', dist: 3100, brg: -55, snap: 'summit' },
+      { id: 'ranch', type: 'hut', name: 'Canyon-Ranch', dist: 1700, brg: 110, snap: 'flat' },
+    ],
+    // Terrassen: flache Hochflächen mit steilen Kanten (Mesas), dazwischen Schluchten
+    height(x, z) {
+      const N = this.noise;
+      const raw = 1500 * (0.5 + 0.5 * N.fbm(x / 3400 + 5, z / 3400 + 2, 4)) + 420 * N.ridged(x / 2300 + 9, z / 2300, 3);
+      const s = raw / 250, f = Math.floor(s), r = s - f;
+      const step = (f + U.smoothstep(0.84, 1, r)) * 250;
+      const cut = 340 * Math.pow(N.ridged(x / 1900 + 4, z / 1900 + 8, 3), 3);
+      return 780 + step - cut + 22 * N.fbm(x / 420, z / 420, 3);
+    } },
 ];
 for (const m of MAPS) m.noise = new Noise2D(m.seed);
 /* Echte Gebiete: Gitter anlegen, lat/lon in Spielkoordinaten umrechnen. Fotomotive werden
@@ -1230,6 +1326,10 @@ const MISSIONS = [
     brief: 'Ein Reisemagazin will den Leuchtturm und das alte Schiffswrack in der Bucht von oben. Beide liegen am Wasser – über dem Meer gibt es kein Steigen, plane deinen Rückweg.',
     objectives: [{ type: 'photo', targets: ['lighthouse', 'wreck'], text: 'Leuchtturm und Wrack fotografieren' }, { type: 'land', text: 'Landen' }],
     starTime: [1100, 800] },
+  { id: 'm31', name: 'Marathon am Hang', map: 'kueste', reward: 240,
+    brief: 'Wer am Babadağ zwei Minuten schafft, kann auch fünf: Bleib 300 Sekunden im Hangaufwind. Flieg Achten an der Kante, nutz jede Böe, die dich hebt, und verlass den Hang nicht, solange du steigst.',
+    objectives: [{ type: 'soar', value: 300, text: '300 s im Hangaufwind bleiben' }, { type: 'land', text: 'Landen' }],
+    starTime: [700, 520] },
   // ---------------- Wüste
   { id: 'm14', name: 'Blauthermik', map: 'wueste', reward: 280, thermalHint: false,
     brief: 'Keine einzige Wolke. Nur Staubteufel und dein Vario verraten die Bärte. Zentriere drei Thermiken und flieg 8 km weit.',
@@ -1239,6 +1339,10 @@ const MISSIONS = [
     race: { opponents: 4, skill: [0.4, 0.75], wing: 'zwerg' },
     brief: 'Miniwing-Rennen durch die Namib: 68 km/h am Beschleuniger, Gleitzahl 6. Drei Wendepunkte, vier Gegner, sieben Minuten. Speed schlägt Thermik.',
     objectives: [{ type: 'turnpoints', route: [[1100, -40], [1100, 80], [1100, -60]], text: 'Rennstrecke abfliegen' }, { type: 'land', text: 'Landen' }] },
+  { id: 'm32', name: 'Karawanserei', map: 'wueste', reward: 320,
+    brief: 'Die alte Karawanserei liegt 2,4 km vom Startplatz mitten in der Ebene. Fotografiere sie aus der Luft und flieg danach noch 6 km weit hinaus. Die Staubteufel zeigen dir die Bärte.',
+    objectives: [{ type: 'photo', targets: ['ruin'], text: 'Karawanserei fotografieren' }, { type: 'distance', value: 6000, text: '6 km vom Start entfernen' }, { type: 'land', text: 'Landen' }],
+    starTime: [1100, 800] },
   // ---------------- Fjord
   { id: 'm16', name: 'Lee-Überlebender', map: 'fjord', reward: 280,
     brief: 'Zwei Wendepunkte, dazwischen Lee-Zonen hinter den Graten. Flieg sauber im Luv. Klappt der Schirm, zieh die Bremse auf der offenen Seite – ein Klapper kostet dich den dritten Stern.',
@@ -1248,6 +1352,10 @@ const MISSIONS = [
     brief: 'Hinter dir baut sich ein Gewitter auf. Hol dir schnell noch das Foto der Stabkirche am Fjord, dann nichts wie runter: Lande, bevor die Böenfront über den Landeplatz fegt.',
     objectives: [{ type: 'photo', targets: ['church'], text: 'Stabkirche fotografieren' }, { type: 'landAt', value: 250, text: 'Vor der Böenfront landen' }],
     starTime: [330, 240] },
+  { id: 'm33', name: 'Stabkirche und Steinmann', map: 'fjord', reward: 320,
+    brief: 'Zwei Fotos für den Reiseführer: die Stabkirche am Ufer und der Steinmann auf dem Grat im Nordwesten. Zwischen beiden liegt Lee – flieg im Luv und lass dich nicht von den Fallwinden überraschen.',
+    objectives: [{ type: 'photo', targets: ['church', 'cairn'], text: 'Stabkirche und Steinmann fotografieren' }, { type: 'land', text: 'Landen' }],
+    starTime: [1100, 780], starNoCollapse: true },
   // ---------------- Vulkan
   { id: 'm18', name: 'Kraterflug', map: 'vulkan', reward: 360,
     brief: 'Steig an den Sonnenhängen auf 2500 m und flieg über den rauchenden Krater. Der Rauch zeigt den Wind – bleib auf der Luvseite, im Lee des Kegels rüttelt es heftig.',
@@ -1257,6 +1365,10 @@ const MISSIONS = [
     brief: 'Einmal rund um den Vulkan. Die Sonnenseite kocht, die Schattenseite säuft. Vier Wendepunkte, dann Landung am Strand.',
     objectives: [{ type: 'turnpoints', orbit: { cx: 0, cz: 0, r: 2400, n: 4, dir: 1 }, text: 'Vulkan umrunden' }, { type: 'land', text: 'Landen' }],
     starTime: [2000, 1600] },
+  { id: 'm34', name: 'Leuchtturm der Insel', map: 'vulkan', reward: 400,
+    brief: 'Vom Vulkan zum Leuchtturm an der Küste und zurück über den Krater. Zwei Fotos, dazwischen offenes Wasser ohne Thermik: Hol dir vorher Höhe an der Sonnenseite.',
+    objectives: [{ type: 'photo', targets: ['lighthouse', 'crater'], text: 'Leuchtturm und Krater fotografieren' }, { type: 'land', text: 'Landen' }],
+    starTime: [1500, 1100] },
   // ---------------- Finale
   { id: 'm20', name: 'FAI-Dreieck', map: 'dolomiten', chapter: 'Finale', reward: 420,
     brief: 'Die Königsdisziplin: ein gleichseitiges Dreieck mit drei Schenkeln zu je 3 km. Zwei Wendepunkte, dann zurück über den Startplatz. Plane deine Bärte, sonst stehst du im Tal.',
@@ -1266,6 +1378,26 @@ const MISSIONS = [
     brief: 'Der Tag ist lang, die Basis hoch: 12 km weg vom Startplatz, bevor die Thermik am Abend stirbt. Das ist ein echter Streckenflug – rechne mit einer Dreiviertelstunde.',
     objectives: [{ type: 'distance', value: 12000, text: '12 km vom Start entfernen' }, { type: 'land', text: 'Landen' }],
     starTime: [2600, 2100] },
+  // ---------------- Canyonlands
+  { id: 'm35', name: 'Mesa-Taufe', map: 'canyon', reward: 420,
+    brief: 'Willkommen in Utah. Die Hochflächen der Mesas heizen sich auf und schicken kräftige Bärte nach oben, die Basis steht auf 3300 m. Kurbel 400 m am Stück und arbeite dich auf 3000 m hoch. Zwischen den Wänden wird es böig.',
+    objectives: [{ type: 'climbGain', value: 400, text: '400 m in einer Thermik gewinnen' }, { type: 'altitude', value: 3000, text: '3000 m erreichen' }, { type: 'land', text: 'Landen' }],
+    starTime: [1100, 800] },
+  { id: 'm36', name: 'Felsbogen-Fotos', map: 'canyon', reward: 440,
+    brief: 'Ein Outdoor-Magazin braucht drei Motive: den Felsbogen auf seinem Grat, die rote Nadel eines Zeugenbergs und die einsame Canyon-Ranch. Die Motive sind auf der Karte als Kamera markiert.',
+    objectives: [{ type: 'photo', targets: ['bogen', 'zeuge', 'ranch'], text: 'Felsbogen, Nadel und Ranch fotografieren' }, { type: 'land', text: 'Landen' }],
+    starTime: [1600, 1200] },
+  { id: 'm37', name: 'Schluchten-Slalom', map: 'canyon', reward: 450,
+    brief: 'Drei Wendepunkte im Zickzack durch die Schluchten. Die Plateaus tragen, die Canyons saufen – flieg über den Kanten, wo die Luft steigt, und quer über die Schluchten nur mit genug Höhe.',
+    objectives: [{ type: 'turnpoints', route: [[1700, -45], [1900, 95], [1700, -70]], text: 'Wendepunkte umrunden' }, { type: 'land', text: 'Landen' }],
+    starTime: [1300, 950] },
+  { id: 'm38', name: 'Canyon-Cup', map: 'canyon', reward: 500, startAGL: 700, race: { opponents: 5, skill: [0.35, 0.7], wings: ['fuchs', 'adler', 'fuchs', 'adler', 'fuchs'] },
+    brief: 'Das Rennen der roten Wände: fünf Gegner, drei Wendepunkte, Start in der Luft über dem Plateau. Wer die Bärte an den Mesakanten trifft, gewinnt.',
+    objectives: [{ type: 'turnpoints', route: [[1900, 35], [1900, 105], [1700, 95]], text: 'Rennstrecke abfliegen' }, { type: 'land', text: 'Landen' }] },
+  { id: 'm39', name: 'Die Rote Runde', map: 'canyon', chapter: 'Finale', reward: 560,
+    brief: 'Das große Dreieck über die roten Mesas: zwei Schenkel zu je 3,5 km, dann zurück über den Startplatz. Kein Gelände verzeiht hier Fehler, aber die Plateaus bringen dich hinauf, wenn du sie liest.',
+    objectives: [{ type: 'turnpoints', route: [[3500, 0], [3500, 120]], text: 'Beide Wendepunkte umrunden' }, { type: 'returnHome', value: 700, text: 'Zurück zum Start (700 m)' }, { type: 'land', text: 'Landen' }],
+    starTime: [2200, 1700] },
   // ---------------- Lüsen (echtes Gelände)
   { id: 'm22', name: 'Tulperhof', map: 'luesen', reward: 140,
     brief: 'Start am Tulperhof auf 1625 m, direkt unter der Sonnenterrasse. Der Hausbart steht vor dem Startplatz über den Südhängen. Kurbel 300 m, dann über den Kirchturm von Lüsen hinunter zum Landeplatz im Tal.',
@@ -1611,7 +1743,7 @@ const QUESTS = [
     desc: 'Zwei Gipfel wollen gegrüßt werden. Flieg bis auf 120 m über das Kreuz – dann wackelt der Wimpel. Die Gipfel liegen so, dass du sie im Gleitflug erreichst.' },
   { id: 'gipfeltour', kind: 'peaks', n: 4, high: true, name: 'Gipfeltour', text: '4 Gipfel überfliegen', coins: 150, xp: 90,
     desc: 'Vier Gipfel, und die meisten liegen über dem Startplatz: Ohne Thermik kommst du nicht hinauf. Die Karte zeigt, wie viel höher jeder ist.' },
-  { id: 'almlandung', kind: 'land', n: 1, maps: ['voralpen', 'luesen', 'wasserkuppe', 'wueste', 'vulkan'], name: 'Auf der Alm landen', text: 'Auf der Almwiese landen', coins: 90, xp: 60,
+  { id: 'almlandung', kind: 'land', n: 1, maps: ['voralpen', 'luesen', 'wasserkuppe', 'wueste', 'vulkan', 'canyon'], name: 'Auf der Alm landen', text: 'Auf der Almwiese landen', coins: 90, xp: 60,
     desc: 'Eine Almwiese mit Hütte und weißem Kreuz liegt im Gleitflug erreichbar über dem Tal. Flieg hin, teil dir die Höhe ein und setz innerhalb von 35 m vom Kreuz sicher auf.' },
   { id: 'hochlandung', kind: 'land', n: 1, high: true, maps: ['luesen', 'vulkan'], name: 'Hochlandung', text: 'Auf einer Alm über dem Start landen', coins: 170, xp: 100,
     desc: 'Die Wiese liegt höher als dein Startplatz. Such dir einen Bart, steig über die Kante und lande oben, innerhalb von 35 m vom Kreuz.' },
@@ -1695,6 +1827,30 @@ BONUS.push(
     brief: 'Drei Gipfelkreuze in zwölf Minuten. Ohne passende Thermik wird es knapp – schau, wo die Sonne auf den Hang steht.' },
   { id: 'z04', group: 'zeit', name: 'Post-Express', map: 'wasserkuppe', reward: 140, coins: 45, startAGL: 300, timeLimit: 420, quest: { kind: 'drop', item: 'post', n: 2 }, starTime: [330, 240],
     brief: 'Zwei Höfe warten auf die Eilpost – ihr habt sieben Minuten. Tief drüber, Päckchen raus, weiter zum nächsten.' },
+);
+BONUS.push(
+  { id: 'b16', name: 'Felsbogen-Ringe', map: 'canyon', reward: 190, coins: 55, quest: { kind: 'rings', n: 8 }, starTime: [400, 290],
+    brief: 'Acht Ringe führen von der Mesa-Kante hinunter in die Schlucht. Flieg durch jeden – der nächste leuchtet gelb. Die Wände ringsum machen den Wind böig, bleib aktiv auf den Bremsen.' },
+  { id: 'b17', name: 'Mesa-Ballons', map: 'canyon', reward: 200, coins: 60, startAGL: 500, quest: { kind: 'collect', n: 6, high: true, r: 1100 }, starTime: [1300, 900],
+    brief: 'Sechs Ballons über den roten Hochflächen, einige hoch unter der Basis. Die Plateaus heizen die Luft – such die Bärte an den Kanten. Eingesammelte Ballons bleiben gespeichert.' },
+  { id: 'b18', name: 'Hochmesa', map: 'canyon', reward: 230, coins: 65, landTop: 'gipfel', landR: 55, starLand: [40, 15], startAGL: 300,
+    brief: 'Die Landewiese liegt oben auf einer Mesa, höher als dein Startpunkt. Such dir einen Bart an der Kante, steig über den Rand und setz im weißen Kreis auf, gegen den Wind.' },
+  { id: 'b19', name: 'Rote Gipfel', map: 'canyon', reward: 210, coins: 60, startAGL: 450, quest: { kind: 'peaks', n: 4, high: true }, starTime: [1150, 780],
+    brief: 'Vier Gipfelkreuze auf den höchsten Mesas. Such dir den nächsten Bart, kurbel dich hinauf und flieg dicht über das Kreuz. Erreichte Gipfel bleiben gespeichert.' },
+  { id: 'c06', group: 'cup', name: 'Mesa-Cup', map: 'canyon', reward: 220, coins: 65, startAGL: 330, series: { rounds: 3, pts: [160, 230] },
+    brief: 'Drei Landungen zwischen den roten Wänden: Der Landeplatz liegt klein auf dem Talboden, rundherum Fels. Wind und Böen kommen aus der Schlucht – früh gegen den Wind eindrehen und die Höhe sauber einteilen.' },
+  { id: 'z05', group: 'zeit', name: 'Schluchten-Sprint', map: 'canyon', reward: 180, coins: 60, timeLimit: 300, quest: { kind: 'rings', n: 6 }, starTime: [240, 180],
+    brief: 'Sechs Ringe in höchstens 300 Sekunden durch die Schlucht. Beschleuniger rein und den kürzesten Weg nehmen – aber die Wände kommen schnell näher.' },
+);
+BONUS.push(
+  { id: 'b20', name: 'Fjordringe', map: 'fjord', reward: 170, coins: 50, quest: { kind: 'rings', n: 8 }, starTime: [420, 300],
+    brief: 'Acht Ringe führen vom Hang hinaus über den Fjord. Über dem Wasser trägt nichts – teil dir die Höhe ein und nimm jeden Ring in einer Linie, damit du das andere Ufer erreichst.' },
+  { id: 'b21', name: 'Karawanenpost', map: 'wueste', reward: 160, coins: 50, startAGL: 450, quest: { kind: 'drop', item: 'post', n: 2 }, starTime: [620, 420],
+    brief: 'Zwei Höfe in der Namib warten auf Post. Flieg jeweils tief darüber, unter 150 m über Grund, dann schwebt das Päckchen am Fallschirm hinunter. Die Staubteufel zeigen dir, wo es wieder nach oben geht.' },
+  { id: 'b22', name: 'Küstenballons', map: 'kueste', reward: 150, coins: 45, startAGL: 400, quest: { kind: 'collect', n: 6, r: 1000 }, starTime: [1000, 700],
+    brief: 'Sechs Ballons sind vom Strandfest über die Bucht getrieben. Der Seewind hält dich am Hang oben – flieg mitten hindurch, die Lichtsäulen zeigen, wo sie hängen. Eingesammelte Ballons bleiben gespeichert.' },
+  { id: 'b23', name: 'Inselgipfel', map: 'vulkan', reward: 190, coins: 55, startAGL: 450, quest: { kind: 'peaks', n: 3 }, starTime: [900, 620],
+    brief: 'Drei Gipfelkreuze rund um den Vulkan. Die Sonnenhänge tragen dich nach oben, über dem Wasser gibt es kein Steigen – plan den Weg von Hang zu Hang. Erreichte Gipfel bleiben gespeichert.' },
 );
 for (const b of BONUS) {
   b.bonus = true;
@@ -5858,6 +6014,13 @@ function buildLandmarkModel(type, mat) {
     g.add(_box(1.3, 1.3, 3.2, 0x5a4630, 0, 9, 0)); g.add(_box(0.9, 0.9, 1, 0x5a4630, 0, 9.6, -1.9));
     const wl = _box(5, 0.35, 1.8, 0x5a4630, -2.6, 9.9, 0.2), wr = _box(5, 0.35, 1.8, 0x5a4630, 2.6, 9.9, 0.2);
     wl.rotation.z = -0.35; wr.rotation.z = 0.35; g.add(wl, wr);
+  } else if (type === 'bogen') {
+    // Felsbogen: zwei rote Pfeiler und ein Sturz darüber
+    g.add(_box(9, 26, 11, 0xb4532e, -14, 13, 0)); g.add(_box(8, 20, 10, 0xa84a28, 14, 10, 0));
+    g.add(_box(40, 7, 10, 0xc0603a, 0, 27, 0)); g.add(_box(14, 4, 9, 0xa84a28, -3, 32, 0)); g.add(_cyl(7, 9, 3, 0xd9a070, 0, 1.5, 0, 8));
+  } else if (type === 'zeuge') {
+    // Zeugenberg: schlanke rote Nadel auf breitem Sockel
+    g.add(_cyl(16, 22, 14, 0xa84a28, 0, 7, 0, 7)); g.add(_cyl(8, 12, 40, 0xb4532e, 0, 34, 0, 7)); g.add(_cyl(5, 8, 22, 0xc0603a, 0, 65, 0, 7)); g.add(_cyl(0.1, 5.5, 5, 0xd9a070, 0, 79, 0, 7));
   } else if (type === 'church') {
     g.add(_box(12, 8, 18, 0x3a2418, 0, 4, 0));
     for (let i = 0; i < 4; i++) g.add(_cyl(0.1, 9 - i * 1.8, 5, 0x241510, 0, 10 + i * 4.5, 0, 4));
@@ -8536,6 +8699,77 @@ function buildText(long) {
 /* Reiter der Ausrüstung: Schlüssel = Name der Seite */
 const GEAR_TABS = [['wings', 'Schirme'], ['harness', 'Gurtzeug'], ['tune', 'Werkstatt'], ['perks', 'Perks'], ['designer', 'Design'], ['lines', 'Leinen']];
 
+/* ---------------- Kampagnenpfad (Missionsmenü) ----------------
+   Je Gebiet ein Banner mit gezeichneter Landschaft in den Farben des Gebiets (bannerArt) und darunter ein Pfad, der sich
+   von Mission zu Mission schlängelt: erledigte Strecken golden, die nächste Mission pulsiert, gesperrte sind grau.
+   Bonus-Level des Gebiets hängen als kleine Abzweige unter dem Pfad. */
+const MISSION_ICON = {
+  flag: '<svg viewBox="0 0 24 24"><path d="M6 21V3M6 4h11l-2.5 3.5L17 11H6"/></svg>',
+  race: '<svg viewBox="0 0 24 24"><path d="M5 21V3"/><path d="M5 4h14v8H5z"/><path d="M5 8h14M9.7 4v8M14.3 4v8" /></svg>',
+  photo: '<svg viewBox="0 0 24 24"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13.5" r="3.6"/></svg>',
+  storm: '<svg viewBox="0 0 24 24"><path d="M7 15a4.5 4.5 0 0 1 .6-9 6 6 0 0 1 11 2.2A3.6 3.6 0 0 1 18 15"/><path d="M12.5 12 9.5 18h3.5l-1.5 4"/></svg>',
+  eagle: '<svg viewBox="0 0 24 24"><path d="M2 9c4-1 7 0 10 4 3-4 6-5 10-4-2 1-3 3-3.5 5-2.5-1.5-4.5-1.5-6.5 1-2-2.5-4-2.5-6.5-1C5 12 4 10 2 9Z"/></svg>',
+  tp: '<svg viewBox="0 0 24 24"><path d="M12 3 21 20H3Z"/><circle cx="12" cy="3" r="1.2"/><circle cx="21" cy="20" r="1.2"/><circle cx="3" cy="20" r="1.2"/></svg>',
+  climb: '<svg viewBox="0 0 24 24"><path d="M12 21V4m-6 6 6-6 6 6"/><path d="M5 21h14"/></svg>',
+  soar: '<svg viewBox="0 0 24 24"><path d="M2 14c3-5 5-5 8 0s5 5 8 0l4-3"/><path d="M3 20h18"/></svg>',
+  land: '<svg viewBox="0 0 24 24"><path d="M3 20h18"/><path d="M12 4v10m-4-3 4 4 4-4"/><ellipse cx="12" cy="18.5" rx="6" ry="1.6"/></svg>',
+  dist: '<svg viewBox="0 0 24 24"><path d="M3 18 21 6M15 5.5l6 .5-1 6"/><circle cx="4" cy="17.5" r="1.4"/></svg>',
+  maneuver: '<svg viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 0 8 8"/><path d="M12 1v6m0-6-3 3m3-3 3 3"/></svg>',
+  bird: '<svg viewBox="0 0 24 24"><path d="M2 12c3-3 6-3 10 1 4-4 7-4 10-1"/><path d="M7 19c2-1 3-3 3-5M17 19c-2-1-3-3-3-5"/></svg>',
+  school: '<svg viewBox="0 0 24 24"><path d="M2 9 12 4l10 5-10 5Z"/><path d="M6 11.5V16c3 2.2 9 2.2 12 0v-4.5"/></svg>',
+  lock: '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  star: '<svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-3-5.4 3 1.1-6L3.2 9.4l6.1-.8Z"/></svg>',
+};
+function missionKind(m) {
+  if (m.tutorial) return 'school';
+  if (m.race) return 'race';
+  if (m.events && m.events.storm) return 'storm';
+  if (m.events && m.events.eagle) return 'eagle';
+  const t = m.objectives.map(o => o.type);
+  if (t.includes('photo')) return 'photo';
+  if (t.includes('birdThermals')) return 'bird';
+  if (t.includes('maneuver')) return 'maneuver';
+  if (t.includes('turnpoints')) return 'tp';
+  if (t.includes('soar')) return 'soar';
+  if (t.includes('landAt')) return 'land';
+  if (t.includes('distance') || t.includes('returnHome')) return 'dist';
+  if (t.includes('climbGain') || t.includes('altitude') || t.includes('thermals')) return 'climb';
+  return 'flag';
+}
+function bonusKind(b) { return b.quest ? b.quest.kind : b.series ? 'cup' : 'land'; }
+
+/* Landschaft im Banner: Linienzug aus festem Zufall je Gebiet, Farben aus Palette und Himmel des Gebiets */
+function bannerArt(map) {
+  const W = 400, H = 120, rng = makeRng(map.seed + 91), hex = (c) => U.hex(c), pal = map.palette, sky = map.sky;
+  const prof = (base, amp, step, rough, kind) => {
+    const pts = []; let ph = rng() * 6, ph2 = rng() * 6;
+    for (let x = 0; x <= W + step; x += step) {
+      let y;
+      if (kind === 'dune') y = base + amp * (0.6 * Math.sin(x / 70 + ph) + 0.4 * Math.sin(x / 31 + ph2));
+      else if (kind === 'hill') y = base + amp * (0.7 * Math.sin(x / 95 + ph) + 0.3 * Math.sin(x / 41 + ph2));
+      else if (kind === 'mesa') y = base - amp * (Math.floor((0.5 + 0.5 * Math.sin(x / 85 + ph) * Math.cos(x / 140 + ph2)) * 3.99) / 3.99);
+      else y = base - amp * Math.abs(Math.sin(x / 60 + ph)) * (0.55 + 0.45 * rng()) - rough * rng();
+      pts.push([x, y]);
+    }
+    return pts;
+  };
+  const poly = (pts, fill, op) => '<path d="M0 ' + H + ' ' + pts.map(p => 'L' + p[0].toFixed(0) + ' ' + p[1].toFixed(1)).join(' ') + ' L' + W + ' ' + H + 'Z" fill="' + fill + '"' + (op ? ' opacity="' + op + '"' : '') + '/>';
+  const id = map.id, kind = id === 'wueste' ? 'dune' : (id === 'voralpen' || id === 'wasserkuppe' || id === 'kueste') ? 'hill' : id === 'canyon' ? 'mesa' : 'peak';
+  const amp = id === 'dolomiten' ? 78 : id === 'fjord' ? 70 : kind === 'peak' ? 62 : kind === 'mesa' ? 46 : 26;
+  let out = '<defs><linearGradient id="bg_' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + hex(sky.top) + '"/><stop offset="1" stop-color="' + hex(sky.horizon) + '"/></linearGradient></defs>';
+  out += '<rect width="' + W + '" height="' + H + '" fill="url(#bg_' + id + ')"/>';
+  out += '<circle cx="' + (60 + rng() * 280).toFixed(0) + '" cy="30" r="13" fill="#fff6d8" opacity="0.9"/>';
+  if (map.clouds) for (let i = 0; i < 3; i++) { const cx = rng() * W, cy = 18 + rng() * 34; out += '<ellipse cx="' + cx.toFixed(0) + '" cy="' + cy.toFixed(0) + '" rx="' + (20 + rng() * 22).toFixed(0) + '" ry="5" fill="#fff" opacity="0.5"/>'; }
+  out += poly(prof(H - 34, amp * 0.8, 20, 10, kind === 'mesa' ? 'mesa' : kind === 'dune' ? 'dune' : 'peak'), hex(sky.fog), 0.75);
+  if (id === 'vulkan') out += '<path d="M120 ' + H + ' L190 40 Q200 36 210 40 L290 ' + H + 'Z" fill="' + hex(pal.rock) + '"/><path d="M190 40 Q200 34 210 40 Q200 44 190 40Z" fill="#ff7a2a"/><ellipse cx="206" cy="26" rx="16" ry="7" fill="#d8d4d0" opacity="0.7"/><ellipse cx="220" cy="15" rx="12" ry="5" fill="#d8d4d0" opacity="0.5"/>';
+  else out += poly(prof(H - 18, amp, kind === 'peak' ? 14 : 22, 8, kind), hex(kind === 'peak' ? pal.rock : kind === 'mesa' ? pal.rock : kind === 'dune' ? pal.sand : pal.forest));
+  if (map.water != null) out += '<rect y="' + (H - 26) + '" width="' + W + '" height="26" fill="' + hex(pal.water) + '"/><path d="M0 ' + (H - 20) + ' Q50 ' + (H - 24) + ' 100 ' + (H - 20) + ' T200 ' + (H - 20) + ' T300 ' + (H - 20) + ' T400 ' + (H - 20) + '" fill="none" stroke="#fff" stroke-opacity="0.35"/>';
+  else out += poly(prof(H - 6, 7, 30, 3, 'hill'), hex(pal.grass));
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' + out + '</svg>';
+}
+const TRAIL_X = [27, 70, 34, 76, 26, 66, 38, 74];   // Lage der Stationen in Prozent der Pfadbreite (Zickzack)
+const TRAIL_W = 340, TRAIL_ROW = 106;
+
 const UIScreens = {
   /* „Zurück“: eine Ebene zurück (Stapel in UI.go/back); ganz unten siehe UI.back (Pause: weiterfliegen, sonst Hauptmenü) */
   _back(label) { return el('button', { class: 'btn ghost back', onclick: () => { this.click(); this.back(); } }, [el('span', { text: label || '← Zurück' })]); },
@@ -8606,36 +8840,93 @@ const UIScreens = {
     if (r && r.scrollIntoView) r.scrollIntoView({ block: 'center' });
   },
 
-  /* ---------------- Missionen nach Gebieten ---------------- */
+  /* ---------------- Missionen: Kampagnenpfad nach Gebieten ---------------- */
   renderMissions() {
-    const s = this.screens.missions; s.innerHTML = '';
-    const list = el('div', { class: 'mlist' });
-    let lastKey = null;
+    const s = this.screens.missions, sv = this.save; s.innerHTML = '';
+    const groups = [];                                   // je Gebiet (und Finale) eine Gruppe aufeinanderfolgender Missionen
     MISSIONS.forEach((m, i) => {
-      const map = MAP_BY_ID[m.map], key = (m.chapter || '') + m.map;
-      if (key !== lastKey) {
-        lastKey = key;
-        const ok = this.mapUnlocked(map);
-        list.appendChild(el('div', { class: 'region' + (ok ? '' : ' locked'), style: `--rc:${U.hex(map.palette.grass)}` }, [
-          el('div', {}, [el('div', { class: 'rname', text: m.chapter ? m.chapter + ' · ' + map.name : map.name }), el('div', { class: 'rmeta', text: map.region + ' · Basis ' + U.fmtInt(map.base) + ' m · Wind ' + Math.round(map.wind.speed * 3.6) + ' km/h' })]),
-          ok ? null : el('div', { class: 'rlock', text: 'ab ' + U.fmtInt(map.unlockXP) + ' XP oder im Laden' }),
+      const key = (m.chapter || '') + m.map, last = groups[groups.length - 1];
+      if (last && last.key === key) last.items.push(i); else groups.push({ key, map: MAP_BY_ID[m.map], chapter: m.chapter, items: [i] });
+    });
+    const ni = this.nextMission();
+    const totalStars = MISSIONS.reduce((a, m) => a + (sv.missions[m.id] || 0), 0), doneN = MISSIONS.filter(m => sv.missions[m.id]).length;
+    const trail = el('div', { class: 'trail' });
+    groups.forEach((G, gi) => {
+      const map = G.map, ok = this.mapUnlocked(map), n = G.items.length;
+      const gDone = G.items.filter(i => sv.missions[MISSIONS[i].id]).length, gStars = G.items.reduce((a, i) => a + (sv.missions[MISSIONS[i].id] || 0), 0);
+      const bonus = BONUS.filter(b => b.map === map.id && !G.chapter);
+      const sec = el('section', { class: 'reg' + (ok ? '' : ' locked') + (G.chapter ? ' finale' : '') + (gDone === n ? ' complete' : ''), id: 'reg_' + G.key, style: `--rc:${U.hex(map.palette.grass)}` });
+      sec.appendChild(el('header', { class: 'regban' }, [
+        el('div', { class: 'regart', html: bannerArt(map) }),
+        el('div', { class: 'regtxt' }, [
+          el('div', { class: 'regno', text: G.chapter ? 'Finale' : 'Gebiet ' + (new Set(groups.slice(0, gi + 1).filter(x => !x.chapter).map(x => x.map.id)).size) }),
+          el('div', { class: 'rname', text: map.name }),
+          el('div', { class: 'rmeta', text: map.region }),
+        ]),
+        el('div', { class: 'regside' }, [
+          ok ? el('div', { class: 'regprog', html: gDone + '/' + n + ' · ' + MISSION_ICON.star + gStars + '/' + n * 3 }) : el('div', { class: 'rlock', html: MISSION_ICON.lock + 'ab ' + U.fmtInt(map.unlockXP) + ' XP' }),
+          el('div', { class: 'regwx', text: 'Basis ' + U.fmtInt(map.base) + ' m · ' + Math.round(map.wind.speed * 3.6) + ' km/h' }),
+        ]),
+      ]));
+      // Pfad: Stationen im Zickzack, Strecken zwischen den Stationen golden, wenn die davor geschafft ist
+      const H = n * TRAIL_ROW + 24, pos = G.items.map((_, k) => [TRAIL_X[(k + gi * 3) % TRAIL_X.length] / 100 * TRAIL_W, 12 + TRAIL_ROW * k + TRAIL_ROW / 2]);
+      const seg = (k) => { const [x0, y0] = pos[k], [x1, y1] = pos[k + 1], c = TRAIL_ROW * 0.55; return `M${x0.toFixed(1)} ${y0}C${x0.toFixed(1)} ${y0 + c} ${x1.toFixed(1)} ${y1 - c} ${x1.toFixed(1)} ${y1}`; };
+      let svg = '';
+      for (let k = 0; k < n - 1; k++) { const d = sv.missions[MISSIONS[G.items[k]].id] ? ' done' : ''; svg += `<path class="seg${d}" d="${seg(k)}"/>`; }
+      const path = el('div', { class: 'path', style: `aspect-ratio:${TRAIL_W} / ${H}` }, [el('div', { class: 'pline', html: `<svg viewBox="0 0 ${TRAIL_W} ${H}" aria-hidden="true">${svg}</svg>` })]);
+      G.items.forEach((i, k) => {
+        const m = MISSIONS[i], unlocked = this.missionUnlocked(i), stars = sv.missions[m.id] || 0, isNext = i === ni, kind = missionKind(m);
+        const [x, y] = pos[k], right = x < TRAIL_W / 2;
+        const tags = [];
+        if (m.race) tags.push('Rennen'); if (m.events && m.events.eagle) tags.push('Adler'); if (m.events && m.events.storm) tags.push('Gewitter');
+        if (m.objectives.some(o => o.type === 'photo')) tags.push('Foto'); if (m.startAGL) tags.push('Luftstart');
+        path.appendChild(el('button', {
+          class: 'node ' + (right ? 'lr' : 'll') + (stars ? ' done' : unlocked ? (isNext ? ' next' : ' open') : ' locked'), id: 'mrow_' + m.id, 'data-nav': unlocked ? 'brief' : null,
+          style: `left:${(x / TRAIL_W * 100).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`, 'aria-label': m.name,
+          onclick: () => { if (!unlocked) { this.toast('Erst die vorherige Mission bestehen'); return; } this.click(); this.go('brief', () => this.renderBrief(m)); },
+        }, [
+          el('span', { class: 'disc', html: unlocked ? MISSION_ICON[kind] : MISSION_ICON.lock }),
+          el('span', { class: 'nno', text: String(i + 1).padStart(2, '0') }),
+          el('span', { class: 'nlab' }, [
+            el('span', { class: 'mname', text: m.name }),
+            el('span', { class: 'mtags', text: tags.join(' · ') || (unlocked ? '+' + m.reward + ' XP' : 'gesperrt') }),
+            el('span', { class: 'stars', html: unlocked ? starStr(stars) : '' }),
+          ]),
+          isNext ? el('span', { class: 'nflag', text: 'Weiter' }) : null,
+        ]));
+      });
+      sec.appendChild(path);
+      if (bonus.length) {
+        const bs = bonus.reduce((a, b) => a + ((sv.bonus[b.id] || {}).stars || 0), 0);
+        sec.appendChild(el('div', { class: 'bonusrowline' }, [
+          el('div', { class: 'bl', html: MISSION_ICON.star + 'Bonus-Level · ' + bs + '/' + bonus.length * 3 }),
+          el('div', { class: 'bchips' }, bonus.map(b => {
+            const st = (sv.bonus[b.id] || {}).stars || 0;
+            return el('button', { class: 'bchip' + (ok ? '' : ' locked') + (st ? ' done' : ''), id: 'trailb_' + b.id, 'data-nav': ok ? 'brief' : null, 'aria-label': b.name + ' ' + st + ' Sterne',
+              onclick: () => { if (!ok) { this.toast('Erst das Gebiet ' + map.name + ' freischalten'); return; } this.click(); this.go('brief', () => this.renderBrief(b)); } }, [
+              el('span', { class: 'bi', html: QUEST_ICON[bonusKind(b)] }),
+              el('span', { class: 'bn', text: b.name }),
+              el('span', { class: 'stars', html: starStr(st) }),
+            ]);
+          })),
         ]));
       }
-      const unlocked = this.missionUnlocked(i), stars = this.save.missions[m.id] || 0;
-      const tags = [];
-      if (m.race) tags.push('Rennen'); if (m.events && m.events.eagle) tags.push('Adler'); if (m.events && m.events.storm) tags.push('Gewitter');
-      if (m.objectives.some(o => o.type === 'photo')) tags.push('Foto'); if (m.startAGL) tags.push('Luftstart');
-      list.appendChild(el('button', { class: 'mrow' + (unlocked ? '' : ' locked') + (stars ? ' done' : ''), id: 'mrow_' + m.id, 'data-nav': unlocked ? 'brief' : null, onclick: () => { if (!unlocked) { this.toast('Erst die vorherige Mission bestehen'); return; } this.click(); this.go('brief', () => this.renderBrief(m)); } }, [
-        el('span', { class: 'mno', text: String(i + 1).padStart(2, '0') }),
-        el('span', { class: 'mbody' }, [el('span', { class: 'mname', text: m.name }), el('span', { class: 'mtags', text: tags.join(' · ') })]),
-        el('span', { class: 'stars', html: unlocked ? starStr(stars) : '<span class="lock">gesperrt</span>' }),
-      ]));
+      trail.appendChild(sec);
+      if (gi < groups.length - 1) trail.appendChild(el('div', { class: 'regtie' + (gDone === n ? ' done' : '') }));
     });
+    const pct = Math.round(doneN / MISSIONS.length * 100);
     s.appendChild(el('div', { class: 'panel wide' }, [
       el('div', { class: 'eyebrow', text: 'Kampagne' }), el('h2', { text: 'Missionen' }),
-      el('p', { text: 'Vom ersten Gleitflug bis zum FAI-Dreieck. Jede Mission bringt Erfahrung, die neue Schirme und Fluggebiete freischaltet.' }),
-      el('p', { class: 'small', text: '★ = geschafft. ★★ und ★★★ gibt es für schnelle Flüge, genaue Landungen, Siege im Rennen oder Flüge ohne Klapper – was genau zählt, steht im Briefing unter „So gibt es Sterne“.' }),
-      list, this._back(),
+      el('div', { class: 'campsum' }, [
+        el('div', { class: 'ring', style: `--p:${pct}`, html: '<b>' + pct + '<small>%</small></b>' }),
+        el('div', { class: 'cs' }, [
+          el('div', { class: 'cs1', text: doneN + ' von ' + MISSIONS.length + ' Missionen' }),
+          el('div', { class: 'cs2', html: MISSION_ICON.star + totalStars + ' / ' + MISSIONS.length * 3 + ' Sterne' }),
+        ]),
+        ni != null ? el('button', { class: 'minibtn', id: 'trailNext', text: 'Weiter ↓', onclick: () => { this.click(); const r = document.getElementById('mrow_' + MISSIONS[ni].id); if (r && r.scrollIntoView) r.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }) : null,
+      ]),
+      el('p', { class: 'small', text: 'Folge dem Pfad von Gebiet zu Gebiet. Jede Mission bringt Erfahrung, die neue Schirme und Fluggebiete freischaltet. ★★ und ★★★ gibt es für schnelle Flüge, genaue Landungen, Siege im Rennen oder Flüge ohne Klapper – was zählt, steht im Briefing unter „So gibt es Sterne“.' }),
+      trail, this._back(),
     ]));
   },
 
