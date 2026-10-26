@@ -794,7 +794,7 @@ kbd { font-family: var(--font-d); background: var(--night-2); border: 1px solid 
 
 </script>
 <script>
-window.AUFWIND_BUILD = {"v": "5.1.37", "t": "21:33 02.10.2026", "c": "d31b304"};
+window.AUFWIND_BUILD = {"v": "5.2.38", "t": "23:39 26.10.2026", "c": "65d40bf"};
 /* AUFWIND – Hilfsfunktionen: Zufall, Noise, Mathe */
 'use strict';
 
@@ -4928,38 +4928,115 @@ class World {
 const RIG = 7.45;
 
 /* Kappe: 32 Zellen (die Design-Muster haben 16 Felder, je zwei Zellen eines), Bogen mit flacher Mitte und
-   heruntergezogenen Stabilos, elliptischer Grundriss mit gepfeilter Nase, gewölbtes Profil (Obersegel ab der
-   Nase, Untersegel ab der Einlasslippe). Je Zelle drei Stationen: Rippe, Zellmitte (bauchig), Rippe. */
+   heruntergezogenen Enden, elliptischer Grundriss mit gepfeilter Nase, gewölbtes Profil (Obersegel ab der
+   Nase, Untersegel ab der Einlasslippe). Jede Zelle ist ein prall gefüllter Schlauch: zwischen den Rippen wölben
+   sich Ober- und Untersegel nach außen (Ballooning, senkrecht zum Profil, an der Nase also nach vorn), an den
+   Rippen bleibt eine Naht, die Hinterkante zieht sich in der Zellmitte vor. Die Einlässe sind dunkle Öffnungen
+   je Zelle (die Rippe dazwischen), die äußerste Zelle ist zu, unter der Spitze hängt der Stabilo.
+   Stationen je Zelle: fein (Spieler) Rippe, ¼, ½, ¾, Rippe; grob (Mitspieler) Rippe, Mitte, Rippe.
+   rows = Punkte im Untersegel, an denen die A-, B- und C-Ebene hängen. */
 const CANOPY = {
   NC: 32, B: 6.0, arc: 1.5, arcP: 1.6, c0: 2.75,
-  XU: [0, 0.015, 0.05, 0.11, 0.125, 0.2, 0.32, 0.46, 0.62, 0.8, 0.9, 0.925, 1],      // 0,125 und 0,9 / 0,925: scharfe Kanten für Nase und Hinterkante
-  XL: [0.07, 0.12, 0.3, 0.45, 0.62, 0.8, 1],
+  fine: {
+    NS: 4, rows: [1, 3, 5],
+    XU: [0, 0.006, 0.02, 0.042, 0.075, 0.115, 0.125, 0.18, 0.26, 0.36, 0.48, 0.6, 0.72, 0.82, 0.9, 0.91, 0.96, 1],   // 0,115/0,125 und 0,9/0,91: scharfe Farbkanten für Nase und Hinterkante
+    XL: [0.06, 0.14, 0.22, 0.34, 0.47, 0.62, 0.76, 0.88, 1],
+  },
+  coarse: {
+    NS: 2, rows: [1, 2, 4],
+    XU: [0, 0.015, 0.05, 0.11, 0.125, 0.2, 0.32, 0.46, 0.62, 0.8, 0.9, 0.925, 1],
+    XL: [0.07, 0.12, 0.3, 0.45, 0.62, 0.8, 1],
+  },
+  balU: 0.15, balL: 0.11, balTE: 0.04,        // Ballooning: Ober- und Untersegel als Anteil der Zellbreite, Hinterkante in m
+  stab: 0.34,                                 // Stabilo: so tief (m) hängt das Tuch unter der Flügelspitze
+  fin: { rib: 12, x0: 0.34, x1: 0.9, h: 0.2 },     // Winglets wie bei Advance: Finne auf dem Obersegel über Rippe 12 von 16, Tiefe 34–90 %, Höhe in m
 };
-/* Leinen: Werksfarben der Ebenen A, B, C, Bremse und der Tragegurte (Auswahl im Hangar: LINE_SETS in data.js); Aufhängepunkte je Ebene (Index im Untersegel) */
+/* Leinen: Werksfarben der Ebenen A, B, C, Bremse und der Tragegurte (Auswahl im Hangar: LINE_SETS in data.js) */
 const LINE_COL = [0xa8453a, 0xc49a45, 0x4a6a92, 0xd98236, 0x24282e];
-const LINE_ROWS = [1, 2, 4];
 
-/* Kappe mit Zellen, Leinen als Kaskade (Galerie- und Stammleinen, Tragegurte, Karabiner, Bremsleinen über die
-   Umlenkrolle bis in die Hand) und Pilot mit Helm, Armen an den Bremsgriffen und Beinen.
+/* Tuch im Gegenlicht: steht die Sonne hinter dem Segel, scheint sie in dessen Farbe durch (Untersegel von unten,
+   Obersegel bei tiefer Sonne). Dazu wie bei jedem Material das gemeinsame Licht aus ATMO (Schattenfeld, Wolken). */
+function canopyShader(shader) {
+  THREE.Material.prototype.onBeforeCompile.call(this, shader);
+  if (this.userData.logoA) { shader.uniforms.logoA = { value: this.userData.logoA }; shader.uniforms.logoB = { value: this.userData.logoB }; }
+  shader.fragmentShader = shader.fragmentShader
+    .replace('#include <map_pars_fragment>', `#include <map_pars_fragment>
+#ifdef USE_MAP
+uniform vec3 logoA; uniform vec3 logoB;
+#endif`)
+    .replace('#include <map_fragment>', '')
+    .replace('#include <color_fragment>', `#include <color_fragment>
+#ifdef USE_MAP
+  vec4 logoT = texture2D( map, vUv );                               // Schriftzüge: Rot oben, Grün unten
+  diffuseColor.rgb = mix( diffuseColor.rgb, logoA, logoT.r );
+  diffuseColor.rgb = mix( diffuseColor.rgb, logoB, logoT.g );
+#endif`)
+    .replace('#include <lights_fragment_end>', `#include <lights_fragment_end>
+#if NUM_DIR_LIGHTS > 0
+  float tuchV = max( dot( normalize( - vViewPosition ), directionalLights[ 0 ].direction ), 0.0 );     // Blick durchs Tuch zur Sonne
+  vec3 tuchL = diffuseColor.rgb * directionalLights[ 0 ].color * ( max( -dot( normal, directionalLights[ 0 ].direction ), 0.0 ) * ( 0.5 + 0.9 * tuchV * tuchV * tuchV ) );
+  #ifdef USE_FOG
+    tuchL *= vAtmoL.x;
+  #endif
+  reflectedLight.indirectDiffuse += tuchL;
+#endif`);
+}
+/* Schriftzüge wie auf echten Schirmen: „AUFWIND“ auf dem Obersegel außen rechts, längs zur Strömung (von außen lesbar),
+   der Schirmname quer auf dem Untersegel links (lesbar für die Kamera hinter dem Piloten). Eine Textur (Rot: oben, Grün: unten; u = Spannweite,
+   v = Tiefe, oben 0–0,5, unten 0,5–1), die Farbe je Schriftzug hell oder dunkel, je nachdem, was auf dem Tuch darunter besser steht. */
+function canopyLogos(mat, wing, dc, plain, NC, field) {
+  if (plain || typeof document === 'undefined') return;
+  const W = 1024, H = 512, T = document.createElement('canvas'); T.width = W; T.height = H;
+  const g = T.getContext('2d'); if (!g) return;
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H); g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '700 40px "Chakra Petch", system-ui, sans-serif';
+  const write = (txt, col, cx, cy, len, hgt, rot, fy) => {           // fy = −1: gespiegelt (Buchstaben oben = Richtung Hinterkante)
+    const tw = g.measureText(txt).width || 1; g.save(); g.fillStyle = col; g.translate(cx, cy); if (rot) g.rotate(rot);
+    g.scale(Math.min(len / tw, hgt / 29 * 1.3), hgt / 29 * (fy || 1)); g.fillText(txt, 0, 1); g.restore();
+  };
+  write('AUFWIND', '#f00', 0.82 * W, 0.52 * 0.5 * H, 0.54 * 0.5 * H, 0.02 * W, -Math.PI / 2);      // Obersegel: Rippe 10–11 rechts, Tiefe 25–79 %
+  write(String(wing.name || '').toUpperCase(), '#0f0', 0.275 * W, (0.5 + 0.21) * H, 0.24 * W, 0.075 * H, 0, -1);   // Untersegel: links, Tiefe 34–50 %
+  const lum = (h) => (0.299 * ((h >> 16) & 255) + 0.587 * ((h >> 8) & 255) + 0.114 * (h & 255)) / 255;
+  const pick = (c0, c1, x, under) => { let s = 0, n = 0; for (let ci = c0; ci <= c1; ci++) { let c = dc.at(field(ci), x); if (under && dc.under != null) c = mixHex(c, dc.under, 0.8); s += lum(c); n++; } return new THREE.Color(s / n > 0.55 ? 0x1b2027 : 0xf4f4ef); };
+  mat.userData.logoA = pick(Math.floor(0.805 * NC), Math.floor(0.835 * NC), 0.5, false);
+  mat.userData.logoB = pick(Math.floor(0.155 * NC), Math.floor(0.395 * NC), 0.5, true);
+  const tex = new THREE.CanvasTexture(T); tex.flipY = false; tex.anisotropy = 2;
+  mat.map = tex;
+}
+/* Abstand zweier Farben (0 gleich … 1 schwarz/weiß) */
+const hexDist = (a, b) => Math.sqrt(Math.pow(((a >> 16) & 255) - ((b >> 16) & 255), 2) + Math.pow(((a >> 8) & 255) - ((b >> 8) & 255), 2) + Math.pow((a & 255) - (b & 255), 2)) / 441.7;
+/* Farbe der Winglets: die Designfarbe mit dem größten Abstand zu beiden Nachbarzellen (wie die limettengrüne Finne auf Weiß
+   beim Advance Alpha 8), sonst Weiß oder Dunkel. Auch für das Vorschaubild (wingSvg). */
+function wingletColor(dc, na, nb) {
+  const score = (c) => Math.min(hexDist(c, na), hexDist(c, nb));
+  let pick = dc.a, best = -1;
+  for (const c of [dc.le, dc.trim, dc.b, dc.a]) if (c != null && score(c) > best + 0.02) { best = score(c); pick = c; }
+  if (best < 0.3) pick = score(0xffffff) > score(0x1b2027) ? 0xffffff : 0x1b2027;
+  return pick;
+}
+
+/* Kappe mit Zellen, Stabilos und (wahlweise) Winglets, Leinen als Kaskade (Galerie- und Stammleinen, Tragegurte,
+   Karabiner, Bremsleinen über die Umlenkrolle bis in die Hand) und Pilot mit Helm, Armen an den Bremsgriffen und Beinen.
    deform(st) passt Kappe und Leinen an: Bremsen ziehen die Hinterkante herunter, eine Seite kann einklappen
    (die Außenseite faltet sich unter die Kappe), die Ohren falten die Enden, vor einem Klapper flattert die
-   Spitze, ausgelegt am Boden liegt die Kappe flach und schlaff. */
+   Spitze, beim Aufziehen füllen sich die Zellen von der Mitte nach außen, ausgelegt am Boden liegt die Kappe
+   flach und schlaff. opts.ai: Mitspieler mit gröberer Kappe. */
 function buildGliderModel(wing, opts) {
   opts = opts || {};
   const root = new THREE.Group(); root.rotation.order = 'YXZ';
   const rig = new THREE.Group(); rig.rotation.order = 'YXZ'; root.add(rig);   // Gieren (Kappe fällt zur Seite) außen, dann Kippen, innen Rollen
   const canopy = new THREE.Group(); canopy.position.y = RIG; rig.add(canopy);
-  const C = CANOPY, NC = C.NC, S = 2 * NC + 1, XU = C.XU, XL = C.XL, KU = XU.length, KL = XL.length, KP = KU + KL;
+  const C = CANOPY, NC = C.NC, LOD = opts.ai ? C.coarse : C.fine, NS = LOD.NS, S = NS * NC + 1;
+  const XU = LOD.XU, XL = LOD.XL, KU = XU.length, KL = XL.length, KP = KU + KL, XK = (k) => k < KU ? XU[k] : XL[k - KU];
   // Farben aus Werksfarben, Laden-Design oder eigenem Design (designCells in data.js, 16 Felder, dazu Nase, Hinterkante, Spitzen, Untersegel)
   const dc = designCells(wing, opts.design, 16), plain = opts.color != null, main = new THREE.Color(plain ? opts.color : dc.main), cc = new THREE.Color(), cu = new THREE.Color();
   const field = (ci) => Math.min(15, Math.floor(ci * 16 / NC)), tone = (ci) => 1 + 0.07 * (((Math.sin(ci * 12.9898) * 43758.5453) % 1 + 1) % 1 - 0.5);      // jede Zelle ein Hauch anders
   const winglets = !opts.ai && wingletOn(wing, opts.winglet, opts.design);
 
-  // ---- Stationen der ungestörten Kappe: Bogen (ax, ay) mit Normale (anx, any), Nase z, Tiefe, Dicke
+  // ---- Stationen der ungestörten Kappe: Bogen (ax, ay) mit Normale (anx, any), Nase z, Tiefe, Dicke, Lage in der Zelle (bal: Rippe 0, Mitte 1)
   const u = new Float32Array(S), ax = new Float32Array(S), ay = new Float32Array(S), anx = new Float32Array(S), any = new Float32Array(S);
-  const zle = new Float32Array(S), ch = new Float32Array(S), th = new Float32Array(S);
+  const zle = new Float32Array(S), ch = new Float32Array(S), th = new Float32Array(S), bal = new Float32Array(S);
   {
-    const H = NC, sub = 32, n = H * sub, at = new Float32Array(H + 1), atY = new Float32Array(H + 1), atP = new Float32Array(H + 1);
+    const H = (S - 1) / 2, sub = 16, n = H * sub, at = new Float32Array(H + 1), atY = new Float32Array(H + 1), atP = new Float32Array(H + 1);
     let X = 0, Y = 0;
     for (let i = 0; i <= n; i++) {                                   // Bogen von der Mitte zur Spitze aufsummieren
       const phi = C.arc * Math.pow(i / n, C.arcP);
@@ -4972,87 +5049,124 @@ function buildGliderModel(wing, opts) {
       ch[j] = C.c0 * (0.22 + 0.78 * Math.sqrt(Math.max(0, 1 - Math.pow(a, 1.9))));      // elliptisch, Spitzen schmal
       zle[j] = -0.3 * C.c0 + 0.3 * C.c0 * Math.pow(a, 2.2);                              // Nase außen nach hinten gepfeilt
       th[j] = (0.155 - 0.05 * a * a) * (1 - 0.8 * U.smoothstep(0.9, 1, a));
+      bal[j] = Math.sin(Math.PI * (j % NS) / NS);
     }
   }
-  // Profil (Anteil der Tiefe): Wölbungslinie 3 % bei 30 %, Dicke nach NACA; Zellmitte bauchig (Ballooning)
+  // Profil (Anteil der Tiefe): Wölbungslinie 3 % bei 30 %, Dicke nach NACA. Ballooning senkrecht zum Profil (BZ/BH: Richtung
+  // in Tiefe und Höhe, BA: Stärke in m), oben nach außen, unten nach unten; TZ: Hinterkante in der Zellmitte vorgezogen
   const camber = (x) => x < 0.3 ? 0.03 / 0.09 * (0.6 * x - x * x) : 0.03 / 0.49 * (0.4 + 0.6 * x - x * x);
   const thick = (x) => 5 * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x * x * x - 0.1036 * x * x * x * x);
-  const PY = new Float32Array(S * KP), PT = new Float32Array(S * KP);   // Wölbung und Dicke je Station und Punkt
+  const PY = new Float32Array(S * KP), PT = new Float32Array(S * KP), BZ = new Float32Array(S * KP), BH = new Float32Array(S * KP), BA = new Float32Array(S * KP), TZ = new Float32Array(S * KP);
+  const cw = 2 * C.B / NC;                                           // Zellbreite
   for (let j = 0; j < S; j++) {
-    const mid = j % 2 === 1, bal = mid ? 1.28 : 1;       // Zellmitte bauchig: die Zellen zeichnen sich ab
+    const o = j * KP;
+    for (let k = 0; k < KP; k++) { const x = XK(k); PY[o + k] = camber(x) * (th[j] / 0.155); PT[o + k] = (k < KU ? 1 : -1) * th[j] * thick(x); }
     for (let k = 0; k < KP; k++) {
-      const up = k < KU, x = up ? XU[k] : XL[k - KU], t = th[j] * thick(x) * bal;
-      PY[j * KP + k] = camber(x) * (th[j] / 0.155);
-      PT[j * KP + k] = (up ? t : -t) + (mid && up ? 0.014 * Math.sin(Math.PI * x) : 0);
+      const up = k < KU, x = XK(k), kp = Math.max(up ? 0 : KU, k - 1), kn = Math.min(up ? KU - 1 : KP - 1, k + 1);
+      const dz = XK(kn) - XK(kp), dh = PY[o + kn] + PT[o + kn] - PY[o + kp] - PT[o + kp], l = Math.hypot(dz, dh) || 1;
+      BZ[o + k] = (up ? -dh : dh) / l; BH[o + k] = (up ? dz : -dz) / l;
+      BA[o + k] = bal[j] * cw * (up ? C.balU * (1 - U.smoothstep(0.7, 1, x)) : C.balL * (1 - U.smoothstep(0.62, 1, x)));
+      TZ[o + k] = -bal[j] * C.balTE * U.smoothstep(0.85, 1, x);
     }
   }
+  // Faltenmuster je Punkt (fest, damit deform keine Sinuswerte rechnet): liegendes Tuch (nie unter den Boden), Füllen, Stall
+  const CR = new Float32Array(S * KP), WK = new Float32Array(S * KP), SW = new Float32Array(S * KP);
+  for (let j = 0; j < S; j++) for (let k = 0; k < KP; k++) {
+    const i = j * KP + k, x = XK(k), jo = j * 2 / NS;                // jo: Station in Halbzellen (Falten gleich fein bei jeder Feinheit)
+    CR[i] = 0.07 + 0.1 * (0.5 + 0.5 * Math.sin(jo * 0.37 + 1.1)) * (0.6 + 0.4 * Math.sin(x * 4.5 + jo * 0.13)) + 0.05 * (0.5 + 0.5 * Math.sin(jo * 0.71 + x * 2.6 + 0.7)) * (1 - 0.5 * x) + 0.04 * x * Math.sin(jo * 0.52 + 2);
+    WK[i] = Math.sin(x * 13 + jo * 0.9 + (k < KU ? 0 : 1.3));
+    SW[i] = x > 0.6 ? Math.sin(x * 9 + jo * 0.7) : 0;
+  }
 
-  // ---- Geometrie: je Zelle drei Stationen × (Obersegel KU + Untersegel KL + Einlass 2) Ecken, indiziert
-  const VS = KP + 2, NV = NC * 3 * VS;
-  const wpos = new Float32Array(NV * 3), wnor = new Float32Array(NV * 3), wcol = new Float32Array(NV * 3), idx = [];
-  const vref = new Int32Array(NV), vsurf = new Int8Array(NV);        // Punkt (Station·KP + k) und Fläche (0 oben, 1 unten, 2 Einlass)
+  // ---- Geometrie: je Zelle NS + 1 Stationen × (Obersegel KU, Untersegel KL, Einlass 3: Nase, innen, Lippe), dazu zwei Stabilos
+  const VS = KP + 3, NV0 = NC * (NS + 1) * VS, SM = KL - 1, NV = NV0 + 4 * SM;
+  const wpos = new Float32Array(NV * 3), wnor = new Float32Array(NV * 3), wcol = new Float32Array(NV * 3), wuv = new Float32Array(NV * 2), idx = [];
+  const setC = (v, f) => { wcol[v * 3] = cc.r * f; wcol[v * 3 + 1] = cc.g * f; wcol[v * 3 + 2] = cc.b * f; };
+  const tab = (j, k) => { const r = Math.abs(j / NS - NC / 2); return j % NS === 0 && r % 2 === 1 && r < NC / 2 && LOD.rows.includes(k - KU); };   // Leinenaufhängung (Rippe, Ebene)
   for (let ci = 0; ci < NC; ci++) {
     const tip = ci === 0 || ci === NC - 1, fi = field(ci), tv = plain ? 1 : tone(ci), under = !plain && dc.under != null;
-    for (let q = 0; q < 3; q++) {
-      const j = 2 * ci + q, base = (ci * 3 + q) * VS, rib = q !== 1;
-      for (let k = 0; k < VS; k++) {
-        const v = base + k; let f, surf, ref;
-        if (k < KU) { surf = 0; ref = j * KP + k; f = (rib ? 0.72 : 1.02) * tv; if (plain) cc.copy(main); else cc.setHex(dc.at(fi, XU[k])); }   // Rippen als dunkle Nähte
-        else if (k < KP) {                                                                           // unten: Untersegel in eigener Farbe, Rippen dunkel
-          surf = 1; ref = j * KP + k; f = (rib ? 0.62 : 0.8) * tv;
-          cc.setHex(plain ? dc.main : dc.at(fi, 0.5));
-          if (under) { cc.lerp(cu.setHex(dc.under), 0.8); f = (rib ? 0.7 : 0.97) * tv; } else if (plain) cc.copy(main);
-        } else { surf = 2; ref = j * KP + (k === KP ? 0 : KU); f = tip ? 0.62 : 0.16; if (plain) cc.copy(main); else cc.setHex(dc.at(fi, 0)); }   // Einlass dunkel, Stabilo zu
-        vref[v] = ref; vsurf[v] = surf;
-        wcol[v * 3] = cc.r * f; wcol[v * 3 + 1] = cc.g * f; wcol[v * 3 + 2] = cc.b * f;
+    for (let q = 0; q <= NS; q++) {
+      const b = Math.sin(Math.PI * q / NS), rib = q === 0 || q === NS, base = (ci * (NS + 1) + q) * VS, j = ci * NS + q;
+      for (let k = 0; k < KP; k++) { wuv[(base + k) * 2] = j / (S - 1); wuv[(base + k) * 2 + 1] = k < KU ? 0.5 * XU[k] : 0.5 + 0.5 * XL[k - KU]; }
+      for (let k = 0; k < KU; k++) { if (plain) cc.copy(main); else cc.setHex(dc.at(fi, XU[k])); setC(base + k, (0.84 + 0.2 * Math.sqrt(b)) * tv); }   // Naht dunkler, Zellmitte voll
+      for (let k = KU; k < KP; k++) {                                                // Untersegel in eigener Farbe, an den Rippen dunkler
+        let f = (0.76 + 0.16 * b) * tv;
+        cc.setHex(plain ? dc.main : dc.at(fi, 0.5));
+        if (under) { cc.lerp(cu.setHex(dc.under), 0.8); f = (0.8 + 0.18 * b) * tv; } else if (plain) cc.copy(main);
+        setC(base + k, tab(j, k) ? f * 0.72 : f);                                     // verstärkte Leinenaufhängung dunkler
       }
+      if (plain) cc.copy(main); else cc.setHex(dc.at(fi, 0));                         // Einlass: Rand, dunkles Inneres, Lippe; Rippe und äußerste Zelle Tuch
+      for (let r = 0; r < 3; r++) setC(base + KP + r, tip ? 0.7 : rib ? 0.55 : r === 1 ? 0.05 : 0.38);
     }
-    for (let q = 0; q < 2; q++) {
-      const a0 = (ci * 3 + q) * VS, b0 = a0 + VS;
+    for (let q = 0; q < NS; q++) {
+      const a0 = (ci * (NS + 1) + q) * VS, b0 = a0 + VS;
       for (let k = 0; k < KU - 1; k++) { const a = a0 + k, b = b0 + k, c2 = b0 + k + 1, d = a0 + k + 1; idx.push(a, c2, b, a, d, c2); }
       for (let k = KU; k < KP - 1; k++) { const a = a0 + k, b = b0 + k, c2 = b0 + k + 1, d = a0 + k + 1; idx.push(a, b, c2, a, c2, d); }
-      { const a = a0 + KP, b = b0 + KP, c2 = b0 + KP + 1, d = a0 + KP + 1; idx.push(a, b, c2, a, c2, d); }
+      for (let k = KP; k < KP + 2; k++) { const a = a0 + k, b = b0 + k, c2 = b0 + k + 1, d = a0 + k + 1; idx.push(a, b, c2, a, c2, d); }
     }
+  }
+  for (let sd = 0; sd < 2; sd++) {                                   // Stabilos: oben am Untersegel der Spitze, unten der freie Rand
+    const s0 = NV0 + sd * 2 * SM;
+    if (plain) cc.copy(main); else cc.setHex(dc.tip != null ? dc.tip : dc.at(sd ? 15 : 0, 0.5));
+    for (let m = 0; m < SM; m++) { setC(s0 + m, 0.78); setC(s0 + SM + m, 0.92); }
+    for (let m = 0; m < SM - 1; m++) { const a = s0 + m, b = a + 1, c2 = s0 + SM + m + 1, d = s0 + SM + m; idx.push(a, b, c2, a, c2, d); }
   }
   const wg = new THREE.BufferGeometry();
   wg.setAttribute('position', new THREE.BufferAttribute(wpos, 3));
   wg.setAttribute('normal', new THREE.BufferAttribute(wnor, 3));
   wg.setAttribute('color', new THREE.BufferAttribute(wcol, 3));
+  wg.setAttribute('uv', new THREE.BufferAttribute(wuv, 2));
   wg.setIndex(idx);
-  const wingMesh = new THREE.Mesh(wg, new THREE.MeshPhongMaterial({
-    vertexColors: true, side: THREE.DoubleSide, shininess: 22, specular: 0x2a2a2a,
-    emissive: main.clone().multiplyScalar(0.26),                     // Sonne scheint durchs Tuch
-  }));
+  const wingMat = new THREE.MeshPhongMaterial({
+    vertexColors: true, side: THREE.DoubleSide, shininess: 30, specular: 0x2c2c2c,
+    emissive: main.clone().multiplyScalar(0.1),                      // etwas Himmelslicht scheint immer durchs Tuch
+  });
+  wingMat.onBeforeCompile = canopyShader;
+  if (!opts.ai) canopyLogos(wingMat, wing, dc, plain, NC, field);
+  const wingMesh = new THREE.Mesh(wg, wingMat);
   wingMesh.frustumCulled = false;
   canopy.add(wingMesh);
 
-  // ---- Winglets: kleine Flossen an den Flügelspitzen (Schirm-Eigenschaft, im Hangar umstellbar), folgen dem Tuch in deform()
+  // ---- Winglets wie bei Advance: je eine schmale, nach hinten gepfeilte Finne auf dem Obersegel über einer Rippe im äußeren
+  //      Viertel, längs zur Strömung, in einer Kontrastfarbe (Schirm-Eigenschaft, im Hangar umstellbar); folgen dem Tuch in deform()
   let fins = null;
   if (winglets) {
-    const FV = 2 * KU, fpos = new Float32Array(2 * FV * 3), fnor = new Float32Array(2 * FV * 3), fcol = new Float32Array(2 * FV * 3), fidx = [];
+    const FM = 8, F1 = FM + 1, FV = 4 * F1 + 4, fpos = new Float32Array(2 * FV * 3), fnor = new Float32Array(2 * FV * 3), fcol = new Float32Array(2 * FV * 3), fidx = [], kf = [];   // je Seite: zwei Flanken (Fuß, Oberkante) und die Hinterkante
+    for (let m = 0; m <= FM; m++) {                                  // Stelle im Obersegel: zwischen XU[k] und XU[k + 1]
+      const x = C.fin.x0 + (C.fin.x1 - C.fin.x0) * m / FM; let k = 0;
+      while (k < KU - 2 && XU[k + 1] < x) k++;
+      kf.push(k, (x - XU[k]) / (XU[k + 1] - XU[k]));
+    }
     for (let sd = 0; sd < 2; sd++) {
-      cc.setHex(plain ? dc.main : dc.at(sd ? 15 : 0, 0.5));
-      for (let k = 0; k < KU; k++) for (let r = 0; r < 2; r++) { const o = (sd * FV + r * KU + k) * 3, f = r ? 0.85 : 0.72; fcol[o] = cc.r * f; fcol[o + 1] = cc.g * f; fcol[o + 2] = cc.b * f; }
-      for (let k = 0; k < KU - 1; k++) { const a = sd * FV + k, b = a + 1, c2 = sd * FV + KU + k + 1, d = sd * FV + KU + k; fidx.push(a, b, c2, a, c2, d); }
+      const c0 = sd ? NC / 2 + C.fin.rib : NC / 2 - C.fin.rib;
+      if (plain) cc.copy(main); else cc.setHex(wingletColor(dc, dc.at(field(c0 - 1), 0.6), dc.at(field(c0), 0.6)));
+      const o0 = sd * FV;
+      for (let v = 0; v < FV; v++) { const o = (o0 + v) * 3, f = v >= 4 * F1 ? 0.7 : (Math.floor(v / F1) & 1) ? 1 : 0.82; fcol[o] = cc.r * f; fcol[o + 1] = cc.g * f; fcol[o + 2] = cc.b * f; }
+      for (let m = 0; m < FM; m++) {
+        let a = o0 + m, b = a + 1, c2 = o0 + F1 + m + 1, d = o0 + F1 + m; fidx.push(a, b, c2, a, c2, d);            // Flanke außen
+        a += 2 * F1; b += 2 * F1; c2 += 2 * F1; d += 2 * F1; fidx.push(a, c2, b, a, d, c2);                           // Flanke innen
+      }
+      const e = o0 + 4 * F1; fidx.push(e, e + 1, e + 2, e, e + 2, e + 3);                                             // Hinterkante
     }
     const fg = new THREE.BufferGeometry();
-    fg.setAttribute('position', new THREE.BufferAttribute(fpos, 3)); fg.setAttribute('normal', new THREE.BufferAttribute(fnor, 3)); fg.setAttribute('color', new THREE.BufferAttribute(fcol, 3)); fg.setIndex(fidx);
-    const finMesh = new THREE.Mesh(fg, new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide, shininess: 22, specular: 0x2a2a2a, emissive: main.clone().multiplyScalar(0.22) }));
+    fg.setAttribute('position', new THREE.BufferAttribute(fpos, 3)); fg.setAttribute('normal', new THREE.BufferAttribute(fnor, 3)); fg.setAttribute('color', new THREE.BufferAttribute(fcol, 3));
+    fg.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(2 * FV * 2), 2)); fg.setIndex(fidx);             // UV 0: kein Schriftzug
+    const finMesh = new THREE.Mesh(fg, wingMat);
     finMesh.frustumCulled = false; canopy.add(finMesh);
-    fins = { fpos, fnor, fg, FV };
+    fins = { fpos, fnor, fg, FM, F1, FV, kf };
   }
 
-  // ---- Leinen: Punkte (Kappe, Gabeln, Tragegurte, Karabiner, Hände) und Segmente [a, b, Farbe, Galerie?]
+  // ---- Leinen: Punkte (Kappe, Stabilo, Gabeln, Tragegurte, Karabiner, Hände) und Segmente [a, b, Farbe, Galerie?]
   const PTS = [], SEG = [];
   const pt = (o) => { PTS.push(o); return PTS.length - 1; };
-  const ribJ = (s, r) => NC + s * 2 * r;                             // Station der Rippe r (1 … NC/2) auf Seite s
+  const ribJ = (s, r) => NS * (NC / 2 + s * r);                      // Station der Rippe r (1 … NC/2) auf Seite s
   const lineCols = opts.lines && opts.lines.length === 4 ? opts.lines.concat(LINE_COL[4]) : LINE_COL;      // A, B, C, Bremse (eigene Wahl) + Tragegurt
   const LC = lineCols.map(c => [new THREE.Color(c), new THREE.Color(c).lerp(new THREE.Color(0xbcc4cd), 0.3)]);   // Stammleine, dünnere Galerieleine heller
   for (const s of [-1, 1]) {
     const hand = pt({ t: 'h', s }), carab = pt({ t: 'k', s }), ml = [0, 1, 2].map(row => pt({ t: 'm', s, row }));
     for (let row = 0; row < 3; row++) {
       SEG.push([carab, ml[row], 4, 0]);                               // Tragegurt
-      const att = [1, 3, 5, 7, 9, 11, 13, 15].map(r => pt({ t: 'c', j: ribJ(s, r), k: KU + LINE_ROWS[row] }));
+      const att = [1, 3, 5, 7, 9, 11, 13, 15].map(r => pt({ t: 'c', j: ribJ(s, r), k: KU + LOD.rows[row] }));
       for (let g = 0; g < 2; g++) {
         const four = att.slice(g * 4, g * 4 + 4), stem = pt({ t: 'j', base: ml[row], refs: four, f: 0.42 });
         SEG.push([ml[row], stem, row, 0]);                            // Stammleine
@@ -5061,7 +5175,7 @@ function buildGliderModel(wing, opts) {
           SEG.push([stem, mid, row, 0]);
           for (const a of two) SEG.push([mid, a, row, 1]);            // Galerieleinen
         }
-        if (row === 2 && g === 1) SEG.push([stem, pt({ t: 'c', j: ribJ(s, NC / 2), k: KU + 3 }), 2, 1]);   // Stabiloleine
+        if (row === 2 && g === 1) SEG.push([stem, pt({ t: 's', s }), 2, 1]);   // Stabiloleine zum tiefsten Punkt des Stabilos
       }
     }
     // Bremsleinen: Hinterkante außen → Gabeln → Umlenkrolle am hinteren Tragegurt → Bremsgriff in der Hand
@@ -5124,7 +5238,9 @@ function buildGliderModel(wing, opts) {
   root.add(body);
 
   // ---- Verformen: Kappe und Leinen (st aus Pilot._pose, wird wiederverwendet)
-  const P = new Float32Array(S * KP * 3), NB = new Float32Array(S * KP * 3), NI = new Float32Array(S * 3);
+  const P = new Float32Array(S * KP * 3), PN = new Float32Array(S * 9), DJ = new Float32Array(S), STB = new Float32Array(6);   // Tuch, Einlass je Station (Nase, innen, Lippe), Entleerung, tiefster Punkt der Stabilos
+  const kQU = XU.findIndex(x => x >= 0.25), kQL = KU + XL.findIndex(x => x >= 0.22), kSt = KU + (KL >> 1);
+  const nrm = (v, x, y, z) => { const l = Math.sqrt(x * x + y * y + z * z), w = v * 3; if (l > 1e-12) { wnor[w] = x / l; wnor[w + 1] = y / l; wnor[w + 2] = z / l; } else { wnor[w] = 0; wnor[w + 1] = 1; wnor[w + 2] = 0; } };
   // Punkt aus dem Oberkörper (Drehung bx um x: Körper + Oberkörper) oder aus dem Rig (rigSpace) in Kappen-Koordinaten
   function toCanopy(x, y, z, bx, rigSpace, out, o) {
     let c, s;
@@ -5138,19 +5254,23 @@ function buildGliderModel(wing, opts) {
     c = Math.cos(-canopy.rotation.x); s = Math.sin(-canopy.rotation.x);
     out[o] = x / canopy.scale.x; out[o + 1] = y * c - z * s; out[o + 2] = y * s + z * c;
   }
-  function deform(st) {
+  function cloth(st) {
     const bL = st.bL || 0, bR = st.bR || 0, flat = st.flat || 0, defl = st.deflate || 0, stall = st.stall || 0;
     const cs = st.collapseSide || 0, ca = st.collapseAmt || 0, cu = 0.66 - 0.36 * (st.collapseSev || 0.8);
     const ears = st.ears || 0, ts = st.threatSide || 0, ta = st.threatAmt || 0;
     const dl = st.dL || 0, dr = st.dR || 0, crum = st.crumple || 0;     // Landung: jede Seite sackt einzeln zusammen, das Tuch knittert
+    const turb = Math.min(1, st.turb || 0), tm = st.time || 0, F = 1 - defl;
     for (let j = 0; j < S; j++) {
-      const uu = u[j], a = Math.abs(uu), sg = uu < 0 ? -1 : 1, c = ch[j];
+      const uu = u[j], a = Math.abs(uu), sg = uu < 0 ? -1 : 1, c = ch[j], jo = j * 2 / NS;
       // Bogen, am Boden flach ausgelegt (Hufeisen zum Piloten hin)
       const px = U.lerp(ax[j], uu * C.B * 0.93, flat), py = U.lerp(ay[j], 0, flat);
       let nx = U.lerp(anx[j], 0, flat), ny = U.lerp(any[j], 1, flat); const nl = Math.hypot(nx, ny) || 1; nx /= nl; ny /= nl;
       const z0 = zle[j] - 0.9 * flat * uu * uu;
+      // Füllung: beim Aufziehen füllt sich die Mitte zuerst, die Spitzen zuletzt (und sie entleeren sich zuerst)
+      const fj = defl <= 0 ? 1 : defl >= 1 ? 0 : U.smoothstep(0, 1, (F - 0.32 * a) / 0.68);
+      const dj = Math.max(1 - fj, Math.min(1, (sg < 0 ? dl : dr) * (0.55 + 0.9 * a)));   // gelandet sacken die Spitzen zuerst
+      DJ[j] = dj;
       // Dicke: entleert am Boden, im Stall weich, in der gefalteten Außenseite zusammengefallen
-      const dj = Math.max(defl, Math.min(1, (sg < 0 ? dl : dr) * (0.55 + 0.9 * a)));   // die Spitzen sacken zuerst
       let tk = (1 - 0.88 * dj) * (1 - 0.35 * stall);
       const brake = (sg < 0 ? bL : bR) * (0.25 + 0.95 * U.smoothstep(0.08, 0.95, a)) * (1 - dj);
       // Falten: Klapper (eine Seite), Ohren (beide Enden), Vorwarnung (Spitze flattert); Achse entlang der Profiltiefe
@@ -5159,6 +5279,8 @@ function buildGliderModel(wing, opts) {
       if (cs && sg === cs && ca > 0) { const f = U.smoothstep(cu, cu + 0.14, a); if (f > 0) { fold = ca * 1.45 * f; fu = cu; } }
       if (ears > 0 && a > 0.74) { fold = Math.max(fold, ears * 1.25 * U.smoothstep(0.74, 0.86, a)); fu = fu || 0.74; }
       if (ts && sg === ts && ta > 0 && a > 0.58) { fold = Math.max(fold, ta * 0.42 * U.smoothstep(0.58, 1, a)); fu = fu || 0.58; }
+      // noch nicht gefüllte Außenseite hängt beim Aufziehen schlaff herunter
+      if (fold === 0 && fj < 1 && flat < 1 && a > 0.5) { const dp = (1 - fj) * (1 - flat) * 0.9 * U.smoothstep(0.5, 1, a); if (dp > 0.005) { fold = dp; fu = 0.5; } }
       let fx = 0, fy = 0, fc = 1, fs = 0;
       if (fold > 0) {
         tk *= 1 - 0.65 * Math.min(1, fold / 1.2);
@@ -5166,12 +5288,19 @@ function buildGliderModel(wing, opts) {
         fx = U.lerp(ax[jf], u[jf] * C.B * 0.93, flat); fy = U.lerp(ay[jf], 0, flat);
         fc = Math.cos(-sg * fold); fs = Math.sin(-sg * fold);
       }
+      // Ballooning nur unter Druck, geknickt und im Stall weich; in Turbulenz atmen die Zellen, die Hinterkante flattert
+      let be = (1 - dj) * (1 - dj) * (1 - 0.45 * stall) * (1 - 0.7 * Math.min(1, fold / 1.2));
+      if (turb > 0) be *= 1 + 0.12 * turb * Math.sin(tm * 9 + jo * 0.74);
+      const wr = fj > 0 && fj < 1 ? 4 * fj * (1 - fj) * (1 - flat) * 0.035 * c : 0, fl = turb > 0 ? turb * (1 - dj) * 0.05 * c * Math.sin(tm * 26 + jo * 0.8) : 0;
       for (let k = 0; k < KP; k++) {
         const i = j * KP + k, x = k < KU ? XU[k] : XL[k - KU];
         let h = (PY[i] + PT[i] * tk) * c, z = z0 + x * c;
+        if (be > 0) { const A = BA[i] * be; h += BH[i] * A; z += BZ[i] * A + TZ[i] * be; }
         if (x > 0.5 && brake > 0) { const d = (x - 0.5) / 0.5; h -= brake * 0.44 * c * d * d; z -= brake * 0.06 * c * d * d; }
-        if (stall > 0 && x > 0.6) h -= stall * 0.12 * c * Math.sin(x * 9 + j * 0.7);
-        if (crum > 0) h += crum * c * (0.07 + 0.1 * (0.5 + 0.5 * Math.sin(j * 0.37 + 1.1)) * (0.6 + 0.4 * Math.sin(x * 4.5 + j * 0.13)) + 0.05 * (0.5 + 0.5 * Math.sin(j * 0.71 + x * 2.6 + 0.7)) * (1 - 0.5 * x) + 0.04 * x * Math.sin(j * 0.52 + 2));   // weiche Falten im liegenden Tuch, nie unter den Boden
+        if (stall > 0) h -= stall * 0.12 * c * SW[i];
+        if (crum > 0) h += crum * c * CR[i];                            // weiche Falten im liegenden Tuch
+        if (wr > 0) h += wr * WK[i];                                    // Falten, solange sich die Zelle füllt
+        if (fl !== 0 && x > 0.75) h += fl * (x - 0.75);
         let X = px + nx * h, Y = py + ny * h;
         if (fold > 0) {
           const dx = X - fx, dy = Y - fy;
@@ -5180,58 +5309,100 @@ function buildGliderModel(wing, opts) {
         }
         P[i * 3] = X; P[i * 3 + 1] = Y; P[i * 3 + 2] = z;
       }
-    }
-    // Normalen je Punkt: Spannweite × Profil; oben nach außen, unten nach innen, am Einlass nach vorn
-    for (let j = 0; j < S; j++) {
-      const ja = Math.max(0, j - 1) * KP, jb = Math.min(S - 1, j + 1) * KP, o = j * KP;
-      const tu = (o + 5) * 3, tl = (o + KU + 2) * 3;
-      const tx = P[tu] - P[tl], ty = P[tu + 1] - P[tl + 1], tz = P[tu + 2] - P[tl + 2];      // Dickenrichtung (unten → oben)
-      for (let k = 0; k < KP; k++) {
-        const up = k < KU, kp = Math.max(up ? 0 : KU, k - 1), kn = Math.min(up ? KU - 1 : KP - 1, k + 1);
-        const A = (ja + k) * 3, B = (jb + k) * 3, E = (o + kp) * 3, F = (o + kn) * 3;
-        const sx = P[B] - P[A], sy = P[B + 1] - P[A + 1], sz = P[B + 2] - P[A + 2];
-        const qx = P[F] - P[E], qy = P[F + 1] - P[E + 1], qz = P[F + 2] - P[E + 2];
-        const nx = sy * qz - sz * qy, ny = sz * qx - sx * qz, nz = sx * qy - sy * qx;
-        let l = Math.hypot(nx, ny, nz) || 1; if ((nx * tx + ny * ty + nz * tz) * (up ? 1 : -1) < 0) l = -l;
-        const t = (o + k) * 3; NB[t] = nx / l; NB[t + 1] = ny / l; NB[t + 2] = nz / l;
+      // Einlass: Nase und Lippe, dazwischen in der Zellmitte tief ins Innere versetzt (an der Rippe die Rippe selbst, außen zu)
+      const o = j * KP * 3, l = (j * KP + KU) * 3, qu = (j * KP + kQU) * 3, ql = (j * KP + kQL) * 3, e = j * 9;
+      const dep = j < NS || j > S - 1 - NS ? 0 : 0.38 * bal[j] * (1 - dj);
+      for (let d = 0; d < 3; d++) {
+        const m = (P[o + d] + P[l + d]) / 2;
+        PN[e + d] = P[o + d]; PN[e + 3 + d] = m + ((P[qu + d] + P[ql + d]) / 2 - m) * dep; PN[e + 6 + d] = P[l + d];
       }
-      // Einlass: Spannweite × (Nase → Lippe), nach vorn
-      const N0 = o * 3, L0 = (o + KU) * 3, A = ja * 3, B = jb * 3;
-      const sx = P[B] - P[A], sy = P[B + 1] - P[A + 1], sz = P[B + 2] - P[A + 2];
-      const qx = P[L0] - P[N0], qy = P[L0 + 1] - P[N0 + 1], qz = P[L0 + 2] - P[N0 + 2];
-      const nx = sy * qz - sz * qy, ny = sz * qx - sx * qz, nz = sx * qy - sy * qx;
-      let l = Math.hypot(nx, ny, nz) || 1; if (nx * (P[N0] - P[tu]) + ny * (P[N0 + 1] - P[tu + 1]) + nz * (P[N0 + 2] - P[tu + 2]) < 0) l = -l;
-      NI[j * 3] = nx / l; NI[j * 3 + 1] = ny / l; NI[j * 3 + 2] = nz / l;
     }
-    for (let v = 0; v < NV; v++) {
-      const r = vref[v] * 3, w = v * 3; wpos[w] = P[r]; wpos[w + 1] = P[r + 1]; wpos[w + 2] = P[r + 2];
-      if (vsurf[v] === 2) { const n = Math.floor(vref[v] / KP) * 3; wnor[w] = NI[n]; wnor[w + 1] = NI[n + 1]; wnor[w + 2] = NI[n + 2]; }
-      else { wnor[w] = NB[r]; wnor[w + 1] = NB[r + 1]; wnor[w + 2] = NB[r + 2]; }
+    // Ecken: Lage und Normale je Zelle; an der Rippe einseitig, so bleibt die Naht als Kante zwischen zwei runden Zellen
+    let v = 0;
+    for (let ci = 0; ci < NC; ci++) for (let q = 0; q <= NS; q++) {
+      const j = ci * NS + q, ja = q > 0 ? j - 1 : j, jb = q < NS ? j + 1 : j, o = j * KP;
+      for (let k = 0; k < KP; k++, v++) {
+        const up = k < KU, kp = Math.max(up ? 0 : KU, k - 1), kn = Math.min(up ? KU - 1 : KP - 1, k + 1);
+        const A = (ja * KP + k) * 3, B = (jb * KP + k) * 3, E = (o + kp) * 3, G = (o + kn) * 3, r = (o + k) * 3, w = v * 3;
+        const sx = P[B] - P[A], sy = P[B + 1] - P[A + 1], sz = P[B + 2] - P[A + 2];
+        const qx = P[G] - P[E], qy = P[G + 1] - P[E + 1], qz = P[G + 2] - P[E + 2], sgn = up ? 1 : -1;   // oben Profil × Spannweite (nach außen), unten umgekehrt
+        nrm(v, sgn * (qy * sz - qz * sy), sgn * (qz * sx - qx * sz), sgn * (qx * sy - qy * sx));
+        wpos[w] = P[r]; wpos[w + 1] = P[r + 1]; wpos[w + 2] = P[r + 2];
+      }
+      for (let rr = 0; rr < 3; rr++, v++) {
+        const A = ja * 9 + rr * 3, B = jb * 9 + rr * 3, E = j * 9 + Math.max(0, rr - 1) * 3, G = j * 9 + Math.min(2, rr + 1) * 3, r = j * 9 + rr * 3, w = v * 3;
+        const sx = PN[B] - PN[A], sy = PN[B + 1] - PN[A + 1], sz = PN[B + 2] - PN[A + 2];
+        const qx = PN[G] - PN[E], qy = PN[G + 1] - PN[E + 1], qz = PN[G + 2] - PN[E + 2];
+        nrm(v, sy * qz - sz * qy, sz * qx - sx * qz, sx * qy - sy * qx);    // Spannweite × (Nase → Lippe): nach vorn
+        wpos[w] = PN[r]; wpos[w + 1] = PN[r + 1]; wpos[w + 2] = PN[r + 2];
+      }
+    }
+    // Stabilos: der Bogen läuft über die Spitze hinaus nach unten weiter (Richtung der letzten Zelle), unten hängt die Stabiloleine
+    for (let sd = 0; sd < 2; sd++) {
+      const jt = sd ? S - 1 : 0, ji = sd ? S - 1 - NS : NS, s0 = NV0 + sd * 2 * SM, T = (jt * KP + kSt) * 3, I = (ji * KP + kSt) * 3;
+      let dx = P[T] - P[I], dy = P[T + 1] - P[I + 1], dz = P[T + 2] - P[I + 2]; const dn = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1; dx /= dn; dy /= dn; dz /= dn;
+      const D = C.stab * (0.35 + 0.65 * (1 - DJ[jt])) * (1 - 0.5 * flat);
+      let best = -1, bi = s0;
+      for (let m = 0; m < SM; m++) {
+        const r = (jt * KP + KU + 1 + m) * 3, t = (s0 + m) * 3, b = (s0 + SM + m) * 3;
+        const dep = D * Math.pow(Math.sin(Math.PI * U.clamp((XL[1 + m] - 0.08) / 0.96, 0, 1)), 1.8);   // spitz zur Stabiloleine
+        wpos[t] = P[r]; wpos[t + 1] = P[r + 1]; wpos[t + 2] = P[r + 2];
+        wpos[b] = P[r] + dx * dep; wpos[b + 1] = P[r + 1] + dy * dep; wpos[b + 2] = P[r + 2] + dz * dep;
+        if (dep > best) { best = dep; bi = s0 + SM + m; }
+      }
+      STB[sd * 3] = wpos[bi * 3]; STB[sd * 3 + 1] = wpos[bi * 3 + 1]; STB[sd * 3 + 2] = wpos[bi * 3 + 2];
+      for (let m = 0; m < SM; m++) {                                  // Normale: Profilrichtung × nach unten
+        const tp = (s0 + Math.max(0, m - 1)) * 3, tn = (s0 + Math.min(SM - 1, m + 1)) * 3;
+        const qx = wpos[tn] - wpos[tp], qy = wpos[tn + 1] - wpos[tp + 1], qz = wpos[tn + 2] - wpos[tp + 2];
+        const x = qy * dz - qz * dy, y = qz * dx - qx * dz, z = qx * dy - qy * dx;
+        nrm(s0 + m, x, y, z); nrm(s0 + SM + m, x, y, z);
+      }
     }
     wg.attributes.position.needsUpdate = true; wg.attributes.normal.needsUpdate = true;
-    if (fins) {                                                        // Winglet: Spitzenprofil nach außen unten verlängert, hinten zusammengezogen
-      const FV = fins.FV, fp = fins.fpos, fn = fins.fnor;
+    if (fins) {                                                       // Winglets: auf der Rippe stehend, senkrecht zum Obersegel, hinten höher und gepfeilt
+      const fp = fins.fpos, fn = fins.fnor, FM = fins.FM, F1 = fins.F1, FV = fins.FV, kf = fins.kf;
       for (let sd = 0; sd < 2; sd++) {
-        const sgn = sd ? 1 : -1, jt = sd ? S - 1 : 0, jn = sd ? S - 5 : 4, a = (jt * KP + 6) * 3, b = (jn * KP + 6) * 3;
-        let tx = P[a] - P[b], ty = P[a + 1] - P[b + 1], tz = P[a + 2] - P[b + 2]; const tl = Math.hypot(tx, ty, tz) || 1;
-        tx = tx / tl + sgn * 0.55; ty /= tl; tz /= tl; const t2 = Math.hypot(tx, ty, tz) || 1; tx /= t2; ty /= t2; tz /= t2;
-        const zc = P[(jt * KP + 7) * 3 + 2], L = 0.95 * (1 - 0.5 * (st.flat || 0));
-        let nx = ty, ny = -tx; if (nx * sgn < 0) { nx = -nx; ny = -ny; }
-        for (let k = 0; k < KU; k++) {
-          const i = (jt * KP + k) * 3, o = (sd * FV + k) * 3, o2 = (sd * FV + KU + k) * 3, sh = 1 - k / (KU - 1) * 0.0;
-          fp[o] = P[i]; fp[o + 1] = P[i + 1]; fp[o + 2] = P[i + 2];
-          fp[o2] = P[i] + tx * L * sh; fp[o2 + 1] = P[i + 1] + ty * L * sh; fp[o2 + 2] = zc + (P[i + 2] - zc) * 0.45 + tz * L * sh - 0.12;
-          fn[o] = fn[o2] = nx; fn[o + 1] = fn[o2 + 1] = ny; fn[o + 2] = fn[o2 + 2] = 0;
+        const jr = ribJ(sd ? 1 : -1, C.fin.rib), hF = C.fin.h * (0.2 + 0.8 * (1 - DJ[jr])) * (1 - 0.7 * flat), len = (C.fin.x1 - C.fin.x0) * ch[jr];
+        for (let m = 0; m <= FM; m++) {
+          const k = kf[2 * m], f = kf[2 * m + 1], A = (jr * KP + k) * 3, B = A + 3, sA = ((jr - 1) * KP + k) * 3, sB = ((jr + 1) * KP + k) * 3, s = m / FM;
+          let cx = P[B] - P[A], cy = P[B + 1] - P[A + 1], cz = P[B + 2] - P[A + 2]; const cl = Math.sqrt(cx * cx + cy * cy + cz * cz) || 1; cx /= cl; cy /= cl; cz /= cl;
+          const sx = P[sB] - P[sA], sy = P[sB + 1] - P[sA + 1], sz = P[sB + 2] - P[sA + 2];
+          let nx = cy * sz - cz * sy, ny = cz * sx - cx * sz, nz = cx * sy - cy * sx; const nl = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1; nx /= nl; ny /= nl; nz /= nl;
+          const h = hF * Math.pow(s, 1.5), sw = 0.16 * len * s * s, tb = 0.018 * (0.3 + 0.7 * s), tt = 0.004;      // halbe Stärke am Fuß und oben
+          const bx = P[A] + (P[B] - P[A]) * f, by = P[A + 1] + (P[B + 1] - P[A + 1]) * f, bz = P[A + 2] + (P[B + 2] - P[A + 2]) * f;
+          const ox = bx + nx * h + cx * sw, oy = by + ny * h + cy * sw, oz = bz + nz * h + cz * sw;
+          let qx = cy * nz - cz * ny, qy = cz * nx - cx * nz, qz = cx * ny - cy * nx; const ql = Math.sqrt(qx * qx + qy * qy + qz * qz) || 1; qx /= ql; qy /= ql; qz /= ql;
+          for (let r = 0; r < 2; r++) {                               // r = 0: Flanke auf der +q-Seite, 1: auf der −q-Seite
+            const sq = r ? -1 : 1, b0 = (sd * FV + 2 * r * F1 + m) * 3, t0 = b0 + F1 * 3;
+            fp[b0] = bx + qx * tb * sq; fp[b0 + 1] = by + qy * tb * sq; fp[b0 + 2] = bz + qz * tb * sq;
+            fp[t0] = ox + qx * tt * sq; fp[t0 + 1] = oy + qy * tt * sq; fp[t0 + 2] = oz + qz * tt * sq;
+            fn[b0] = fn[t0] = qx * sq; fn[b0 + 1] = fn[t0 + 1] = qy * sq; fn[b0 + 2] = fn[t0 + 2] = qz * sq;
+          }
+          if (m === FM) {                                             // Hinterkante der Finne: Fuß und Spitze beider Flanken, Normale nach hinten
+            const e = (sd * FV + 4 * F1) * 3, src = [sd * FV + FM, sd * FV + 2 * F1 + FM, sd * FV + 3 * F1 + FM, sd * FV + F1 + FM];
+            let ex = ox - bx, ey = oy - by, ez = oz - bz; const tx = ey * qz - ez * qy, ty = ez * qx - ex * qz, tz = ex * qy - ey * qx, tl = Math.sqrt(tx * tx + ty * ty + tz * tz) || 1;
+            for (let w = 0; w < 4; w++) { const s3 = src[w] * 3; fp[e + w * 3] = fp[s3]; fp[e + w * 3 + 1] = fp[s3 + 1]; fp[e + w * 3 + 2] = fp[s3 + 2]; fn[e + w * 3] = tx / tl; fn[e + w * 3 + 1] = ty / tl; fn[e + w * 3 + 2] = tz / tl; }
+          }
         }
       }
       fins.fg.attributes.position.needsUpdate = true; fins.fg.attributes.normal.needsUpdate = true;
     }
+  }
+  // Kappe nur neu, wenn sich ihr Zustand ändert (ausgelegt vor dem Start, ruhiger Geradeausflug), in Turbulenz jedes Bild; Leinen immer
+  const KEY = new Float32Array(15).fill(NaN), KV = new Float32Array(15);
+  function deform(st) {
+    KV[0] = st.bL || 0; KV[1] = st.bR || 0; KV[2] = st.flat || 0; KV[3] = st.deflate || 0; KV[4] = st.stall || 0; KV[5] = st.collapseSide || 0; KV[6] = st.collapseAmt || 0;
+    KV[7] = st.collapseSev || 0.8; KV[8] = st.ears || 0; KV[9] = st.threatSide || 0; KV[10] = st.threatAmt || 0; KV[11] = st.dL || 0; KV[12] = st.dR || 0; KV[13] = st.crumple || 0; KV[14] = st.turb || 0;
+    let dirty = KV[14] > 0;
+    for (let i = 0; i < 15 && !dirty; i++) if (!(Math.abs(KV[i] - KEY[i]) <= 1e-4)) dirty = true;
+    if (dirty) { KEY.set(KV); cloth(st); }
     // Leinen: Kappenpunkte, Maillons und Umlenkrolle (hängen im Rig über dem Piloten), Karabiner und Hände aus dem
     // Oberkörper, dann die Gabeln zwischen ihrem Ansatz und der Mitte ihrer Leinen – in der Reihenfolge wie angelegt
     const bx = body.rotation.x + upper.rotation.x;
     for (let i = 0; i < PTS.length; i++) {
       const q = PTS[i], o = i * 3;
       if (q.t === 'c') { const r = (q.j * KP + q.k) * 3; PP[o] = P[r]; PP[o + 1] = P[r + 1]; PP[o + 2] = P[r + 2]; }
+      else if (q.t === 's') { const r = q.s < 0 ? 0 : 3; PP[o] = STB[r]; PP[o + 1] = STB[r + 1]; PP[o + 2] = STB[r + 2]; }
       else if (q.t === 'm') toCanopy(q.s * (0.22 + 0.015 * q.row), 0.98 - 0.02 * q.row, -0.06 + 0.08 * q.row, 0, true, PP, o);
       else if (q.t === 'p') toCanopy(q.s * 0.27, 0.86, 0.15, 0, true, PP, o);
       else if (q.t === 'k') toCanopy(q.s * 0.2, 0.4, 0.02, bx, false, PP, o);
@@ -5250,7 +5421,8 @@ function buildGliderModel(wing, opts) {
   }
 
   root.userData = { rig, canopy, wingMesh, lines, body, pod, upper, legL, legR, kneeL, kneeR, arms, deform,
-    teZ: zle[NC] + ch[NC],                                           // Mitte der Hinterkante: Drehpunkt beim Auslegen
+    teZ: zle[(S - 1) / 2] + ch[(S - 1) / 2],                         // Mitte der Hinterkante: Drehpunkt beim Auslegen
+    cloth: { NC, NS, S, KU, KP, VS, NV0, SM, XU, fin: !!fins },      // Aufbau des Tuchs (Ecke von Zelle ci, Station q, Punkt k: (ci·(NS + 1) + q)·VS + k), für den Selbsttest
     seat: look !== 'liege' && look !== 'expedition', _q: new THREE.Quaternion(), _v: new THREE.Vector3(), _down: new THREE.Vector3(0, -1, 0) };
   poseBody(root.userData, 0, 0, 0, 0, 0, 0, 0);
   deform({});
@@ -5893,7 +6065,8 @@ class Pilot {
     this.earsVis += ((ph === 'fly' && inp.ears ? 1 : 0) - this.earsVis) * Math.min(1, dt * 5);
     const c = this.collapse, T = this.threat, D = this._df;
     D.bL = this.brakeL; D.bR = this.brakeR; D.ears = Math.max(this.earsVis, land ? land.ears : 0); D.flat = this.layVis; D.deflate = this.deflVis;
-    D.dL = land ? land.dL : 0; D.dR = land ? land.dR : 0; D.crumple = land ? land.crum : 0;
+    D.dL = land ? land.dL : 0; D.dR = land ? land.dR : 0; D.crumple = land ? land.crum : 0.4 * this.layVis * this.deflVis;   // ausgelegt liegt das Tuch in weichen Falten
+    this.clothT = (this.clothT || 0) + dt; D.time = this.clothT; D.turb = this.flying ? this.turb : 0;   // in Turbulenz atmen die Zellen
     D.stall = this.stall ? U.clamp(this.stall.t / 0.6, 0, 1) : 0;
     D.collapseSide = c ? c.side : 0; D.collapseSev = c ? c.sev : 0.8;
     D.collapseAmt = c ? (0.6 + 0.4 * c.sev) * Math.min(1, (c.t0 - c.t) / 0.25 + 0.3) * Math.min(1, c.t / 0.8) : 0;
@@ -8165,7 +8338,7 @@ function el(tag, props, kids) {
 /* Aktuelle Leinenfarben und Winglet-Wahl für die Vorschaubilder (UI._syncLook) */
 const SVG_LOOK = { lines: null, winglet: 'werk' };
 /* Kappe von vorn als kleines Bild: 16 Zellen mit Nähten, je sechs Bänder in Tiefenrichtung (Nase, Verläufe, Hinterkante),
-   Winglets an den Spitzen, die vier Leinenebenen in ihren Farben */
+   Stabilos unter den Spitzen, Winglets als kleine Finnen oben im äußeren Viertel, die vier Leinenebenen in ihren Farben */
 function wingSvg(w, d, lc, wl) {
   const N = 16, dc = designCells(w, d, N), f = (p) => p[0].toFixed(1) + ' ' + p[1].toFixed(1);
   const lcol = (lc || SVG_LOOK.lines || LINE_SETS[0].cols).map(U.hex), win = wingletOn(w, wl || SVG_LOOK.winglet, d);
@@ -8179,9 +8352,12 @@ function wingSvg(w, d, lc, wl) {
       cells += `<path d="M${f(bz(yy(X[b]), t0))} L${f(bz(yy(X[b]), t1))} L${f(bz(yy(X[b + 1]), t1))} L${f(bz(yy(X[b + 1]), t0))}Z" fill="${U.hex(dc.at(i, xm))}" stroke="rgba(0,0,0,.22)" stroke-width=".22"/>`;
     }
   }
-  const fin = win ? `<path d="M3 21 L1.2 27 L5 23.4Z" fill="${U.hex(dc.at(0, 0.5))}" stroke="rgba(0,0,0,.3)" stroke-width=".3"/><path d="M45 21 L46.8 27 L43 23.4Z" fill="${U.hex(dc.at(N - 1, 0.5))}" stroke="rgba(0,0,0,.3)" stroke-width=".3"/>` : '';
+  const tipC = (i) => U.hex(dc.tip != null ? dc.tip : dc.at(i, 0.5));
+  const stab = `<path d="M3.4 20.6 L2.2 25.4 L5.2 22.4Z" fill="${tipC(0)}" stroke="rgba(0,0,0,.3)" stroke-width=".3"/><path d="M44.6 20.6 L45.8 25.4 L42.8 22.4Z" fill="${tipC(N - 1)}" stroke="rgba(0,0,0,.3)" stroke-width=".3"/>`;
+  const finC = win ? U.hex(wingletColor(dc, dc.at(2, 0.6), dc.at(3, 0.6))) : '';      // Finne auf der Rippe bei 75 % der halben Spannweite
+  const fin = win ? `<path d="M7.48 17.75 L7 15.1 L9.02 16.81Z" fill="${finC}" stroke="rgba(0,0,0,.35)" stroke-width=".25"/><path d="M40.52 17.75 L41 15.1 L38.98 16.81Z" fill="${finC}" stroke="rgba(0,0,0,.35)" stroke-width=".25"/>` : '';
   const jacket = U.hex(dc.cells[N - 1 - Math.floor(N / 4)]), cd = (c, x1, y1, x2, y2) => `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="${c}" stroke-width=".9" stroke-linecap="round"/>`;
-  return `<svg viewBox="0 0 48 48" aria-hidden="true">${fin}${cells}
+  return `<svg viewBox="0 0 48 48" aria-hidden="true">${stab}${cells}${fin}
     <path d="M3 21 Q24 4 45 21 Q24 15 3 21 Z" fill="none" stroke="rgba(0,0,0,.3)" stroke-width=".6"/>
     ${cd(lcol[0], 20, 15.6, 23.4, 32)}${cd(lcol[0], 28, 15.6, 24.6, 32)}${cd(lcol[1], 14.5, 17, 23, 32)}${cd(lcol[1], 33.5, 17, 25, 32)}${cd(lcol[2], 8.5, 19.2, 22.6, 32)}${cd(lcol[2], 39.5, 19.2, 25.4, 32)}
     ${cd(lcol[3], 4, 22, 21.4, 33.4)}${cd(lcol[3], 44, 22, 26.6, 33.4)}
@@ -10151,7 +10327,7 @@ const UIProgress = {
         el('div', { class: 'seg', id: 'setNose' }, [[true, 'An'], [false, 'Aus']].map(([v, t]) => el('button', { class: !!C.nose === v ? 'on' : '', text: t, onclick: () => { this.click(); C.nose = v; this.store(); rer(); } })))]),
       el('div', { class: 'setting' }, [el('div', {}, [el('div', { class: 'sl', text: 'Hinterkante in Farbe 3' }), el('small', { text: 'Ein Randstreifen an der Hinterkante, wie bei Wettkampfschirmen.' })]),
         el('div', { class: 'seg', id: 'setTrim' }, [[true, 'An'], [false, 'Aus']].map(([v, t]) => el('button', { class: !!C.trim === v ? 'on' : '', text: t, onclick: () => { this.click(); C.trim = v; this.store(); rer(); } })))]),
-      el('div', { class: 'setting' }, [el('div', {}, [el('div', { class: 'sl', text: 'Winglets' }), el('small', { text: 'Kleine Flossen an den Flügelspitzen. „Werk“: nur Schirme, die sie ab Werk haben (Sturmfalke, Kometenjäger). Gilt für jeden Schirm.' })]),
+      el('div', { class: 'setting' }, [el('div', {}, [el('div', { class: 'sl', text: 'Winglets' }), el('small', { text: 'Kleine Finnen auf dem Obersegel im äußeren Viertel, längs zur Strömung – wie beim Advance Alpha 8. „Werk“: nur Schirme, die sie ab Werk haben (Sturmfalke, Kometenjäger). Gilt für jeden Schirm.' })]),
         el('div', { class: 'seg', id: 'setWinglet' }, [['werk', 'Werk'], ['an', 'An'], ['aus', 'Aus']].map(([v, t]) => el('button', { class: this.wingletMode() === v ? 'on' : '', text: t, onclick: () => { this.click(); sv.winglet = v; this.store(); rer(); } })))]),
       el('div', { class: 'row' }, [
         el('button', { class: 'btn', id: 'dsRandom', onclick: random }, [el('span', { text: 'Zufall' })]),
